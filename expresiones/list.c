@@ -58,17 +58,15 @@ void show(){
     }
 }
 
-item * find(char n[32], int t){
+item * find(char n[32]){
     symbol *aux = first;
     if(aux!=NULL){
-        while(aux !=  NULL && strcmp((aux->content)->name,n) && (aux->content)->type!=t){
+        while(aux !=  NULL && strcmp((aux->content)->name,n)){
             aux = aux->next;
         }
         if(aux == NULL){
-            printf("Element not found \n");
             return NULL;
         } else {
-            printf("Element found \n");
             return aux->content;
         }
     }else{
@@ -108,7 +106,7 @@ item * find(char n[32], int t){
 node * insertTree (char n[32], int v, int t){
     item *content;
     if (t == VAR){
-        content = find(n, t);
+        content = find(n);
     }else{
         content = (item *) malloc(sizeof(item));
         strcpy(content->name,n);
@@ -129,7 +127,7 @@ void concatRight (node *father, node *son){
     father->right=son;
 }
 
-void showThree(node *aux){
+void showTree(node *aux){
 	if(aux!=NULL){
     	if((aux->content)->type==CONSTANT){
 		printf(" %d ",(aux->content)->value);
@@ -140,12 +138,16 @@ void showThree(node *aux){
 		if((aux->content)->type == OPER){
 			if(!strcmp((aux->content)->name,"()")){
 				printf (" (");
-				showThree (aux->left);
+				showTree (aux->left);
 				printf (" )");
 			}else{
-				showThree (aux->left);
-				printf (" + ");
-				showThree (aux->right);
+                showTree (aux->left);
+                if(!strcmp((aux->content)->name,"+")){
+                    printf (" + ");
+                } else {
+                    printf (" * ");
+                }
+				showTree (aux->right);
 			}
 		}
     }else{
@@ -170,7 +172,7 @@ int eval(node *aux){
 	}
 }
 
-int main(){
+/*int main(){
     show();
     insert("X",1,2);
     show();
@@ -187,8 +189,8 @@ int main(){
     son = insertTree("",2,CONSTANT);
     concatLeft (element,son);
 	printf("ecuacion: ");
-	showThree(head);
+	showTree(head);
     printf("\nresultado: ");
     printf("%d\n", eval(head));
     return 0;
-}
+}*/

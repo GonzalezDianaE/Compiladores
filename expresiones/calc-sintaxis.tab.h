@@ -47,7 +47,7 @@ extern int yydebug;
   {
     INT = 258,
     ID = 259,
-    VAR = 260
+    VARIABLE = 260
   };
 #endif
 
@@ -56,8 +56,8 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 8 "calc-sintaxis.y" /* yacc.c:1915  */
- int i; char *s; 
+#line 9 "calc-sintaxis.y" /* yacc.c:1915  */
+ int i; char *s; struct tree *t;
 
 #line 63 "calc-sintaxis.tab.h" /* yacc.c:1915  */
 };

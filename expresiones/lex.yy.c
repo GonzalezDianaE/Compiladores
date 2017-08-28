@@ -773,7 +773,7 @@ YY_RULE_SETUP
 { yylval.s=(char *) malloc(3);
                                 strcpy(yylval.s,yytext);
                                 printf("VAR : %s\n",yytext);
-                                return VAR;}
+                                return VARIABLE;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
@@ -793,7 +793,7 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 33 "calc-lexico.l"
-{  printf("%s\n",yytext);
+{  //printf("%s\n",yytext);
                                   return *yytext;}
 	YY_BREAK
 case 5:
