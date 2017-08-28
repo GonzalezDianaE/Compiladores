@@ -77,7 +77,7 @@ item * find(char n[32], int t){
     return  NULL;
 }
 
-node * insertTree (char n[32], int v, int t, node *father){
+/*node * insertTree (char n[32], int v, int t, node *father){
     item *content;
     if (t == VAR){
     	content = find(n, t);
@@ -103,6 +103,30 @@ node * insertTree (char n[32], int v, int t, node *father){
     	}
     }
     return element;
+}*/
+
+node * insertTree (char n[32], int v, int t){
+    item *content;
+    if (t == VAR){
+        content = find(n, t);
+    }else{
+        content = (item *) malloc(sizeof(item));
+        strcpy(content->name,n);
+        content->value = v;
+        content->type = t;
+    }
+    node *element;
+    element = (node *) malloc(sizeof(node));
+    element->content = content;
+    return element;
+}
+
+void concatLeft (node *father, node *son){
+    father->left=son;
+}
+
+void concatRight (node *father, node *son){
+    father->right=son;
 }
 
 void showThree(node *aux){
@@ -155,10 +179,13 @@ int main(){
     item *aux = find("X",VAR);
     printf("%d\n", aux->value);
     node *element;
-    node *elementAux; 
-    element = insertTree("+", 0, OPER, head);
-    elementAux = insertTree("Y", 0, VAR, element);
-    elementAux = insertTree("", 2, CONSTANT, element);
+    node *son; 
+    element = insertTree("+", 0, OPER);
+    head = element;
+    son = insertTree("Y",0, VAR);
+    concatRight (element,son);
+    son = insertTree("",2,CONSTANT);
+    concatLeft (element,son);
 	printf("ecuacion: ");
 	showThree(head);
     printf("\nresultado: ");
