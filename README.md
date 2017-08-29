@@ -1,13 +1,22 @@
-###Pre-proyecto "Taller de diseño de software".
-Autores: Boselli Elisa, Etcharren Leandro, Gonzalez Diana.
+## Pre-proyecto "Taller de diseño de software".
+
+### Autores
+
+Boselli Elisa, Etcharren Leandro, Gonzalez Diana.
+
+### Datos Sistema
+
 Sistema operativo: Mac OS (SIERRA), Linux.
+
 Compilador utilizado: gcc, version 4.2.1.
 
-###Comando de compilacion
+Herramientas: byson y lex.
+
+### Comando de compilacion
 
 sh script 
 
-###Comando de ejecucion
+### Comando de ejecucion
 
 ./a.out < cadenaDeLenguajeAEvaluar
 
