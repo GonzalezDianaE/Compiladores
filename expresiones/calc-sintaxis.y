@@ -20,51 +20,52 @@
  
 %%
  
-prog:  isVar ';' expr ';'           { //printf("Variable y expresion. Resultado %d\n",$3);
+prog:  isVar ';' expr ';'           { // Variable list, followed by an expression.
                                       show();
                                       printf("Tree: \n");
                                       showTree($3);
                                       printf("\n");
                                       printf("Result: %d\n",eval($3));
                                     }
-      | expr ';'                    { //printf("%s%d\n", "Resultado: ",$1);
+      | expr ';'                    { // Expression without variables.
                                       printf("Tree: \n");
                                       showTree($1);
+                                      printf("Result: %d\n",eval($1));
                                     }
     ;
 
-isVar : VARIABLE ID '=' INT             { insert($2,$4,VAR);
+isVar : VARIABLE ID '=' INT             {  // Base case (unique variable).
+                                          insert($2,$4,VAR);
                                           printf("%s = %d \n",$2,$4);
                                         }
-      | isVar ';' VARIABLE ID '=' INT   { insert($4,$6,VAR);
+      | isVar ';' VARIABLE ID '=' INT   { // Recursive variable's list.
+                                          insert($4,$6,VAR);
                                           printf("%s = %d \n",$4,$6);
                                         }
 
-expr: INT               { //$$ = $1;
+expr: INT               { // Numeric expression (constants).
                           $$ = insertTree("",$1,CONSTANT);
                           printf("%s%d\n","Constant:",$1);
                         }
-    | expr '+' expr     { //$$ = $1 + $3;
+    | expr '+' expr     { // Addition expression.
                           head = insertTree("+",0,OPER);
                           concatLeft(head,$1);
                           concatRight(head,$3);
                           $$ = head;
-                          //printf("%s,%d,%d,%d\n","Operador Suma",$1,$3,$1+$3);
                         }
-    | expr '*' expr     { //$$ = $1 * $3;
+    | expr '*' expr     { // Multiplication expression.
                           head = insertTree("*",0,OPER);
                           concatLeft(head,$1);
                           concatRight(head,$3);
                           $$ = head;
-                          //printf("%s,%d,%d,%d\n","Operador Producto",$1,$3,$1*$3);  
                         }
-    | '(' expr ')'      { //$$ =  $2;
+    | '(' expr ')'      { // Expression (any type) between parenthesis.
                           head = insertTree("()",0,OPER);
                           concatLeft(head,$2);
                           $$ = head;
                         }
 
-    | ID                { //$$ = 1;
+    | ID                { // Variable expression (look up the symbol's table).
                           $$ = insertTree($1,0,VAR);
                           printf("%s %s\n","Variable: ",$1);
                         }
