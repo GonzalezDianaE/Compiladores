@@ -1,32 +1,62 @@
+/*
+Libreria que contiene los tipos y funciones necesarias para generar la tabla 
+de simbolos y el arbol sintactico de la gramatica para el PreProyecto. Ademas contiene
+la semantica de las funciones suma producto y parentesis
+*/
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+/*constantes para definir tipo de valor en los items de lista 
+y tablas (si son variables ,constantes o operaciones)*/
 #define VAR 0
 #define OPER 1
 #define CONSTANT 2
 
-
+/*
+Define un item del arbol o tabla de simbolos
+name: Si es una variable define su nombe, 
+    en caso de ser una operacion define el tipo de operacion (*,+,())
+value: define el valor de la constante o variable
+type: define el tipo de item (operacion, variable o constante)
+*/
 typedef struct items{
     char name[32];
     int value;
     int type;
 } item;
 
+/*
+ Tabla de simbolos del lenguaje implementada mediante una linked list de items
+*/
 typedef struct symbolTable{
     item *content;
     struct symbolTable *next;
 } symbol;
 
+/*
+Arbol de evaluacion del lenguaje.
+*/
 typedef struct tree{
     item *content;
     struct tree *left;
     struct tree *right;
 } node;
 
-symbol *first, *last;
+
+/*
+punteros al primer y ultimo simbolo de la tabla de simbolos
+*/
+symbol *first,*last;
+
+/*
+puntero a la cabeza de un arbol
+*/
 node *head;
 
-void insert(char n[32], int v, int t){
+/*
+Inserta un elemento en la tabla de simbolos
+*/
+void insertList(char n[32], int v, int t){
     symbol *element;
     element = (symbol *) malloc(sizeof(symbol));
     item *content;
@@ -45,7 +75,10 @@ void insert(char n[32], int v, int t){
     }
 }
 
-void show(){
+/*
+Muestra la tabla de simbolos
+*/
+void showList(){
     symbol *aux = first;
     if(aux!=NULL){
         printf("Showing list\n");
@@ -58,7 +91,10 @@ void show(){
     }
 }
 
-item * find(char n[32]){
+/*
+Busca un elemento en la tabla de symbolos
+*/
+item * findList(char n[32]){
     symbol *aux = first;
     if(aux!=NULL){
         while(aux !=  NULL && strcmp((aux->content)->name,n)){
@@ -75,38 +111,14 @@ item * find(char n[32]){
     return  NULL;
 }
 
-/*node * insertTree (char n[32], int v, int t, node *father){
-    item *content;
-    if (t == VAR){
-    	content = find(n, t);
-    }else{
-		content = (item *) malloc(sizeof(item));
-	    strcpy(content->name,n);
-	    content->value = v;
-	    content->type = t;
-	}
-    node *element;
-    element = (node *) malloc(sizeof(node));
-  	element->content = content;
-  	element->left = NULL;
-  	element->right = NULL;
-    if(father==NULL){
-    	head = element;
-    }else{
-    	if (father->left == NULL){
-    		father->left = element;
-    	}
-    	else{
-    		father->right = element;
-    	}
-    }
-    return element;
-}*/
-
+/*
+Crea un elemento de tipo arbol con sus hijos NULL, 
+si el elemento es de tipo Var busca sus datos en la tabla de Simbolos
+*/
 node * insertTree (char n[32], int v, int t){
     item *content;
     if (t == VAR){
-        content = find(n);
+        content = findList(n);
     }else{
         content = (item *) malloc(sizeof(item));
         strcpy(content->name,n);
@@ -119,14 +131,23 @@ node * insertTree (char n[32], int v, int t){
     return element;
 }
 
+/*
+agrega el arbol son como hijo izquierdo del arbol father
+*/
 void concatLeft (node *father, node *son){
     father->left=son;
 }
 
+/*
+agrega el arbol son como hijo derecho del arbol father
+*/
 void concatRight (node *father, node *son){
     father->right=son;
 }
 
+/*
+Muestra la estructura del arbol de modo InOrder
+*/
 void showTree(node *aux){
 	if(aux!=NULL){
     	if((aux->content)->type==CONSTANT){
@@ -151,46 +172,47 @@ void showTree(node *aux){
 			}
 		}
     }else{
-        printf("Empty list.\n");
+        printf("Empty Tree.\n");
     }
 }
 
-int eval(node *aux){
+/*
+Evalua el arbol
+*/
+int evalTree(node *aux){
 	if((aux->content)->type == VAR || (aux->content)->type==CONSTANT){
 		return (aux->content)->value;
 	}
 	else{
 		if(!strcmp((aux->content)->name,"()")){
-			return eval(aux->left);
+			return evalTree(aux->left);
 		}else{
 			if(!strcmp((aux->content)->name,"+")){
-				return (eval(aux->left) + eval(aux->right));
+				return (evalTree(aux->left) + evalTree(aux->right));
 			}else{
-				return (eval(aux->left) * eval(aux->right));
+				return (evalTree(aux->left) * evalTree(aux->right));
 			}
 		}
 	}
 }
 
-/*int main(){
-    show();
-    insert("X",1,2);
-    show();
-    insert("Y",3,VAR);
-    show();
-    item *aux = find("X",VAR);
-    printf("%d\n", aux->value);
-    node *element;
-    node *son; 
-    element = insertTree("+", 0, OPER);
-    head = element;
-    son = insertTree("Y",0, VAR);
-    concatRight (element,son);
-    son = insertTree("",2,CONSTANT);
-    concatLeft (element,son);
-	printf("ecuacion: ");
-	showTree(head);
-    printf("\nresultado: ");
-    printf("%d\n", eval(head));
-    return 0;
-}*/
+/*
+Semantica de la operacion Suma +
+*/
+int semanticSum (node *sum){
+    return (evalTree(sum->left) + evalTree(sum->right));
+}
+
+/*
+Semantica de la operacion Producto *
+*/
+int semanticProd (node *prod){
+    return (evalTree(prod->left) * evalTree(prod->right));
+}
+
+/*
+Semantica de la operacion Parentesis ()
+*/
+int semanticThesis (node *thesis){
+    return evalTree(thesis->left);
+}

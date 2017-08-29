@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "list.c"
+#include "structures.c"
 
 %}
  
@@ -21,25 +21,25 @@
 %%
  
 prog:  isVar ';' expr ';'           { // Variable list, followed by an expression.
-                                      show();
+                                      showList();
                                       printf("Tree: \n");
                                       showTree($3);
                                       printf("\n");
-                                      printf("Result: %d\n",eval($3));
+                                      printf("Result: %d\n",evalTree($3));
                                     }
       | expr ';'                    { // Expression without variables.
                                       printf("Tree: \n");
                                       showTree($1);
-                                      printf("Result: %d\n",eval($1));
+                                      printf("Result: %d\n",evalTree($1));
                                     }
     ;
 
 isVar : VARIABLE ID '=' INT             {  // Base case (unique variable).
-                                          insert($2,$4,VAR);
+                                          insertList($2,$4,VAR);
                                           printf("%s = %d \n",$2,$4);
                                         }
       | isVar ';' VARIABLE ID '=' INT   { // Recursive variable's list.
-                                          insert($4,$6,VAR);
+                                          insertList($4,$6,VAR);
                                           printf("%s = %d \n",$4,$6);
                                         }
 
