@@ -213,6 +213,6 @@ int semanticProd (node *prod){
 /*
 Semantica de la operacion Parentesis ()
 */
-int semanticThesis (node *thesis){
-    return evalTree(thesis->left);
+int semanticThesis (node *parenthesis){
+    return evalTree(parenthesis->left);
 }
