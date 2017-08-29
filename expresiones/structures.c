@@ -42,7 +42,7 @@ typedef struct tree{
     struct tree *right;
 } node;
 
-
+//////VARIABLES GLOBALES/////
 /*
 punteros al primer y ultimo simbolo de la tabla de simbolos
 */
@@ -52,6 +52,66 @@ symbol *first,*last;
 puntero a la cabeza de un arbol
 */
 node *head;
+
+////////DECLARACION DE FUNCIONES
+
+/*
+Inserta un elemento en la tabla de simbolos
+*/
+void insertList(char n[32], int v, int t);
+
+/*
+Muestra la tabla de simbolos
+*/
+void showList();
+
+/*
+Busca un elemento en la tabla de symbolos
+*/
+item * findList(char n[32]);
+
+/*
+Crea un elemento de tipo arbol con sus hijos NULL, 
+si el elemento es de tipo Var busca sus datos en la tabla de Simbolos
+*/
+node * insertTree (char n[32], int v, int t);
+
+/*
+agrega el arbol son como hijo izquierdo del arbol father
+*/
+void concatLeft (node *father, node *son);
+
+/*
+agrega el arbol son como hijo derecho del arbol father
+*/
+void concatRight (node *father, node *son);
+
+/*
+Muestra la estructura del arbol de modo InOrder
+*/
+void showTree(node *aux);
+
+/*
+Evalua el arbol
+*/
+int evalTree(node *aux);
+
+/*
+Semantica de la operacion Suma +
+*/
+int semanticSum(node *sum);
+
+/*
+Semantica de la operacion Producto *
+*/
+int semanticProd(node *prod);
+/*
+Semantica de la operacion Parentesis ()
+*/
+int semanticParenthesis(node *parenthesis);
+
+
+///////IMPLEMENTACION DE FUNCIONES/////////
 
 /*
 Inserta un elemento en la tabla de simbolos
@@ -176,6 +236,8 @@ void showTree(node *aux){
     }
 }
 
+
+
 /*
 Evalua el arbol
 */
@@ -185,12 +247,12 @@ int evalTree(node *aux){
 	}
 	else{
 		if(!strcmp((aux->content)->name,"()")){
-			return evalTree(aux->left);
+			return semanticParenthesis(aux);
 		}else{
 			if(!strcmp((aux->content)->name,"+")){
-				return (evalTree(aux->left) + evalTree(aux->right));
+				return semanticSum(aux);
 			}else{
-				return (evalTree(aux->left) * evalTree(aux->right));
+				return (semanticProd(aux));
 			}
 		}
 	}
@@ -199,20 +261,21 @@ int evalTree(node *aux){
 /*
 Semantica de la operacion Suma +
 */
-int semanticSum (node *sum){
+int semanticSum(node *sum){
     return (evalTree(sum->left) + evalTree(sum->right));
 }
 
 /*
 Semantica de la operacion Producto *
 */
-int semanticProd (node *prod){
+int semanticProd(node *prod){
     return (evalTree(prod->left) * evalTree(prod->right));
 }
 
 /*
 Semantica de la operacion Parentesis ()
 */
-int semanticThesis (node *parenthesis){
+int semanticParenthesis(node *parenthesis){
     return evalTree(parenthesis->left);
 }
+
