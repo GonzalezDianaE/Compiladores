@@ -11,6 +11,7 @@
 /expresiones/bin
 *.tab.c
 *.tab.h
+*.out
 
 # Packages #
 ############
