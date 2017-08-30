@@ -30,6 +30,7 @@ prog:  isVar ';' expr ';'           { // Variable list, followed by an expressio
       | expr ';'                    { // Expression without variables.
                                       printf("Tree: \n");
                                       showTree($1);
+                                      printf("\n");
                                       printf("Result: %d\n",evalTree($1));
                                     }
     ;
