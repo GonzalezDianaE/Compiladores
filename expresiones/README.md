@@ -10,7 +10,7 @@ Sistema operativo: Mac OS (SIERRA), Linux.
 
 Compilador utilizado: gcc, version 4.2.1.
 
-Herramientas: byson y lex.
+Herramientas: byson y flex.
 
 ### Comando de compilacion
 
@@ -21,4 +21,4 @@ sh script
 ./a.out < cadenaDeLenguajeAEvaluar
 
 Siendo la cadenaDeLenguajeAEvaluar un archivo de texto con las declaraciones y expresiones a evaluar. Como ejemplo
-se anexan varios archivos .txt para que puedan ser ejecutados (input.txt,input2.txt,etc)
+se anexan varios archivos .txt para que puedan ser ejecutados (input1.txt,input2.txt,etc)
