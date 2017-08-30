@@ -117,22 +117,27 @@ int semanticParenthesis(node *parenthesis);
 Inserta un elemento en la tabla de simbolos
 */
 void insertList(char n[32], int v, int t){
-    symbol *element;
-    element = (symbol *) malloc(sizeof(symbol));
-    item *content;
-    content = (item *) malloc(sizeof(item));
-    strcpy(content->name,n);
-    content->value = v;
-    content->type = t;
-    element->content = content;
-    element->next = NULL;
-    if(first==NULL){
-        first = element;
-        last = element;
-    } else {
-        last->next = element;
-        last = element;
-    }
+    if (findList(n)){
+        fprintf(stderr, "Error: var %s declared before\n", n);
+        exit(EXIT_FAILURE);
+    }else{
+        symbol *element;
+        element = (symbol *) malloc(sizeof(symbol));
+        item *content;
+        content = (item *) malloc(sizeof(item));
+        strcpy(content->name,n);
+        content->value = v;
+        content->type = t;
+        element->content = content;
+        element->next = NULL;
+        if(first==NULL){
+            first = element;
+            last = element;
+        } else {
+            last->next = element;
+            last = element;
+        }
+    }   
 }
 
 /*
@@ -143,7 +148,7 @@ void showList(){
     if(aux!=NULL){
         printf("Showing list\n");
         while(aux !=  NULL){
-            printf("Name: %s, value %d, type: %d\n",(aux->content)->name,(aux->content)->value,(aux->content)->type);
+            printf("Name: %s, value %d\n",(aux->content)->name,(aux->content)->value);
             aux = aux->next;
         }
     }else{

@@ -30,7 +30,7 @@ var 						{ yylval.s=(char *) malloc(3);
                                 printf("ID : %s\n",yytext);
                                 return ID;}
 
-[+*=;()]                   {  //printf("%s\n",yytext);
+[+*=;()]                   {    printf("%s\n",yytext);
                                   return *yytext;}
 
 .|\n                          ; /* ignore all the rest */

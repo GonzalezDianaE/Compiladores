@@ -786,7 +786,7 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 33 "calc-lexico.l"
-{  //printf("%s\n",yytext);
+{    printf("%s\n",yytext);
                                   return *yytext;}
 	YY_BREAK
 case 5:
