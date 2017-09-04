@@ -20,7 +20,7 @@ program                       { printf("Program\n");
                                 return PROGRAM;}
 
 begin                         { printf("Begin\n");
-                                return BEGIN;}
+                                return BEGINN;}
 
 end                           { printf("End\n");
                                 return END;}
@@ -86,12 +86,11 @@ false                         { printf("False\n");
 "||"                          { printf("Or\n");
                                 return OP_OR;}
 
+
 {digit}+                      { yylval.i = atoi(yytext);
-                                if(yylval.i!=0 || yytext=='0'){
+                                if(yylval.i!=0 || strcmp(yytext,"0")==0){
                                   printf("INT : %d\n",atoi(yytext));
                                   return INT;
-                                } else {
-                                  yyerror();
                                 }
                               }
 
@@ -108,7 +107,7 @@ false                         { printf("False\n");
 
 "//".*\n|\{.*\}               { }
 
-.                             { yyerror();};
+.                             { };
 
 %%
 
