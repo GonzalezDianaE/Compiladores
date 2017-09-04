@@ -16,7 +16,6 @@ digit [0-9]
 
 %%
 
-/* Reservated words */
 program                       { printf("Program\n");
                                 return PROGRAM;}
 
@@ -56,39 +55,36 @@ true                          { printf("True\n");
 false                         { printf("False\n");
                                 return FALSE;}
 
-/* Operators */
 
-\+                            { printf("Addition\n");
+'+'                           { printf("Addition\n");
                                 return OP_ADD;}
 
-\ -                           { printf("Subtraction\n");
+'-'                           { printf("Subtraction\n");
                                 return OP_SUB;}
 
-\*                            { printf("Product\n");
+'*'                           { printf("Product\n");
                                 return OP_PROD;}
 
 \/                            { printf("Division\n");
                                 return OP_DIV;}
 
-\%                            { printf("Precentage\n");
+'%'                           { printf("Precentage\n");
                                 return OP_PER;}
 
-\<                            { printf("Minor\n");
+'<'                           { printf("Minor\n");
                                 return OP_MINOR;}
 
-\>                            { printf("Major\n");
+'>'                           { printf("Major\n");
                                 return OP_MAJOR;}
 
-\=\=                          { printf("Equal\n");
+"=="                          { printf("Equal\n");
                                 return OP_EQUAL;}
 
-\&\&                          { printf("And\n");
+"&&"                          { printf("And\n");
                                 return OP_AND;}
 
-\|\|                          { printf("Or\n");
+"||"                          { printf("Or\n");
                                 return OP_OR;}
-
-/* Numbers */
 
 {digit}+                      { yylval.i = atoi(yytext);
                                 if(yylval.i!=0 || yytext=='0'){
@@ -99,27 +95,21 @@ false                         { printf("False\n");
                                 }
                               }
 
-/* Identifiers */
-
 {letter}({letter}|{digit})*   { yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
                                 strcpy(yylval.s,yytext);
                                 printf("ID : %s\n",yytext);
                                 return ID;}
 
-/* Others */
-
 [;()]                         { printf("%s\n",yytext);
                                 return *yytext;}
 
-/* Ignored: */
 
-(\n|\b|\t)+                   { } /* spaces (ignore) */
+(\n|\b|\t)+                   { }
 
-//.*\n|{.*}                   { } /* comments (ignore) */
+"//".*\n|\{.*\}               { }
 
-.                             { yyerror();} /* ignore */
+.                             { yyerror();};
 
-;
 %%
 
 void yyerror(){
