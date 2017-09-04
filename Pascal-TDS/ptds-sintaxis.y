@@ -22,7 +22,7 @@
 %token<s> TRUE
 %token<s> FALSE
 %token<s> WHILE
-%token<s> BEGIN
+%token<s> BEGINN
 %token<s> RETURN
 %token<s> END
 %token<s> BOOL
@@ -46,10 +46,10 @@
 
 %%
  
-prog:  PROGRAM BEGIN var_decl ';' method_decl ';' END    {printf("programa var_decl ; method_decl ; \n");}
-      | PROGRAM BEGIN method_decl END                    {printf("programa method_decl \n");}
-      | PROGRAM BEGIN var_decl END                       {printf("programa var_decl\n");}
-      | PROGRAM BEGIN END                                {printf("programa BEGIN END\n");}
+prog:  PROGRAM BEGINN var_decl ';' method_decl ';' END    {printf("programa var_decl ; method_decl ; \n");}
+      | PROGRAM BEGINN method_decl END                    {printf("programa method_decl \n");}
+      | PROGRAM BEGINN var_decl END                       {printf("programa var_decl\n");}
+      | PROGRAM BEGINN END                                {printf("programa BEGINN END\n");}
     ;
 
 var_decl : type ID                                       {printf("declaracion de variable type ID\n");}
@@ -65,10 +65,10 @@ method_decl : type ID '(' var_decl ')' block             {printf("metodo decl ty
       | method_decl VOID ID '(' ')' block                {printf("metodo decl method_decl VOID ID () block\n");}
     ;
 
-block: BEGIN var_decl statement END                      {printf("bloque var_decl statement\n");}
-      | BEGIN statement END                              {printf("bloque statement\n");}
-      | BEGIN var_decl END                               {printf("bloque var_decl\n");}
-      | BEGIN END                                        {printf("bloque BEGIN END\n");}
+block: BEGINN var_decl statement END                      {printf("bloque var_decl statement\n");}
+      | BEGINN statement END                              {printf("bloque statement\n");}
+      | BEGINN var_decl END                               {printf("bloque var_decl\n");}
+      | BEGINN END                                        {printf("bloque BEGINN END\n");}
     ;
 
 type : INTEGER                                           {printf("tipo entero\n");}
@@ -122,9 +122,6 @@ con_op : OP_AND                                          {printf("con_op AND\n")
 
 literal : integer_literal                                {printf("literal integer_literal\n");}
       | bool_literal                                     {printf("literal bool_literal\n");}
-    ;
-
-id : ID                                                  {printf("ID\n");} 
     ;
 
 integer_literal : INT                                    {printf("integer_literal\n");}
