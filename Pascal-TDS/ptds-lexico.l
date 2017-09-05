@@ -55,40 +55,38 @@ true                          { printf("True\n");
 false                         { printf("False\n");
                                 return FALSE;}
 
-
-'+'                           { printf("Addition\n");
+\+                            { printf("Addition\n");
                                 return OP_ADD;}
 
-'-'                           { printf("Subtraction\n");
+\-                            { printf("Subtraction\n");
                                 return OP_SUB;}
 
-'*'                           { printf("Product\n");
+\*                            { printf("Product\n");
                                 return OP_PROD;}
 
 \/                            { printf("Division\n");
                                 return OP_DIV;}
 
-'%'                           { printf("Module\n");
+\%                            { printf("Module\n");
                                 return OP_MOD;}
 
-'<'                           { printf("Minor\n");
+\<                            { printf("Minor\n");
                                 return OP_MINOR;}
 
-'>'                           { printf("Major\n");
+\>                            { printf("Major\n");
                                 return OP_MAJOR;}
 
-"=="                          { printf("Equal\n");
+\=\=                          { printf("Equal\n");
                                 return OP_EQUAL;}
 
-"&&"                          { printf("And\n");
+\&\&                          { printf("And\n");
                                 return OP_AND;}
 
-"||"                          { printf("Or\n");
+\|\|                          { printf("Or\n");
                                 return OP_OR;}
 
-'!'                           { printf("Not\n");
+\!                            { printf("Not\n");
                                 return OP_NOT;}
-
 
 {digit}+                      { yylval.i = atoi(yytext);
                                 if(yylval.i!=0 || strcmp(yytext,"0")==0){
