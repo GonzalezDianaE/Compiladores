@@ -39,7 +39,7 @@
 %left OP_PROD OP_DIV
 %left OP_MOD
 %left OP_AND OP_OR
-%left OP_MAYOR OP_MINOR
+%left OP_MAJOR OP_MINOR
 %left OP_NOT
 %left NEG
 
