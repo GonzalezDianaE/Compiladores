@@ -55,6 +55,9 @@ true                          { printf("True\n");
 false                         { printf("False\n");
                                 return FALSE;}
 
+\=                            { printf("Assignment\n");
+                                return OP_ASS;}
+
 \+                            { printf("Addition\n");
                                 return OP_ADD;}
 
