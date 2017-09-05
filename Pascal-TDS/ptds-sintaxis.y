@@ -19,7 +19,6 @@
 %token<s> OP_EQUAL
 %token<s> OP_AND
 %token<s> OP_OR
-%token<s> OP_OR
 %token<s> OP_ASS
 %token<s> TRUE
 %token<s> FALSE
