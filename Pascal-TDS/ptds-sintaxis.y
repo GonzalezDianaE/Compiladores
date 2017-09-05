@@ -19,6 +19,8 @@
 %token<s> OP_EQUAL
 %token<s> OP_AND
 %token<s> OP_OR
+%token<s> OP_OR
+%token<s> OP_ASS
 %token<s> TRUE
 %token<s> FALSE
 %token<s> OP_NOT
@@ -34,6 +36,7 @@
 %token<s> INTEGER
 %token<s> VOID
 
+%left OP_ASS
 %left OP_EQUAL
 %left OP_ADD OP_SUB
 %left OP_PROD OP_DIV
@@ -68,7 +71,7 @@ method_decl : type ID '(' var_decl ')' block             {printf("metodo decl ty
       | method_decl VOID ID '(' ')' block                {printf("metodo decl method_decl VOID ID () block\n");}
     ;
 
-block: BEGINN var_decl statement END                      {printf("bloque var_decl statement\n");}
+block: BEGINN var_decl ';' statement END                  {printf("bloque var_decl statement\n");}
       | BEGINN statement END                              {printf("bloque statement\n");}
       | BEGINN var_decl END                               {printf("bloque var_decl\n");}
       | BEGINN END                                        {printf("bloque BEGINN END\n");}
@@ -78,7 +81,7 @@ type : INTEGER                                           {printf("tipo entero\n"
       | BOOL                                             {printf("tipo booleano\n");}
     ;
 
-statement : ID '=' expr ';'                              {printf("statement ID\n");}
+statement : ID OP_ASS expr ';'                              {printf("statement ID\n");}
       | method_call ';'                                  {printf("statement method_call\n");}
       | IF '(' expr ')' THEN block ELSE block            {printf("statement IF expr THEN block ELSE block\n");}
       | IF '(' expr ')' THEN block                       {printf("statement IF expr THEN block\n");}
