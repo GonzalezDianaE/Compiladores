@@ -13,7 +13,7 @@
 %token<s> OP_SUB
 %token<s> OP_PROD
 %token<s> OP_DIV
-%token<s> OP_PER
+%token<s> OP_MOD
 %token<s> OP_MINOR
 %token<s> OP_MAJOR
 %token<s> OP_EQUAL
@@ -93,31 +93,19 @@ method_call : ID '(' expr ')'                            {printf(" method_call I
 expr : ID                                                {printf("expr ID\n");}
       | method_call                                      {printf("expr method_call\n");}
       | literal                                          {printf("expr literal\n");}
-      | expr bin_op expr                                 {printf("expr bin_op expr\n");}
-      | '-' expr                                         {printf("expr -\n");}
-      | '!' expr                                         {printf("expr !\n");}
+      | expr OP_ADD expr                                 {printf("expr bin_op expr\n");}
+      | expr OP_SUB expr                                 {printf("expr bin_op expr\n");}
+      | expr OP_PROD expr                                {printf("expr bin_op expr\n");}
+      | expr OP_DIV expr                                 {printf("expr bin_op expr\n");}
+      | expr OP_PER expr                                 {printf("expr bin_op expr\n");}
+      | expr OP_MINOR expr                               {printf("expr bin_op expr\n");}
+      | expr OP_MAJOR expr                               {printf("expr bin_op expr\n");}
+      | expr OP_EQUAL expr                               {printf("expr bin_op expr\n");}
+      | expr OP_AND expr                                 {printf("expr bin_op expr\n");}
+      | expr OP_OR expr                                  {printf("expr bin_op expr\n");}
+      | OP_SUB expr                                         {printf("expr -\n");}
+      | OP_MOD expr                                         {printf("expr !\n");}
       | '(' expr ')'                                     {printf("expr (expr)\n");}
-    ;
-
-bin_op : arith_op                                        {printf("bin_op arith_op\n");}
-      | rel_op                                           {printf("bin_op rel_op\n");}
-      | con_op                                           {printf("bin_op con_op\n");}
-    ;
-
-arith_op : OP_ADD                                        {printf("arith_op ADD\n");}
-      | OP_SUB                                           {printf("arith_op SUB\n");}
-      | OP_PROD                                          {printf("arith_op PROD\n");}
-      | OP_DIV                                           {printf("arith_op DIV\n");}
-      | OP_PER                                           {printf("arith_op PER\n");}
-    ;
-
-rel_op : OP_MINOR                                        {printf("rel_op MINOR\n");}
-      | OP_MAJOR                                         {printf("rel_op MAJOR\n");}
-      | OP_EQUAL                                         {printf("rel_op EQUAL\n");}
-    ;
-
-con_op : OP_AND                                          {printf("con_op AND\n");}
-      | OP_OR                                            {printf("con_op OR\n");}
     ;
 
 literal : integer_literal                                {printf("literal integer_literal\n");}
