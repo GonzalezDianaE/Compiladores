@@ -86,7 +86,7 @@ false                         { printf("False\n");
 "||"                          { printf("Or\n");
                                 return OP_OR;}
 
-'!'                           { prinf("Not\n");
+'!'                           { printf("Not\n");
                                 return OP_NOT;}
 
 
