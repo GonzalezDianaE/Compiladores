@@ -1,11 +1,9 @@
-Program
+program
     begin
         integer inc (integer x)
             begin
                 return x + 1;
             end
-
-
     void  main()
         begin
             integer y;
@@ -16,7 +14,7 @@ Program
                 end
             else
                 begin
-                    retunr inc (y);
+                    return inc (y);
                 end
         end
 end
