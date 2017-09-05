@@ -68,8 +68,8 @@ false                         { printf("False\n");
 \/                            { printf("Division\n");
                                 return OP_DIV;}
 
-'%'                           { printf("Precentage\n");
-                                return OP_PER;}
+'%'                           { printf("Module\n");
+                                return OP_MOD;}
 
 '<'                           { printf("Minor\n");
                                 return OP_MINOR;}
@@ -85,6 +85,9 @@ false                         { printf("False\n");
 
 "||"                          { printf("Or\n");
                                 return OP_OR;}
+
+'!'                           { prinf("Not\n");
+                                return OP_NOT;}
 
 
 {digit}+                      { yylval.i = atoi(yytext);
