@@ -21,6 +21,7 @@
 %token<s> OP_OR
 %token<s> TRUE
 %token<s> FALSE
+%token<s> OP_NOT
 %token<s> WHILE
 %token<s> BEGINN
 %token<s> RETURN
@@ -103,8 +104,8 @@ expr : ID                                                {printf("expr ID\n");}
       | expr OP_EQUAL expr                               {printf("expr bin_op expr\n");}
       | expr OP_AND expr                                 {printf("expr bin_op expr\n");}
       | expr OP_OR expr                                  {printf("expr bin_op expr\n");}
-      | OP_SUB expr                                         {printf("expr -\n");}
-      | OP_MOD expr                                         {printf("expr !\n");}
+      | OP_NOT expr                                      {printf("expr -\n");}
+      | OP_MOD expr                                      {printf("expr !\n");}
       | '(' expr ')'                                     {printf("expr (expr)\n");}
     ;
 
