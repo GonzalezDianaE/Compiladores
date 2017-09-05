@@ -34,12 +34,14 @@
 %token<s> INTEGER
 %token<s> VOID
 
-%left OP_ADD OP_SUB
-%left OP_PROD
-%left OP_DIV
-%left OP_PER
 %left OP_EQUAL
+%left OP_ADD OP_SUB
+%left OP_PROD OP_DIV
+%left OP_MOD
+%left OP_AND OP_OR
 %left OP_MAYOR OP_MINOR
+%left OP_NOT
+%left NEG
 
 //%type<i> expr
 //%type<i> var_decl
@@ -98,14 +100,14 @@ expr : ID                                                {printf("expr ID\n");}
       | expr OP_SUB expr                                 {printf("expr bin_op expr\n");}
       | expr OP_PROD expr                                {printf("expr bin_op expr\n");}
       | expr OP_DIV expr                                 {printf("expr bin_op expr\n");}
-      | expr OP_PER expr                                 {printf("expr bin_op expr\n");}
+      | expr OP_MOD expr                                 {printf("expr bin_op expr\n");}
       | expr OP_MINOR expr                               {printf("expr bin_op expr\n");}
       | expr OP_MAJOR expr                               {printf("expr bin_op expr\n");}
       | expr OP_EQUAL expr                               {printf("expr bin_op expr\n");}
       | expr OP_AND expr                                 {printf("expr bin_op expr\n");}
       | expr OP_OR expr                                  {printf("expr bin_op expr\n");}
-      | OP_NOT expr                                      {printf("expr -\n");}
-      | OP_MOD expr                                      {printf("expr !\n");}
+      | OP_SUB expr %prec NEG                            {printf("expr -\n");}
+      | OP_NOT expr                                      {printf("expr !\n");}
       | '(' expr ')'                                     {printf("expr (expr)\n");}
     ;
 
