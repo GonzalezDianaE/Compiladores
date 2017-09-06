@@ -19,7 +19,6 @@
 %token<s> OP_EQUAL
 %token<s> OP_AND
 %token<s> OP_OR
-%token<s> OP_OR
 %token<s> OP_ASS
 %token<s> TRUE
 %token<s> FALSE
@@ -81,7 +80,7 @@ type : INTEGER                                           {printf("tipo entero\n"
       | BOOL                                             {printf("tipo booleano\n");}
     ;
 
-statement : ID OP_ASS expr ';'                              {printf("statement ID\n");}
+statement : ID OP_ASS expr ';'                           {printf("statement ID\n");}
       | method_call ';'                                  {printf("statement method_call\n");}
       | IF '(' expr ')' THEN block ELSE block            {printf("statement IF expr THEN block ELSE block\n");}
       | IF '(' expr ')' THEN block                       {printf("statement IF expr THEN block\n");}
@@ -90,6 +89,16 @@ statement : ID OP_ASS expr ';'                              {printf("statement I
       | RETURN ';'                                       {printf("statement RETURN\n");}
       | ';'                                              {printf("statement ;\n");}
       | block                                            {printf("statement block\n");}
+      | statement ID OP_ASS expr ';'                     {printf("statement ID\n");}
+      | statement method_call ';'                        {printf("statement method_call\n");}
+      | statement IF '(' expr ')' THEN block ELSE block  {printf("statement IF expr THEN block ELSE block\n");}
+      | statement IF '(' expr ')' THEN block             {printf("statement IF expr THEN block\n");}
+      | statement WHILE expr block                       {printf("statement WHILE expr block\n");}
+      | statement RETURN expr ';'                        {printf("statement RETURN expr\n");}
+      | statement RETURN ';'                             {printf("statement RETURN\n");}
+      | statement ';'                                    {printf("statement ;\n");}
+      | statement block                                  {printf("statement block\n");}
+
     ;
 
 method_call : ID '(' expr ')'                            {printf(" method_call ID (expr)\n");}
