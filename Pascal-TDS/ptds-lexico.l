@@ -8,7 +8,7 @@
 #include "ptds-sintaxis.tab.h"
 
 %}
-
+%x comment
 %option noyywrap
 %option yylineno
 
@@ -16,6 +16,11 @@ letter [a-zA-z]
 digit [0-9]
 
 %%
+
+\{                            { BEGIN(comment);}
+<comment>[^}\n]*              { printf("%s",yytext);}
+<comment>\}                   { BEGIN(INITIAL);
+                                printf("fin comentario\n");}
 
 program                       { printf("Program\n");
                                 yylval.i = yylineno;
@@ -151,17 +156,17 @@ false                         { printf("False\n");
                                 printf("ID : %s\n",yytext);
                                 return ID;}
 
-(\n|\b|\t)+                   { }
+(\n|\b|\t)+                   {}
 
 "//".*\n                      { printf("Short comment\n");}
 
-.                             { };
+.                             {};
 
 %%
 
 void yyerror(){
 	printf("%s%d\n","-> SINTAX ERROR - line: ",yylineno);
-
+    printf("%s\n",yytext);
 }
 
 int main(int argc,char *argv[]){
