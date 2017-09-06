@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "types.c"
 #include "ptds-sintaxis.tab.h"
 
 %}
@@ -133,9 +134,9 @@ false                         { printf("False\n");
                                 return SEMICOLON;}
 
 {digit}+                      { //yylval.i = atoi(yytext);
-                                yylval.tv = (tokenVal) malloc(sizeof(yytext)*yyleng+4);
-                                yylval.tv.value = atoi(yytext);
-                                yylval.tv.line = yylineno;
+                                yylval.tv = (struct tokensVal *) malloc(sizeof(struct tokensVal));
+                                yylval.tv->value = atoi(yytext);
+                                yylval.tv->line = yylineno;
                                 if(yylval.i!=0 || strcmp(yytext,"0")==0){
                                   printf("INT : %d\n",atoi(yytext));
                                   return INT;
@@ -143,9 +144,9 @@ false                         { printf("False\n");
                               }
 
 {letter}({letter}|{digit})*   { //yylval.s=(char *) malloc(sizeof(yytext)*yyleng);
-                                yylval.tv = (tokenStr) malloc(sizeof(yytext)*yyleng+4);
-                                strcpy(yylval.tv.value,yytext);
-                                yylval.tv.line = yylineno;
+                                yylval.ts = (tokenStr *) malloc(sizeof(tokenStr));
+                                strcpy(yylval.ts->value,yytext);
+                                yylval.ts->line = yylineno;
                                 //strcpy(yylval.s,yytext);
                                 printf("ID : %s\n",yytext);
                                 return ID;}

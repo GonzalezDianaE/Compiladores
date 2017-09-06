@@ -2,136 +2,140 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "types.c"  
+extern int yylineno;
 
 %}
  
-%union { int i; char *s; struct tree *t;}
+%union { int i; char *s; struct tokensVal *tv; struct tokensStr *ts;}
  
-%token<i> INT
-%token<s> ID
-%token<s> OP_ADD
-%token<s> OP_SUB
-%token<s> OP_PROD
-%token<s> OP_DIV
-%token<s> OP_MOD
-%token<s> OP_MINOR
-%token<s> OP_MAJOR
-%token<s> OP_EQUAL
-%token<s> OP_AND
-%token<s> OP_OR
-%token<s> OP_ASS
-%token<s> TRUE
-%token<s> FALSE
-%token<s> OP_NOT
-%token<s> WHILE
-%token<s> BEGINN
-%token<s> RETURN
-%token<s> END
-%token<s> BOOL
-%token<s> PROGRAM
-%token<s> ELSE
-%token<s> THEN
-%token<s> IF
-%token<s> INTEGER
-%token<s> VOID
+%token<tv> INT
+%token<ts> ID
+%token<i> OP_ADD
+%token<i> OP_SUB
+%token<i> OP_PROD
+%token<i> OP_DIV
+%token<i> OP_MOD
+%token<i> OP_MINOR
+%token<i> OP_MAJOR
+%token<i> OP_EQUAL
+%token<i> OP_AND
+%token<i> OP_OR
+%token<i> OP_ASS
+%token<i> TRUE
+%token<i> FALSE
+%token<i> OP_NOT
+%token<i> WHILE
+%token<i> BEGINN
+%token<i> RETURN
+%token<i> END
+%token<i> BOOL
+%token<i> PROGRAM
+%token<i> ELSE
+%token<i> THEN
+%token<i> IF
+%token<i> INTEGER
+%token<i> VOID
+%token<i> PAR_LEFT
+%token<i> PAR_RIGHT
+%token<i> SEMICOLON
+%token<i> COMMA
 
-%left OP_ASS
-%left OP_EQUAL
-%left OP_ADD OP_SUB
-%left OP_PROD OP_DIV
-%left OP_MOD
+
+%nonassoc OP_ASS
 %left OP_AND OP_OR
-%left OP_MAJOR OP_MINOR
-%left OP_NOT
-%left NEG
+%nonassoc OP_EQUAL OP_MAJOR OP_MINOR
+%left OP_ADD OP_SUB
+%left OP_PROD OP_DIV OP_MOD
+%right NEG  
 
 //%type<i> expr
 //%type<i> var_decl
- 
+
 
 %%
  
-prog:  PROGRAM BEGINN var_decl ';' method_decl ';' END    {printf("programa var_decl ; method_decl ; \n");}
-      | PROGRAM BEGINN method_decl END                    {printf("programa method_decl \n");}
-      | PROGRAM BEGINN var_decl END                       {printf("programa var_decl\n");}
-      | PROGRAM BEGINN END                                {printf("programa BEGINN END\n");}
+prog:  PROGRAM BEGINN var_decl SEMICOLON method_decl SEMICOLON END    {printf("programa var_decl ; method_decl ; \n");}
+      | PROGRAM BEGINN method_decl END                                {printf("programa method_decl \n");                                                                      }
+      | PROGRAM BEGINN var_decl END                                   {printf("programa var_decl\n");}
+      | PROGRAM BEGINN END                                            {printf("programa BEGINN END\n");}
     ;
 
-var_decl : type ID                                       {printf("declaracion de variable type ID\n");}
-      | var_decl ',' type ID                             {printf("declaracion de variable var_decl , type ID\n");}
+var_decl : type ID                                                    {printf("declaracion de variable type ID\n");}
+      | var_decl COMMA type ID                                        {printf("declaracion de variable var_decl , type ID\n");}
     ;
 
-method_decl : type ID '(' var_decl ')' block             {printf("metodo decl type ID (var_decl) block\n");}
-      | VOID ID '(' var_decl ')' block                   {printf("metodo decl VOID ID (var_decl) block\n");}
-      | method_decl type ID '(' var_decl ')' block       {printf("metodo decl method_decl type ID (var_decl) block\n");}
-      | method_decl VOID ID '(' var_decl ')' block       {printf("metodo decl method_decl VOID ID (var_decl) block\n");}
-      | VOID ID '(' ')' block                            {printf("metodo decl VOID ID () block\n");}
-      | method_decl type ID '(' ')' block                {printf("metodo decl method_decl type ID () block \n");}
-      | method_decl VOID ID '(' ')' block                {printf("metodo decl method_decl VOID ID () block\n");}
+method_decl : type ID PAR_LEFT var_decl PAR_RIGHT block               {printf("metodo decl type ID (var_decl) block\n");}
+      | VOID ID PAR_LEFT var_decl PAR_RIGHT block                     {printf("metodo decl VOID ID (var_decl) block\n");}
+      | method_decl type ID PAR_LEFT var_decl PAR_RIGHT block         {printf("metodo decl method_decl type ID (var_decl) block\n");}
+      | method_decl VOID ID PAR_LEFT var_decl PAR_RIGHT block         {printf("metodo decl method_decl VOID ID (var_decl) block\n");}
+      | VOID ID PAR_LEFT PAR_RIGHT block                              {printf("metodo decl VOID ID () block\n");}
+      | method_decl type ID PAR_LEFT PAR_RIGHT block                  {printf("metodo decl method_decl type ID () block \n");}
+      | method_decl VOID ID PAR_LEFT PAR_RIGHT block                  {printf("metodo decl method_decl VOID ID () block\n");}
+     ;
+
+block: BEGINN var_decl SEMICOLON statement END                        {printf("bloque var_decl statement\n");}
+      | BEGINN statement END                                          {printf("bloque statement\n");}
+      | BEGINN var_decl END                                           {printf("bloque var_decl\n");}
+      | BEGINN END                                                    {printf("bloque BEGINN END\n");}
     ;
 
-block: BEGINN var_decl ';' statement END                  {printf("bloque var_decl statement\n");}
-      | BEGINN statement END                              {printf("bloque statement\n");}
-      | BEGINN var_decl END                               {printf("bloque var_decl\n");}
-      | BEGINN END                                        {printf("bloque BEGINN END\n");}
+type : INTEGER                                                        {printf("tipo entero\n");}
+      | BOOL                                                          {printf("tipo booleano\n");}
     ;
 
-type : INTEGER                                           {printf("tipo entero\n");}
-      | BOOL                                             {printf("tipo booleano\n");}
-    ;
-
-statement : ID OP_ASS expr ';'                           {printf("statement ID\n");}
-      | method_call ';'                                  {printf("statement method_call\n");}
-      | IF '(' expr ')' THEN block ELSE block            {printf("statement IF expr THEN block ELSE block\n");}
-      | IF '(' expr ')' THEN block                       {printf("statement IF expr THEN block\n");}
-      | WHILE expr block                                 {printf("statement WHILE expr block\n");}
-      | RETURN expr ';'                                  {printf("statement RETURN expr\n");}
-      | RETURN ';'                                       {printf("statement RETURN\n");}
-      | ';'                                              {printf("statement ;\n");}
-      | block                                            {printf("statement block\n");}
-      | statement ID OP_ASS expr ';'                     {printf("statement ID\n");}
-      | statement method_call ';'                        {printf("statement method_call\n");}
-      | statement IF '(' expr ')' THEN block ELSE block  {printf("statement IF expr THEN block ELSE block\n");}
-      | statement IF '(' expr ')' THEN block             {printf("statement IF expr THEN block\n");}
-      | statement WHILE expr block                       {printf("statement WHILE expr block\n");}
-      | statement RETURN expr ';'                        {printf("statement RETURN expr\n");}
-      | statement RETURN ';'                             {printf("statement RETURN\n");}
-      | statement ';'                                    {printf("statement ;\n");}
-      | statement block                                  {printf("statement block\n");}
+statement : ID OP_ASS expr SEMICOLON                                  {printf("statement ID\n");}
+      | method_call SEMICOLON                                         {printf("statement method_call\n");}
+      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              {printf("statement IF expr THEN block ELSE block\n");}
+      | IF PAR_LEFT expr PAR_RIGHT THEN block                         {printf("statement IF expr THEN block\n");}
+      | WHILE expr block                                              {printf("statement WHILE expr block\n");}
+      | RETURN expr SEMICOLON                                         {printf("statement RETURN expr\n");}
+      | RETURN SEMICOLON                                              {printf("statement RETURN\n");}
+      | SEMICOLON                                                     {printf("statement ;\n");}
+      | block                                                         {printf("statement block\n");}
+      | statement ID OP_ASS expr SEMICOLON                            {printf("statement ID\n");}
+      | statement method_call SEMICOLON                               {printf("statement method_call\n");}
+      | statement IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block    {printf("statement IF expr THEN block ELSE block\n");}
+      | statement IF PAR_LEFT expr PAR_RIGHT THEN block               {printf("statement IF expr THEN block\n");}
+      | statement WHILE expr block                                    {printf("statement WHILE expr block\n");}
+      | statement RETURN expr SEMICOLON                               {printf("statement RETURN expr\n");}
+      | statement RETURN SEMICOLON                                    {printf("statement RETURN\n");}
+      | statement SEMICOLON                                           {printf("statement ;\n");}
+      | statement block                                               {printf("statement block\n");}
 
     ;
 
-method_call : ID '(' expr ')'                            {printf(" method_call ID (expr)\n");}
-      | ID '(' ')'                                       {printf("method_call ID ()\n");}
+method_call : ID PAR_LEFT expr PAR_RIGHT                              {printf(" method_call ID (expr)\n");}
+      | ID PAR_LEFT PAR_RIGHT                                         {printf("method_call ID ()\n");}
     ;
 
-expr : ID                                                {printf("expr ID\n");}
-      | method_call                                      {printf("expr method_call\n");}
-      | literal                                          {printf("expr literal\n");}
-      | expr OP_ADD expr                                 {printf("expr bin_op expr\n");}
-      | expr OP_SUB expr                                 {printf("expr bin_op expr\n");}
-      | expr OP_PROD expr                                {printf("expr bin_op expr\n");}
-      | expr OP_DIV expr                                 {printf("expr bin_op expr\n");}
-      | expr OP_MOD expr                                 {printf("expr bin_op expr\n");}
-      | expr OP_MINOR expr                               {printf("expr bin_op expr\n");}
-      | expr OP_MAJOR expr                               {printf("expr bin_op expr\n");}
-      | expr OP_EQUAL expr                               {printf("expr bin_op expr\n");}
-      | expr OP_AND expr                                 {printf("expr bin_op expr\n");}
-      | expr OP_OR expr                                  {printf("expr bin_op expr\n");}
-      | OP_SUB expr %prec NEG                            {printf("expr -\n");}
-      | OP_NOT expr                                      {printf("expr !\n");}
-      | '(' expr ')'                                     {printf("expr (expr)\n");}
+expr : ID                                                 {printf("expr ID\n");}
+      | method_call                                       {printf("expr method_call\n");}
+      | literal                                           {printf("expr literal\n");}
+      | expr OP_ADD expr                                  {printf("expr bin_op expr\n");}
+      | expr OP_SUB expr                                  {printf("expr bin_op expr\n");}
+      | expr OP_PROD expr                                 {printf("expr bin_op expr\n");}
+      | expr OP_DIV expr                                  {printf("expr bin_op expr\n");}
+      | expr OP_MOD expr                                  {printf("expr bin_op expr\n");}
+      | expr OP_MINOR expr                                {printf("expr bin_op expr\n");}
+      | expr OP_MAJOR expr                                {printf("expr bin_op expr\n");}
+      | expr OP_EQUAL expr                                {printf("expr bin_op expr\n");}
+      | expr OP_AND expr                                  {printf("expr bin_op expr\n");}
+      | expr OP_OR expr                                   {printf("expr bin_op expr\n");}
+      | OP_SUB expr %prec NEG                             {printf("expr -\n");}
+      | OP_NOT expr %prec NEG                             {printf("expr !\n");}
+      | PAR_LEFT expr PAR_RIGHT                           {printf("expr (expr)\n");}
     ;
 
-literal : integer_literal                                {printf("literal integer_literal\n");}
-      | bool_literal                                     {printf("literal bool_literal\n");}
+literal : integer_literal                                 {printf("literal integer_literal\n");}
+      | bool_literal                                      {printf("literal bool_literal\n");}
     ;
 
-integer_literal : INT                                    {printf("integer_literal\n");}
+integer_literal : INT                                     {printf("integer_literal\n");}
     ;              
 
-bool_literal : TRUE                                      {printf("bool_literal TRUE\n");}
-      | FALSE                                            {printf("bool_literal FALSE\n");}
+bool_literal : TRUE                                       {printf("bool_literal TRUE\n");}
+      | FALSE                                             {printf("bool_literal FALSE\n");}
     ;
 
 %%
