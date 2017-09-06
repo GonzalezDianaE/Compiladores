@@ -153,7 +153,7 @@ false                         { printf("False\n");
 
 (\n|\b|\t)+                   { }
 
-"//".*\n|\{.*\}               { }
+"//".*\n                      { printf("Short comment\n");}
 
 .                             { };
 
