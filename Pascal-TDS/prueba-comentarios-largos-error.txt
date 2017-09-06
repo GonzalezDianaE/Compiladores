@@ -1,0 +1,6 @@
+{Comentario
+largo 1}
+program
+    begin
+    end
+}

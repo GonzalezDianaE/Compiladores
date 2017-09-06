@@ -1,0 +1,5 @@
+// Comentario corto 1
+program
+    begin
+    end
+// Comentario corto 2
