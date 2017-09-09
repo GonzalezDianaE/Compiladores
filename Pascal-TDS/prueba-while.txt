@@ -1,0 +1,12 @@
+program
+  begin
+    void  main()
+      begin
+        integer x;
+        x=20;
+        while (x>10) 
+          begin
+            x = x - 1;
+          end
+      end
+  end

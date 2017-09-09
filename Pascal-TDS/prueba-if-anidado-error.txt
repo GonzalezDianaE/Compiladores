@@ -1,0 +1,31 @@
+program
+  begin
+    integer dec (integer y)
+      begin
+        return y - 1;
+      end
+    integer inc (integer z)
+      begin
+        return y + 1;
+      end
+    void  main()
+      begin
+        integer y;
+        y=9;
+        if ((y == 0) || (y<0) then
+          begin
+            return 0;
+          end
+        else
+          begin
+            if (y>10) then
+              begin
+                return dec (y);
+              end
+            else
+              begin
+                return inc (y);
+              end
+          end
+      end
+  end
