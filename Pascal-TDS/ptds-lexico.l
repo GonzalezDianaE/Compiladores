@@ -156,11 +156,13 @@ false                         { printf("False\n");
                                 printf("ID : %s\n",yytext);
                                 return ID;}
 
-(\n|\b|\t)+                   {}
+(\n)+                         { printf("Line break\n");}
+
+[ \t]                         { printf("Spaces or Tabs\n");}
 
 "//".*\n                      { printf("Short comment\n");}
 
-.                             {};
+.                             { printf("Error\n");};
 
 %%
 
