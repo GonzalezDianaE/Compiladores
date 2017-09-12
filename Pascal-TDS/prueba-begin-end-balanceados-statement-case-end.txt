@@ -1,0 +1,5 @@
+program
+  begin
+    integer y;
+    end
+  end

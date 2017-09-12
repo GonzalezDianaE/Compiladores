@@ -1,6 +1,5 @@
 {Comentario
-largo}
+largo
 program
     begin
     end
-}
