@@ -114,9 +114,12 @@ false                         { yylval.i = yylineno;
                                 return SEMICOLON;}
 
 {digit}+                      { yylval.tv = (struct tokensVal *) malloc(sizeof(struct tokensVal));
-                                yylval.tv->value = atoi(yytext);
+                                char* aux;
+                                yylval.tv->value=strtol(yytext,&aux,10);
+                                //yylval.tv->value=atol(yytext);
                                 yylval.tv->line = yylineno;
-                                if(yylval.i!=0 || strcmp(yytext,"0")==0){
+                                if(yylval.tv->value!=0 || strcmp(yytext,"0")==0){
+                                  printf("%ld\n",yylval.tv->value);
                                   return INT;
                                 } else {
                                   error("Out of range");

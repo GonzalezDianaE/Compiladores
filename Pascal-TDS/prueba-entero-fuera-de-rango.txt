@@ -1,0 +1,8 @@
+program
+  begin
+    void  main()
+      begin
+        integer x;
+        x=9223372036854775809;
+      end
+  end
