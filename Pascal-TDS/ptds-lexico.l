@@ -164,11 +164,11 @@ false                         { printf("False\n");
                                 printf("ID : %s\n",yytext);
                                 return ID;}
 
-(\n)+                         {} //printf("Line break\n");}
+(\n)+                         {}
 
-[ \t]                         {} //printf("Spaces or Tabs\n");}
+[ \t]                         {}
 
-"//".*\n                      {} //printf("Short comment\n");}
+"//".*\n                      {}
 
 .                             { error("Unrecognized input");
                                 yyterminate();};
