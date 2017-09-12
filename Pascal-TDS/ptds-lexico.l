@@ -24,7 +24,7 @@ digit [0-9]
 <comment>[^}\n]*              { printf("%s",yytext);}
 <comment>\}                   { BEGIN(INITIAL);
                                 printf("fin comentario\n");}
-<comment><EOF>                { error("Unexpected eof");
+<comment><<EOF>>              { error("Unexpected eof");
                                 yyterminate();}
 
 program                       { printf("Program\n");
@@ -164,11 +164,11 @@ false                         { printf("False\n");
                                 printf("ID : %s\n",yytext);
                                 return ID;}
 
-(\n)+                         { //printf("Line break\n");}
+(\n)+                         {} //printf("Line break\n");}
 
-[ \t]                         { //printf("Spaces or Tabs\n");}
+[ \t]                         {} //printf("Spaces or Tabs\n");}
 
-"//".*\n                      { //printf("Short comment\n");}
+"//".*\n                      {} //printf("Short comment\n");}
 
 .                             { error("Unrecognized input");
                                 yyterminate();};
