@@ -7,6 +7,9 @@
 #include "types.c"
 #include "ptds-sintaxis.tab.h"
 
+void error(const char *s);
+void yyerror();
+
 %}
 %x comment
 %option noyywrap
@@ -21,6 +24,8 @@ digit [0-9]
 <comment>[^}\n]*              { printf("%s",yytext);}
 <comment>\}                   { BEGIN(INITIAL);
                                 printf("fin comentario\n");}
+<comment><EOF>                { error("Unexpected eof");
+                                yyterminate();}
 
 program                       { printf("Program\n");
                                 yylval.i = yylineno;
@@ -145,6 +150,9 @@ false                         { printf("False\n");
                                 if(yylval.i!=0 || strcmp(yytext,"0")==0){
                                   printf("INT : %d\n",atoi(yytext));
                                   return INT;
+                                } else {
+                                  error("Out of range");
+                                  yyterminate();
                                 }
                               }
 
@@ -156,15 +164,20 @@ false                         { printf("False\n");
                                 printf("ID : %s\n",yytext);
                                 return ID;}
 
-(\n)+                         { printf("Line break\n");}
+(\n)+                         { //printf("Line break\n");}
 
-[ \t]                         { printf("Spaces or Tabs\n");}
+[ \t]                         { //printf("Spaces or Tabs\n");}
 
-"//".*\n                      { printf("Short comment\n");}
+"//".*\n                      { //printf("Short comment\n");}
 
-.                             { printf("Error\n");};
+.                             { error("Unrecognized input");
+                                yyterminate();};
 
 %%
+
+void error(const char *s){
+  printf("Error: %s - Line: %d\n",s,yylineno);
+}
 
 void yyerror(){
 	printf("%s%d\n","-> SINTAX ERROR - line: ",yylineno);
