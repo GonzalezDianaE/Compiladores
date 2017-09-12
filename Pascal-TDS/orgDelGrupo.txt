@@ -1,0 +1,28 @@
+Organizacion del Grupo:
+
+-En un principio para poder separar el trabajo nos pusimos de acuerdo como se iba a comunicar el lex y el yacc, llegando a la decision de tramitir toda la informacion por tokens. luego de ponernos de acuerdo en como trasmitir los datos Boselli realizo primera implementacion del Analizador Lexico y Gonzalez y Etcharren el Analizador Sintactico. 
+
+-Despues de tener las imprmentaciones "alfa" juntos solucionamos los conflictos shift/reduce y emprolijamos ambos analizadores. Luego Boselli se dedico a realizar pruebas de los comentarios, end begin balanceados Gonzalez pruebas de if anidados, funciones, while etc; y Etcharren a implementar como descartar correctamente los comentarios largos. Luego de terminar con esa etapa nos reunimos una vez mas para revisar todos juntos como quedaba la etapa
+
+--------------------------------------------------------------------------------------
+Desiciones de Diseño
+
+-Cominicacion de lex y yacc mediante tokens. Esto nos servira en un futuro para el analizador semantico.
+
+-Crear una libreria types.c donde se definen todos los tipos a utilizar. Para el analisis de lexico y sintactico se crearon dos tipos. TokenStr sirve para mandar el nobre de una variable declarada con su numero de linea, TokenVal es utilizado para literales con su valor. 
+
+-El resto de los tokens se envia solamente el numero de linea ya que se puede identificar lo que es por el nombre del token.
+--------------------------------------------------------------------------------------
+Detalles de implementacion interesantes: 
+
+---Crear un funcion error para especificar los errores cuando:
+
+-hay un caracter extraño
+-Hay una entero mayor 32 bits.
+-Hay un comentario largo no cerrado
+
+El resto de los errores son notificados por el yyerrror() 
+
+--Implementacion correcta de comentarios largos mediante condiciones de entrada de flex.
+------------------------------------------------------------------------------------
+
