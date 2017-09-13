@@ -113,7 +113,7 @@ false                         { yylval.i = yylineno;
 \;                            { yylval.i = yylineno;
                                 return SEMICOLON;}
 
-{digit}+                      { yylval.tv = (struct tokensVal *) malloc(sizeof(struct tokensVal));
+{digit}+                      { yylval.tv = (tokenVal *) malloc(sizeof(tokenVal));
                                 char* aux;
                                 long auxLong;
                                 auxLong = strtol(yytext,&aux,10);;
