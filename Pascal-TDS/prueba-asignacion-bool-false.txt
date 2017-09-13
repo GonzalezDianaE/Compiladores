@@ -1,0 +1,8 @@
+program
+  begin
+    void  main()
+      begin
+        bool x;
+        x = false;
+      end
+  end

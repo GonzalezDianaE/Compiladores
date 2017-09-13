@@ -49,10 +49,6 @@ extern int yylineno;
 %left OP_PROD OP_DIV OP_MOD
 %right NEG  
 
-//%type<i> expr
-//%type<i> var_decl
-
-
 %%
  
 prog:  PROGRAM BEGINN var_decl SEMICOLON method_decl SEMICOLON END    {printf("programa var_decl ; method_decl ; \n");}
@@ -65,23 +61,27 @@ var_decl : type ID                                                    {printf("d
       | var_decl COMMA type ID                                        {printf("declaracion de variable var_decl , type ID\n");}
     ;
 
-method_decl : type ID PAR_LEFT var_decl PAR_RIGHT block               {printf("metodo decl type ID (var_decl) block\n");}
-      | VOID ID PAR_LEFT var_decl PAR_RIGHT block                     {printf("metodo decl VOID ID (var_decl) block\n");}
-      | method_decl type ID PAR_LEFT var_decl PAR_RIGHT block         {printf("metodo decl method_decl type ID (var_decl) block\n");}
-      | method_decl VOID ID PAR_LEFT var_decl PAR_RIGHT block         {printf("metodo decl method_decl VOID ID (var_decl) block\n");}
-      | VOID ID PAR_LEFT PAR_RIGHT block                              {printf("metodo decl VOID ID () block\n");}
-      | method_decl type ID PAR_LEFT PAR_RIGHT block                  {printf("metodo decl method_decl type ID () block \n");}
-      | method_decl VOID ID PAR_LEFT PAR_RIGHT block                  {printf("metodo decl method_decl VOID ID () block\n");}
-     ;
-
-block: BEGINN var_decl SEMICOLON statement END                        {printf("bloque var_decl statement\n");}
-      | BEGINN statement END                                          {printf("bloque statement\n");}
-      | BEGINN var_decl END                                           {printf("bloque var_decl\n");}
-      | BEGINN END                                                    {printf("bloque BEGINN END\n");}
+var_decls : var_decl                                                  {printf("var_decl\n");}
+      | var_decls SEMICOLON var_decl                                  {printf("var_decls var_decl\n");}
     ;
 
-type : INTEGER                                                        {printf("tipo entero\n");}
-      | BOOL                                                          {printf("tipo booleano\n");}
+method_decl : type ID PAR_LEFT var_decls PAR_RIGHT block               {printf("metodo decl type ID (var_decl) block\n");}
+      | VOID ID PAR_LEFT var_decls PAR_RIGHT block                     {printf("metodo decl VOID ID (var_decl) block\n");}
+      | method_decl type ID PAR_LEFT var_decls PAR_RIGHT block         {printf("metodo decl method_decl type ID (var_decl) block\n");}
+      | method_decl VOID ID PAR_LEFT var_decls PAR_RIGHT block         {printf("metodo decl method_decl VOID ID (var_decl) block\n");}
+      | VOID ID PAR_LEFT PAR_RIGHT block                               {printf("metodo decl VOID ID () block\n");}
+      | method_decl type ID PAR_LEFT PAR_RIGHT block                   {printf("metodo decl method_decl type ID () block \n");}
+      | method_decl VOID ID PAR_LEFT PAR_RIGHT block                   {printf("metodo decl method_decl VOID ID () block\n");}
+     ;
+
+block: BEGINN var_decls SEMICOLON statements END                       {printf("bloque var_decl statement\n");}
+      | BEGINN statements END                                          {printf("bloque statement\n");}
+      | BEGINN var_decls END                                           {printf("bloque var_decl\n");}
+      | BEGINN END                                                     {printf("bloque BEGINN END\n");}
+    ;
+
+type : INTEGER                                                         {printf("tipo entero\n");}
+      | BOOL                                                           {printf("tipo booleano\n");}
     ;
 
 statement : ID OP_ASS expr SEMICOLON                                  {printf("statement ID\n");}
@@ -93,19 +93,13 @@ statement : ID OP_ASS expr SEMICOLON                                  {printf("s
       | RETURN SEMICOLON                                              {printf("statement RETURN\n");}
       | SEMICOLON                                                     {printf("statement ;\n");}
       | block                                                         {printf("statement block\n");}
-      | statement ID OP_ASS expr SEMICOLON                            {printf("statement ID\n");}
-      | statement method_call SEMICOLON                               {printf("statement method_call\n");}
-      | statement IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block    {printf("statement IF expr THEN block ELSE block\n");}
-      | statement IF PAR_LEFT expr PAR_RIGHT THEN block               {printf("statement IF expr THEN block\n");}
-      | statement WHILE expr block                                    {printf("statement WHILE expr block\n");}
-      | statement RETURN expr SEMICOLON                               {printf("statement RETURN expr\n");}
-      | statement RETURN SEMICOLON                                    {printf("statement RETURN\n");}
-      | statement SEMICOLON                                           {printf("statement ;\n");}
-      | statement block                                               {printf("statement block\n");}
-
     ;
 
-method_call : ID PAR_LEFT expr PAR_RIGHT                              {printf(" method_call ID (expr)\n");}
+statements: statement                                                 {printf("statements \n");}
+      | statements statement                                          {printf("statements statement\n");}
+    ;
+
+method_call : ID PAR_LEFT expr PAR_RIGHT                              {printf("method_call ID (expr)\n");}
       | ID PAR_LEFT PAR_RIGHT                                         {printf("method_call ID ()\n");}
     ;
 
