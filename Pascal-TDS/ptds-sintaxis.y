@@ -51,28 +51,33 @@ extern int yylineno;
 
 %%
  
-prog:  PROGRAM BEGINN var_decls SEMICOLON method_decl END             {printf("programa var_decl ; method_decl ; \n");}
-      | PROGRAM BEGINN method_decl END                                {printf("programa method_decl\n");}
+prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END            {printf("programa var_decl ; method_decl ; \n");}
+      | PROGRAM BEGINN method_decls END                               {printf("programa method_decl\n");}
       | PROGRAM BEGINN var_decls SEMICOLON END                        {printf("programa var_decl\n");}
       | PROGRAM BEGINN END                                            {printf("programa BEGINN END\n");}
     ;
 
 var_decl : type ID                                                    {printf("declaracion de variable type ID\n");}
-      | var_decl COMMA ID                                        {printf("declaracion de variable var_decl , type ID\n");}
+      | var_decl COMMA ID                                             {printf("declaracion de variable var_decl , type ID\n");}
     ;
 
 var_decls : var_decl                                                  {printf("var_decl\n");}
       | var_decls SEMICOLON var_decl                                  {printf("var_decls var_decl\n");}
     ;
 
-method_decl : type ID PAR_LEFT var_decls PAR_RIGHT block               {printf("metodo decl type ID (var_decl) block\n");}
-      | VOID ID PAR_LEFT var_decls PAR_RIGHT block                     {printf("metodo decl VOID ID (var_decl) block\n");}
-      | method_decl type ID PAR_LEFT var_decl PAR_RIGHT block         {printf("metodo decl method_decl type ID (var_decl) block\n");}
-      | method_decl VOID ID PAR_LEFT var_decl PAR_RIGHT block         {printf("metodo decl method_decl VOID ID (var_decl) block\n");}
+method_decl : type ID PAR_LEFT param PAR_RIGHT block                   {printf("metodo decl type ID (var_decl) block\n");}
+      | VOID ID PAR_LEFT param PAR_RIGHT block                         {printf("metodo decl VOID ID (var_decl) block\n");}
+      | type ID PAR_LEFT PAR_RIGHT block                               {printf("metodo decl type ID () block\n");}
       | VOID ID PAR_LEFT PAR_RIGHT block                               {printf("metodo decl VOID ID () block\n");}
-      | method_decl type ID PAR_LEFT PAR_RIGHT block                   {printf("metodo decl method_decl type ID () block \n");}
-      | method_decl VOID ID PAR_LEFT PAR_RIGHT block                   {printf("metodo decl method_decl VOID ID () block\n");}
      ;
+
+method_decls : method_decl                                             {printf("method_decl\n");}
+      | method_decls method_decl                                       {printf("method_decls recursive\n");}
+     ;
+
+param : type ID                                                         {printf("param\n");}
+      | param COMMA type ID                                             {printf("param recursive\n");}
+    ;
 
 block: BEGINN var_decls SEMICOLON statements END                       {printf("bloque var_decl statement\n");}
       | BEGINN statements END                                          {printf("bloque statement\n");}
@@ -96,7 +101,7 @@ statement : ID OP_ASS expr SEMICOLON                                  {printf("s
     ;
 
 statements: statement                                                 {printf("statements \n");}
-      | statements statement                                          {printf("statements statement\n");}
+      | statements statement                                          {printf("statements recursive\n");}
     ;
 
 method_call : ID PAR_LEFT expr PAR_RIGHT                              {printf("method_call ID (expr)\n");}

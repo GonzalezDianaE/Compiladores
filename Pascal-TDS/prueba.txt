@@ -4,13 +4,30 @@ program
             begin
                 return x + 1;
             end
+    integer inc (integer x)
+        begin
+            return (x+1);
+        end
+    bool isZero (integer x, integer y)
+        begin
+            return (x+y);
+        end
+    {integer inc (integer x, integer y)
+        begin
+            return (x+1);
+        end}
     void  main()
         begin
             integer y;
             y=4;
             if (y == 1) then
-                begin
+                {ddd
+
+
+                }
+                begin{dadsdas}
                     return 1;
+                    {}
                 end
             else
                 begin
