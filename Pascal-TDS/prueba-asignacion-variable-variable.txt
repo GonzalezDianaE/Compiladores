@@ -2,8 +2,8 @@ program
   begin
     void  main()
       begin
-        int x;
-        int y;
+        integer x;
+        integer y;
         y = 10;
         x = y;
       end
