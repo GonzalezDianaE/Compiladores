@@ -2,6 +2,21 @@
 largo 1}
 program
     begin
+	{
+
+
+	adskkda;
+Asddasdsa
+
+
+	}
+
+
+
+
     end
+
+
+
 { Comentario
 largo 2}

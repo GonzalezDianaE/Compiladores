@@ -1,5 +1,7 @@
 program
   begin
+    integer x,a;
+    integer y;
     void  main()
       begin
         integer x;
@@ -8,5 +10,5 @@ program
           begin
             return x;
           end
-      end
+    end
   end
