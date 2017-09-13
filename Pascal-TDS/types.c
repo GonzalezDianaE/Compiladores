@@ -8,6 +8,6 @@ typedef struct tokensStr{
 } tokenStr;
 
 typedef struct tokensVal{
-    long value;
+    int value;
     int line;
 } tokenVal;

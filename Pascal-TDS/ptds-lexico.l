@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
+#include <limits.h>
 #include "types.c"
 #include "ptds-sintaxis.tab.h"
 
@@ -115,11 +115,12 @@ false                         { yylval.i = yylineno;
 
 {digit}+                      { yylval.tv = (struct tokensVal *) malloc(sizeof(struct tokensVal));
                                 char* aux;
-                                yylval.tv->value=strtol(yytext,&aux,10);
-                                //yylval.tv->value=atol(yytext);
+                                long auxLong;
+                                auxLong = strtol(yytext,&aux,10);;
                                 yylval.tv->line = yylineno;
-                                if(yylval.tv->value!=0 || strcmp(yytext,"0")==0){
-                                  printf("%ld\n",yylval.tv->value);
+                                auxLong = strtol(yytext,&aux,10);
+                                if((auxLong>=INT_MIN) && (auxLong<=INT_MAX)){
+                                  yylval.tv->value = (int) auxLong;
                                   return INT;
                                 } else {
                                   error("Out of range");
