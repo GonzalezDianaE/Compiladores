@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include "types.c"
+#include "structures.c"
 #include "ptds-sintaxis.tab.h"
 
 void error(const char *s);
