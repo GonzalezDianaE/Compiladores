@@ -236,31 +236,72 @@ void concatRight (node *father, node *son){
 Muestra la estructura del arbol de modo InOrder
 */
 void showTree(node *aux){
-	if(aux!=NULL){
-    	if((aux->content)->type==CONSTANT){
-		printf(" %d ",(aux->content)->value);
-		}
-		if((aux->content)->type == VAR){
-		printf(" %s ",(aux->content)->name);
-		}
-		if((aux->content)->type == OPER_AR || (aux->content)->type == OPER_LOG){
-			if(!strcmp((aux->content)->name,"()")){
-				printf (" (");
-				showTree (aux->left);
-				printf (" )");
-			}else{
-                showTree (aux->left);
-                if(!strcmp((aux->content)->name,"+")){
-                    printf (" + ");
-                } else {
-                    printf (" * ");
-                }
-				showTree (aux->right);
-			}
-		}
-    }else{
-        printf("Empty Tree.\n");
+  if(aux!=NULL){
+    if((aux->content)->type==CONSTANT){
+      printf(" %d ",(aux->content)->value);
     }
+    if((aux->content)->type == VAR){
+    printf(" %s ",(aux->content)->name);
+    }
+    if((aux->content)->type == OPER_AR){
+      if(!strcmp((aux->content)->name,"()")){
+        printf (" (");
+        showTree (aux->left);
+        printf (" )");
+      }
+      else{
+        showTree (aux->left);
+        if(!strcmp((aux->content)->name,"+")){
+          printf (" + ");
+        }
+        if(!strcmp((aux->content)->name,"-")){
+          printf (" - ");
+        }
+        if(!strcmp((aux->content)->name,"*")){
+          printf (" * ");
+        }
+        if(!strcmp((aux->content)->name,"/")){   //DIVISION VER SIMBOLO
+          printf (" / ");
+        }
+        if(!strcmp((aux->content)->name,"MOD")){  //MODULO VER SIMBOLO
+          printf (" MOD ");
+        }
+        if(!strcmp((aux->content)->name,"<")){
+          printf (" < ");
+        }
+        else{
+          printf(" > ");
+        }
+        showTree (aux->right);
+      }
+    }
+    if((aux->content)->type == OPER_LOG){
+      if(!strcmp((aux->content)->name,"-")){ //OPERADOR SUB VER SIMBOLO
+        printf (" - ");
+        showTree (aux->right);
+      }
+      if(!strcmp((aux->content)->name,"!")){ //OPERADOR NOT
+        printf (" ! ");
+        showTree (aux->right);
+      }
+      else{
+        showTree (aux->left);
+        if(!strcmp((aux->content)->name,"=")){
+          printf (" = ");
+        }
+        if(!strcmp((aux->content)->name,"&&")){
+          printf (" && ");
+        }
+        else{
+          printf(" || ");
+        }
+        showTree (aux->right);
+      }
+    }
+  }
+  else{
+    printf("Empty Tree.\n");
+  }
 }
 
 
@@ -269,27 +310,68 @@ void showTree(node *aux){
 Evalua el arbol
 */
 int evalTree(node *aux){
-	if((aux->content)->type == VAR || (aux->content)->type==CONSTANT){
-		return (aux->content)->value;
-	}
-	else{
-		if(!strcmp((aux->content)->name,"()")){
-			return semanticParenthesis(aux);
-		}else{
-			if(!strcmp((aux->content)->name,"+")){
-				return semanticSum(aux);
-			}else{
-				return (semanticProd(aux));
-			}
-		}
-	}
+  if((aux->content)->type == VAR || (aux->content)->type==CONSTANT){
+    return (aux->content)->value;
+  }
+  else{
+    if((aux->content)->type == OPER_AR){
+      if(!strcmp((aux->content)->name,"()")){
+        return semanticParenthesis(aux);
+      }
+      if(!strcmp((aux->content)->name,"+")){
+        return semanticSum(aux);
+      }
+      if(!strcmp((aux->content)->name,"-")){
+        return semanticSub(aux);
+      }
+      if(!strcmp((aux->content)->name,"*")){
+        return semanticProd(aux);
+      }
+      if(!strcmp((aux->content)->name,"/")){   //DIVISION VER SIMBOLO
+        printf (" / ");
+      }
+      if(!strcmp((aux->content)->name,"MOD")){  //MODULO VER SIMBOLO
+        printf (" MOD ");
+      }
+      if(!strcmp((aux->content)->name,"<")){
+        printf (" < ");
+      }
+      else{
+        printf(" > ");
+      }
+    }
+    if((aux->content)->type == OPER_LOG){
+      if(!strcmp((aux->content)->name,"-")){ //OPERADOR SUB VER SIMBOLO
+        printf (" - ");
+      }
+      if(!strcmp((aux->content)->name,"!")){ //OPERADOR NOT
+        printf (" ! ");
+      }
+      if(!strcmp((aux->content)->name,"=")){
+        printf (" = ");
+      }
+      if(!strcmp((aux->content)->name,"&&")){
+        printf (" && ");
+      }
+      else{
+        printf(" || ");
+      }
+    }
+  }
 }
+    
 
 /*
 Semantica de la operacion Suma +
 */
 int semanticSum(node *sum){
     return (evalTree(sum->left) + evalTree(sum->right));
+}
+/*
+Semantica de la operacion Sustraccion -
+*/
+int semanticSub(node *sub){
+    return (evalTree(sub->left) - evalTree(sub->right));
 }
 
 /*
