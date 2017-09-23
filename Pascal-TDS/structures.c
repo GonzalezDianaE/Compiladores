@@ -13,12 +13,32 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define CONSTANT 1
 #define OPER_AR 2
 #define OPER_LOG 3
-#define INTEGER 4
-#define BOOL 5
-#define VOID 6
+#define INTEGERAUX 4
+#define BOOLAUX 5
+#define VOIDAUX 6
 #define ERROR 7
 #define INDETERMINATE 8
+#define FUNCTION 9
 
+
+////////DECLARACION DE TIPOS
+
+typedef struct tree node;
+typedef struct itemsFunc itemFunc;
+typedef struct items item;
+typedef struct symbolTable symbol;
+
+/*
+Define un item adeicionales para las funciones del arbol o tabla de simbolos
+ret: define el tipo de retorno de la funcion
+value: lista de parametros de la funcion
+type: arbol de sentencias de la funcion
+*/
+typedef struct itemsFunc{
+    int ret;
+    int params[10];
+    node *tree;
+} itemFunc;
 
 /*
 Define un item del arbol o tabla de simbolos
@@ -31,6 +51,7 @@ typedef struct items{
     char name[32];
     int value;
     int type;
+    itemFunc *function;
 } item;
 
 /*
@@ -46,9 +67,30 @@ Arbol de evaluacion del lenguaje.
 */
 typedef struct tree{
     item *content;
+    struct tree *middle;
     struct tree *left;
     struct tree *right;
 } node;
+
+int isEmpty();
+int isFull();
+void openLevel();
+void closeLevel();
+item * searchVar(char n[32]);
+int typeLastVar();
+void insertVar(char n[32], int v, int t);
+void insertList(symbol *head, char n[32], int v, int t);
+void showList(symbol *head);
+item * findList(symbol *head, char n[32]);
+node * insertTree (char n[32], int v, int t);
+void concatLeft (node *father, node *son);
+void concatRight (node *father, node *son);
+void showTree(node *aux);
+/*int evalTree(node *aux);
+int semanticSum(node *sum);
+int semanticSub(node *sub);
+int semanticProd(node *prod);
+int semanticParenthesis(node *parenthesis);*/
 
 //////VARIABLES GLOBALES/////
 
@@ -59,26 +101,7 @@ int top = -1;
 /*
 puntero a la cabeza de un arbol
 */
-node *head;
-
-////////DECLARACION DE FUNCIONES
-int isEmpty();
-int isFull();
-void openLevel();
-void closeLevel();
-item * searchVar(char n[32]);
-void insertVar(char n[32], int v, int t);
-void insertList(symbol *head, char n[32], int v, int t);
-void showList(symbol *head);
-item * findList(symbol *head, char n[32]);
-node * insertTree (char n[32], int v, int t);
-void concatLeft (node *father, node *son);
-void concatRight (node *father, node *son);
-void showTree(node *aux);
-int evalTree(node *aux);
-int semanticSum(node *sum);
-int semanticProd(node *prod);
-int semanticParenthesis(node *parenthesis);
+//node *head;
 
 
 ///////IMPLEMENTACION DE FUNCIONES/////////
@@ -115,15 +138,53 @@ void closeLevel(){
   }
 }
 
+/*
+Busca un elemento en la tabla de symbolos
+*/
+item * findList(symbol *head,char n[32]){
+    symbol *aux = head;
+    if(aux!=NULL){
+        while(aux !=  NULL && strcmp((aux->content)->name,n)){
+            aux = aux->next;
+        }
+        if(aux == NULL){
+            return NULL;
+        } else {
+            return aux->content;
+        }
+    }else{
+        printf("Empty list.\n");
+    }
+    return  NULL;
+}
+
 item * searchVar(char n[32]){
   int i = top;
   item *aux;
   while (i>=0){
-      aux = findList(levels[top],n);
+      aux = findList(levels[i],n);
       if(aux != NULL){
         return aux;
       }
       i = i - 1;
+  }
+  return NULL;
+}
+
+int typeLastVar(){
+  symbol *aux= levels[top];
+  if (aux!=NULL){
+    while (aux->next!=NULL)
+      aux = aux->next;
+  }
+  return (aux->content)->type;
+}
+
+item * searchFunction (char n[32]){
+  item *aux;
+  aux = findList(levels[0],n);
+  if(aux != NULL){
+        return aux;
   }
   return NULL;
 }
@@ -150,6 +211,40 @@ void insertList(symbol *head,char n[32], int v, int t){
         element->content = content;
         element->next = NULL;
         if(head->next==NULL){
+            head->next = element;
+        }else {
+            symbol *aux = head->next;
+            while(aux->next != NULL){
+              aux = aux->next;
+            }
+            aux->next = element;
+        }
+    }
+}
+
+void insertFunction(symbol *head,char n[32], int v, int t, int r, int p[10]){
+    if (searchFunction(n)){
+        fprintf(stderr, "Error: FUNCTION %s declared before\n", n);
+        exit(EXIT_FAILURE);
+    }else{
+        symbol *element;
+        element = (symbol *) malloc(sizeof(symbol));
+        item *content;
+        content = (item *) malloc(sizeof(item));
+        itemFunc *contentFunc;
+        contentFunc = (itemFunc *) malloc(sizeof(itemFunc));
+        strcpy(content->name,n);
+        content->value = v;
+        content->type = t;
+        int loop;
+        for (loop=1; loop<sizeof(int[10]); loop++){
+          contentFunc->params[loop]=p[loop];
+        }
+        contentFunc->ret=r;
+        content->function= contentFunc;
+        element->content = content;
+        element->next = NULL;
+        if(head->next==NULL){
           head->next = element;
         } else {
           symbol *aux = head->next;
@@ -159,8 +254,8 @@ void insertList(symbol *head,char n[32], int v, int t){
           aux->next = element;
         }
     }
-}
 
+}
 /*
 Muestra la tabla de simbolos
 */
@@ -175,26 +270,6 @@ void showList(symbol *head){
     }else{
         printf("Empty list.\n");
     }
-}
-
-/*
-Busca un elemento en la tabla de symbolos
-*/
-item * findList(symbol *head,char n[32]){
-    symbol *aux = head;
-    if(aux!=NULL){
-        while(aux !=  NULL && strcmp((aux->content)->name,n)){
-            aux = aux->next;
-        }
-        if(aux == NULL){
-            return NULL;
-        } else {
-            return aux->content;
-        }
-    }else{
-        printf("Empty list.\n");
-    }
-    return  NULL;
 }
 
 
@@ -230,6 +305,13 @@ agrega el arbol son como hijo derecho del arbol father
 */
 void concatRight (node *father, node *son){
     father->right=son;
+}
+
+/*
+agrega el arbol son como hijo del medio del arbol father
+*/
+void concatMiddle (node *father, node *son){
+    father->middle=son;
 }
 
 /*
@@ -309,6 +391,8 @@ void showTree(node *aux){
 /*
 Evalua el arbol
 */
+
+/*
 int evalTree(node *aux){
   if((aux->content)->type == VAR || (aux->content)->type==CONSTANT){
     return (aux->content)->value;
@@ -357,33 +441,46 @@ int evalTree(node *aux){
         printf(" || ");
       }
     }
+  return 0;///para que no tire error
   }
 }
-    
+*/    
+
 
 /*
 Semantica de la operacion Suma +
 */
+
+/*
 int semanticSum(node *sum){
     return (evalTree(sum->left) + evalTree(sum->right));
 }
+*/
+
 /*
 Semantica de la operacion Sustraccion -
 */
+
+/*
 int semanticSub(node *sub){
     return (evalTree(sub->left) - evalTree(sub->right));
 }
+*/
 
 /*
 Semantica de la operacion Producto *
 */
+/*
 int semanticProd(node *prod){
     return (evalTree(prod->left) * evalTree(prod->right));
 }
+*/
 
 /*
 Semantica de la operacion Parentesis ()
 */
+/*
 int semanticParenthesis(node *parenthesis){
     return evalTree(parenthesis->left);
 }
+*/

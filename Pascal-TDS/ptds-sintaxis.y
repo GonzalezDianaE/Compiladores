@@ -2,12 +2,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "types.c"  
+#include "types.c"
+#include "structures.c" 
 extern int yylineno;
 
 %}
  
-%union { int i; char *s; struct tokensVal *tv; struct tokensStr *ts;}
+%union { int i; char *s; struct tokensVal *tv; struct tokensStr *ts; struct tree *t; int p[10];}
  
 %token<tv> INT
 %token<ts> ID
@@ -47,18 +48,29 @@ extern int yylineno;
 %nonassoc OP_EQUAL OP_MAJOR OP_MINOR
 %left OP_ADD OP_SUB
 %left OP_PROD OP_DIV OP_MOD
-%right NEG  
+%right NEG 
+
+%type<i> type
+%type<p> param
+%type<t> expr
+%type<t> literal
+%type<i> bool_literal
+%type<i> integer_literal
+
+
 
 %%
- 
+program: {openLevel();} prog
+;
+
 prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END            {printf("programa var_decl ; method_decl ; \n");}
       | PROGRAM BEGINN method_decls END                               {printf("programa method_decl\n");}
       | PROGRAM BEGINN var_decls SEMICOLON END                        {printf("programa var_decl\n");}
       | PROGRAM BEGINN END                                            {printf("programa BEGINN END\n");}
     ;
 
-var_decl : type ID                                                    {printf("declaracion de variable type ID\n");}
-      | var_decl COMMA ID                                             {printf("declaracion de variable var_decl , type ID\n");}
+var_decl : type ID                                                    {insertVar ($2->value,0,$1);}
+      | var_decl COMMA ID                                             {insertTree ($3->value,0,typeLastVar());}
     ;
 
 var_decls : var_decl                                                  {printf("var_decl\n");}
@@ -79,14 +91,18 @@ param : type ID                                                         {printf(
       | param COMMA type ID                                             {printf("param recursive\n");}
     ;
 
-block: BEGINN var_decls SEMICOLON statements END                       {printf("bloque var_decl statement\n");}
+block: {openLevel()} blockAux
+    ;
+
+
+blockAux: BEGINN var_decls SEMICOLON statements END                    {printf("bloque var_decl statement\n");}
       | BEGINN statements END                                          {printf("bloque statement\n");}
       | BEGINN var_decls SEMICOLON END                                 {printf("bloque var_decl\n");}
       | BEGINN END                                                     {printf("bloque BEGINN END\n");}
     ;
 
-type : INTEGER                                                         {printf("tipo entero\n");}
-      | BOOL                                                           {printf("tipo booleano\n");}
+type : INTEGER                                                         {$$ = INTEGERAUX;}
+      | BOOL                                                           {$$ = BOOLAUX;}
     ;
 
 statement : ID OP_ASS expr SEMICOLON                                  {printf("statement ID\n");}
@@ -108,10 +124,20 @@ method_call : ID PAR_LEFT expr PAR_RIGHT                              {printf("m
       | ID PAR_LEFT PAR_RIGHT                                         {printf("method_call ID ()\n");}
     ;
 
-expr : ID                                                 {printf("expr ID\n");}
-      | method_call                                       {printf("expr method_call\n");}
-      | literal                                           {printf("expr literal\n");}
-      | expr OP_ADD expr                                  {printf("expr bin_op expr\n");}
+expr : ID                                                 { node *father;
+                                                            father->content = searchVar($1->value);
+                                                            $$ = father;
+                                                          }
+      | method_call                                       {//NO TENGO NI IDEAAAAAA
+                                                            printf("expr method_call\n");}
+      | literal                                           {$$ = $1;}
+      | expr OP_ADD expr                                  {node *father;
+                                                           insertTree ("OP_ADD",0,OPER_AR);
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES 
+                                                           concatLeft(father,$1);
+                                                           concatRight(father,$3);
+                                                           $$ = father;
+                                                          }
       | expr OP_SUB expr                                  {printf("expr bin_op expr\n");}
       | expr OP_PROD expr                                 {printf("expr bin_op expr\n");}
       | expr OP_DIV expr                                  {printf("expr bin_op expr\n");}
@@ -126,15 +152,15 @@ expr : ID                                                 {printf("expr ID\n");}
       | PAR_LEFT expr PAR_RIGHT                           {printf("expr (expr)\n");}
     ;
 
-literal : integer_literal                                 {printf("literal integer_literal\n");}
-      | bool_literal                                      {printf("literal bool_literal\n");}
+literal : integer_literal                                 {$$ = insertTree("int_lit",$1,INTEGERAUX);}
+      | bool_literal                                      {$$ = insertTree("bool_lit",$1,BOOLAUX);}
     ;
 
-integer_literal : INT                                     {printf("integer_literal\n");}
+integer_literal : INT                                     {$$ = $1->value;}
     ;              
 
-bool_literal : TRUE                                       {printf("bool_literal TRUE\n");}
-      | FALSE                                             {printf("bool_literal FALSE\n");}
+bool_literal : TRUE                                       {$$ = TRUE;}
+      | FALSE                                             {$$ = FALSE;}
     ;
 
 %%
