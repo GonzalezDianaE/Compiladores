@@ -75,7 +75,7 @@ prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END            {printf("p
       | PROGRAM BEGINN END                                            {printf("programa BEGINN END\n");}
     ;
 
-var_decl : type ID                                                    {insertVar ($2->value,0,$1);}
+var_decl : type ID                                                    {insertTable ($2->value,0,$1);}
       | var_decl COMMA ID                                             {insertTree ($3->value,0,typeLastVar());}
     ;
 
@@ -131,7 +131,7 @@ method_call : ID PAR_LEFT expr PAR_RIGHT                              {printf("m
     ;
 
 expr : ID                                                 { node *father;
-                                                            father->content = searchVar($1->value);
+                                                            father->content = findTable($1->value);
                                                             $$ = father;
                                                           }
       | method_call                                       {//NO TENGO NI IDEAAAAAA

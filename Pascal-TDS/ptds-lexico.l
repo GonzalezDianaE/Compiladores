@@ -21,7 +21,7 @@ digit [0-9]
 %%
 
 \{                            { BEGIN(comment);}
-<comment>[^}]*              { }
+<comment>[^}]*                { }
 <comment>\}                   { BEGIN(INITIAL);}
 <comment><<EOF>>              { error("Unexpected eof");
                                 yyterminate();}

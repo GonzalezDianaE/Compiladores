@@ -35,9 +35,9 @@ value: lista de parametros de la funcion
 type: arbol de sentencias de la funcion
 */
 typedef struct itemsFunc{
-    int ret;
-    int params[10];
-    node *tree;
+  int ret;
+  int params[10];
+  node *tree;
 } itemFunc;
 
 /*
@@ -48,44 +48,53 @@ value: define el valor de la constante o variable
 type: define el tipo de item (operacion, variable o constante)
 */
 typedef struct items{
-    char name[32];
-    int value;
-    int type;
-    itemFunc *function;
+  char name[32];
+  int value;
+  int type;
+  itemFunc *function;
 } item;
 
 /*
  Tabla de simbolos del lenguaje implementada mediante una linked list de items
 */
 typedef struct symbolTable{
-    item *content;
-    struct symbolTable *next;
+  item *content;
+  struct symbolTable *next;
 } symbol;
 
 /*
 Arbol de evaluacion del lenguaje.
 */
 typedef struct tree{
-    item *content;
-    struct tree *middle;
-    struct tree *left;
-    struct tree *right;
+  item *content;
+  struct tree *middle;
+  struct tree *left;
+  struct tree *right;
 } node;
 
+// Table
 int isEmpty();
 int isFull();
 void openLevel();
 void closeLevel();
-item * searchVar(char n[32]);
 int typeLastVar();
-void insertVar(char n[32], int v, int t);
-void insertList(symbol *head, char n[32], int v, int t);
-void showList(symbol *head);
+item * findTable(char n[32]);
+item * searchFunction(char n[32]);
+void insertTable(char n[32], int v, int t);
+
+// List
 item * findList(symbol *head, char n[32]);
+void insertList(symbol *head, char n[32], int v, int t);
+void insertFunction(symbol *head,char n[32], int v, int t, int r, int p[10]);
+void showList(symbol *head);
+
+// Tree
 node * insertTree (char n[32], int v, int t);
 void concatLeft (node *father, node *son);
 void concatRight (node *father, node *son);
+void concatMiddle (node *father, node *son);
 void showTree(node *aux);
+
 /*int evalTree(node *aux);
 int semanticSum(node *sum);
 int semanticSub(node *sub);
@@ -106,170 +115,204 @@ puntero a la cabeza de un arbol
 
 ///////IMPLEMENTACION DE FUNCIONES/////////
 int isEmpty() {
-   if(top == -1)
-      return 1;
-   else
-      return 0;
+  if(top == -1)
+    return 1;
+  else
+    return 0;
 }
 
 int isFull() {
-   if(top == MAXSIZE)
-      return 1;
-   else
-      return 0;
+  if(top == MAXSIZE)
+    return 1;
+  else
+    return 0;
 }
 
-
 void openLevel(){
+  //printf("Begin openLevel\n");
   if(!isFull()){
     top = top + 1;
-    symbol *head;
+    symbol *head = (symbol *) malloc(sizeof(symbol));
+    head->next = NULL;
     levels[top]=head;
   } else {
     printf("Could not open a new level.\n");
   }
+  //printf("End openLevel\n");
 }
 
 void closeLevel(){
+  //printf("Begin closeLevel\n");
   if(!isEmpty()){
     top = top - 1;
   } else {
     printf("No levels open.\n");
   }
-}
-
-/*
-Busca un elemento en la tabla de symbolos
-*/
-item * findList(symbol *head,char n[32]){
-    symbol *aux = head;
-    if(aux!=NULL){
-        while(aux !=  NULL && strcmp((aux->content)->name,n)){
-            aux = aux->next;
-        }
-        if(aux == NULL){
-            return NULL;
-        } else {
-            return aux->content;
-        }
-    }else{
-        printf("Empty list.\n");
-    }
-    return  NULL;
-}
-
-item * searchVar(char n[32]){
-  int i = top;
-  item *aux;
-  while (i>=0){
-      aux = findList(levels[i],n);
-      if(aux != NULL){
-        return aux;
-      }
-      i = i - 1;
-  }
-  return NULL;
+  //printf("End closeLevel\n");
 }
 
 int typeLastVar(){
-  symbol *aux= levels[top];
-  if (aux!=NULL){
+  printf("Begin typeLastVar\n");
+  symbol *aux = levels[top];
+  if ((aux->next)!=NULL){
     while (aux->next!=NULL)
       aux = aux->next;
   }
+  printf("End typeLastVar\n");
   return (aux->content)->type;
 }
 
-item * searchFunction (char n[32]){
-  item *aux;
-  aux = findList(levels[0],n);
-  if(aux != NULL){
-        return aux;
+item * findTable(char n[32]){
+  printf("Begin findTable\n");
+  int i = top;
+  item *aux = (item *) malloc(sizeof(item));
+  while (i>=0){
+    aux = findList(levels[i],n);
+    if(aux != NULL){
+      printf("End findTable\n");
+      return aux;
+    }
+    i = i - 1;
   }
+  printf("End findTable\n");
   return NULL;
 }
 
-void insertVar(char n[32], int v, int t){
+item * searchFunction (char n[32]){
+  //printf("Begin searchFunction\n");
+  item *aux = (item *) malloc(sizeof(item));
+  aux = findList(levels[0],n);
+  if(aux != NULL){
+    //printf("End searchFunction\n");
+    return aux;
+  }
+  //printf("End searchFunction\n");
+  return NULL;
+}
+
+void insertTable(char n[32], int v, int t){
+  printf("Begin insertTable\n");
   insertList(levels[top],n,v,t);
+  printf("End insertTable\n");
+}
+
+/*
+Busca un elemento en la tabla de simbolos
+*/
+item * findList(symbol *head,char n[32]){
+  printf("Begin findList\n");
+  symbol *aux = head;
+  printf("asign head\n");
+  if((aux->next)!=NULL){
+    printf("at least one element\n");
+    aux=aux->next;
+    while((aux->next)!=NULL && strcmp((aux->content)->name,n)){
+      printf("loop\n");
+      aux = aux->next;
+    }
+    printf("after loop\n");
+    if(aux == NULL){
+      return NULL;
+    } else {
+      printf("End findList\n");
+      return aux->content;
+    }
+  }else{
+    printf("Empty list.\n");
+  }
+  printf("End findList\n");
+  return  NULL;
 }
 
 /*
 Inserta un elemento en la tabla de simbolos
 */
 void insertList(symbol *head,char n[32], int v, int t){
-    if (findList(head,n)){
-        fprintf(stderr, "Error: var %s declared before\n", n);
-        exit(EXIT_FAILURE);
+  printf("Begin insertList\n");
+  if (findList(head,n)){
+    fprintf(stderr, "Error: var %s declared before\n", n);
+    printf("End insertList\n");
+    exit(EXIT_FAILURE);
+  }else{
+    symbol *element;
+    element = (symbol *) malloc(sizeof(symbol));
+    item *content;
+    content = (item *) malloc(sizeof(item));
+    strcpy(content->name,n);
+    content->value = v;
+    content->type = t;
+    element->content = content;
+    element->next = NULL;
+    if(head->next==NULL){
+      head->next = element;
     }else{
-        symbol *element;
-        element = (symbol *) malloc(sizeof(symbol));
-        item *content;
-        content = (item *) malloc(sizeof(item));
-        strcpy(content->name,n);
-        content->value = v;
-        content->type = t;
-        element->content = content;
-        element->next = NULL;
-        if(head->next==NULL){
-            head->next = element;
-        }else {
-            symbol *aux = head->next;
-            while(aux->next != NULL){
-              aux = aux->next;
-            }
-            aux->next = element;
-        }
+      symbol *aux = head->next;
+      while(aux->next != NULL){
+        aux = aux->next;
+      }
+      aux->next = element;
     }
+  }
+  printf("End insertList\n");
 }
 
 void insertFunction(symbol *head,char n[32], int v, int t, int r, int p[10]){
-    if (searchFunction(n)){
-        fprintf(stderr, "Error: FUNCTION %s declared before\n", n);
-        exit(EXIT_FAILURE);
-    }else{
-        symbol *element;
-        element = (symbol *) malloc(sizeof(symbol));
-        item *content;
-        content = (item *) malloc(sizeof(item));
-        itemFunc *contentFunc;
-        contentFunc = (itemFunc *) malloc(sizeof(itemFunc));
-        strcpy(content->name,n);
-        content->value = v;
-        content->type = t;
-        int loop;
-        for (loop=1; loop<sizeof(int[10]); loop++){
-          contentFunc->params[loop]=p[loop];
-        }
-        contentFunc->ret=r;
-        content->function= contentFunc;
-        element->content = content;
-        element->next = NULL;
-        if(head->next==NULL){
-          head->next = element;
-        } else {
-          symbol *aux = head->next;
-          while(aux->next != NULL){
-            aux = aux->next;
-          }
-          aux->next = element;
-        }
+  //printf("Begin insertFunction\n");
+  if (searchFunction(n)){
+    fprintf(stderr, "Error: FUNCTION %s declared before\n", n);
+    //printf("End insertFunction\n");
+    exit(EXIT_FAILURE);
+  }else{
+    symbol *element;
+    element = (symbol *) malloc(sizeof(symbol));
+    item *content;
+    content = (item *) malloc(sizeof(item));
+    itemFunc *contentFunc;
+    contentFunc = (itemFunc *) malloc(sizeof(itemFunc));
+    strcpy(content->name,n);
+    content->value = v;
+    content->type = t;
+    int loop;
+    for (loop=1; loop<sizeof(int[10]); loop++){
+      contentFunc->params[loop]=p[loop];
     }
-
+    contentFunc->ret=r;
+    content->function= contentFunc;
+    element->content = content;
+    element->next = NULL;
+    if(head->next==NULL){
+      head->next = element;
+    } else {
+      symbol *aux = head->next;
+      while(aux->next != NULL){
+        aux = aux->next;
+      }
+      aux->next = element;
+    }
+  }
+  //printf("End insertFunction\n");
 }
 /*
 Muestra la tabla de simbolos
 */
 void showList(symbol *head){
-    symbol *aux = head;
-    if(aux!=NULL){
-        printf("Showing list\n");
-        while(aux !=  NULL){
-            printf("Name: %s, value %d\n",(aux->content)->name,(aux->content)->value);
-            aux = aux->next;
-        }
+  //printf("Begin showList\n");
+  int i = top;
+  printf("Showing table\n");
+  while (i>=0){
+    printf("Level %d\n",i);
+    symbol *aux = levels[i];
+    if((aux->next)!= NULL){
+      do{
+        aux = aux->next;
+        printf("  Name: %s, value %d\n",(aux->content)->name,(aux->content)->value);
+      } while (aux->next!=NULL);
     }else{
-        printf("Empty list.\n");
+      printf("  Empty list.\n");
     }
+    i = i - 1;
+  }
+  //printf("End showList\n");
 }
 
 
@@ -278,46 +321,52 @@ Crea un elemento de tipo arbol con sus hijos NULL,
 si el elemento es de tipo Var busca sus datos en la tabla de Simbolos
 */
 node * insertTree (char n[32], int v, int t){
-    item *content;
-    if (t == VAR){
-        content = searchVar(n);
-    }else{
-        content = (item *) malloc(sizeof(item));
-        strcpy(content->name,n);
-        content->value = v;
-        content->type = t;
-    }
-    node *element;
-    element = (node *) malloc(sizeof(node));
-    element->content = content;
-    return element;
+  //printf("Begin insertTree\n");
+  item *content;
+  if (t == VAR){
+    content = findTable(n);
+  }else{
+    content = (item *) malloc(sizeof(item));
+    strcpy(content->name,n);
+    content->value = v;
+    content->type = t;
+  }
+  node *element;
+  element = (node *) malloc(sizeof(node));
+  element->content = content;
+  //printf("End insertTree\n");
+  return element;
 }
 
 /*
 agrega el arbol son como hijo izquierdo del arbol father
 */
 void concatLeft (node *father, node *son){
-    father->left=son;
+  father->left=son;
+  //printf("concatLeft\n");
 }
 
 /*
 agrega el arbol son como hijo derecho del arbol father
 */
 void concatRight (node *father, node *son){
-    father->right=son;
+  father->right=son;
+  //printf("concatRight\n");
 }
 
 /*
 agrega el arbol son como hijo del medio del arbol father
 */
 void concatMiddle (node *father, node *son){
-    father->middle=son;
+  father->middle=son;
+  //printf("concatMiddle\n");
 }
 
 /*
 Muestra la estructura del arbol de modo InOrder
 */
 void showTree(node *aux){
+  //printf("Begin showTree\n");
   if(aux!=NULL){
     if((aux->content)->type==CONSTANT){
       printf(" %d ",(aux->content)->value);
@@ -384,6 +433,7 @@ void showTree(node *aux){
   else{
     printf("Empty Tree.\n");
   }
+  //printf("End showTree\n");
 }
 
 
@@ -444,7 +494,7 @@ int evalTree(node *aux){
   return 0;///para que no tire error
   }
 }
-*/    
+*/
 
 
 /*
