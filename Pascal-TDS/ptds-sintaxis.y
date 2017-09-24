@@ -8,6 +8,12 @@ extern int yylineno;
 
 %}
 
+%{
+int yylex();
+void yyerror(const char *s);
+%}
+
+
 %union { int i; char *s; struct tokensVal *tv; struct tokensStr *ts; struct tree *t; int p[10];}
 
 %token<tv> INT
