@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "types.c"
-#include "structures.c" 
+#include "structures.c"
 extern int yylineno;
 
 %}
- 
+
 %union { int i; char *s; struct tokensVal *tv; struct tokensStr *ts; struct tree *t; int p[10];}
- 
+
 %token<tv> INT
 %token<ts> ID
 %token<i> OP_ADD
@@ -48,7 +48,7 @@ extern int yylineno;
 %nonassoc OP_EQUAL OP_MAJOR OP_MINOR
 %left OP_ADD OP_SUB
 %left OP_PROD OP_DIV OP_MOD
-%right NEG 
+%right NEG
 
 %type<i> type
 %type<p> param
@@ -91,7 +91,7 @@ param : type ID                                                         {printf(
       | param COMMA type ID                                             {printf("param recursive\n");}
     ;
 
-block: {openLevel()} blockAux
+block: {openLevel();} blockAux
     ;
 
 
@@ -133,7 +133,7 @@ expr : ID                                                 { node *father;
       | literal                                           {$$ = $1;}
       | expr OP_ADD expr                                  {node *father;
                                                            insertTree ("OP_ADD",0,OPER_AR);
-                                                           //CHEQUEAR TIPOS DE EXPRESIONES 
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
                                                            concatLeft(father,$1);
                                                            concatRight(father,$3);
                                                            $$ = father;
@@ -157,7 +157,7 @@ literal : integer_literal                                 {$$ = insertTree("int_
     ;
 
 integer_literal : INT                                     {$$ = $1->value;}
-    ;              
+    ;
 
 bool_literal : TRUE                                       {$$ = TRUE;}
       | FALSE                                             {$$ = FALSE;}

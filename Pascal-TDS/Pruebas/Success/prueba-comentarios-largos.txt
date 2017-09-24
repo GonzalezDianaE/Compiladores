@@ -1,0 +1,22 @@
+{ Comentario
+largo 1}
+program
+    begin
+	{
+    Comentario
+    Comentario
+    Comentario
+    Comentario
+    Comentario
+    Comentario
+	}
+
+
+
+
+    end
+
+
+
+{ Comentario
+largo 2}
