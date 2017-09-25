@@ -232,6 +232,12 @@ expr : ID                                                 { $$ = insertTree ($1-
       | expr OP_ADD expr                                  { node *father;
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               father = insertTree ("OP_ADD",0,OPER_AR);
                                                               concatLeft(father,$1);
