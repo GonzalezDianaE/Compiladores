@@ -98,7 +98,7 @@ param : type ID                                                         {printf(
       | param COMMA type ID                                             {printf("param recursive\n");}
     ;
 
-block: {openLevel();} blockAux
+block: {openLevel();} blockAux                                         {closeLevel();}
     ;
 
 
@@ -142,7 +142,9 @@ expr : ID                                                 { $$ = insertTree ($1-
       | expr OP_ADD expr                                  { node *father;
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                            printf("AAAAAAA\n");}
+
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               father = insertTree ("OP_ADD",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -158,7 +160,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                            //CHEQUEAR TIPOS DE EXPRESIONES
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            if(t1 == OPER_AR || t1 == INTEGERAUX|| t2 == OPER_AR || t2 == INTEGERAUX){
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               father = insertTree ("OP_SUB",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -173,7 +175,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                            //CHEQUEAR TIPOS DE EXPRESIONES
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               father = insertTree ("OP_PROD",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -188,7 +190,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             //CHEQUEAR TIPOS DE EXPRESIONES
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               father = insertTree ("OP_DIV",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -203,7 +205,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                            //CHEQUEAR TIPOS DE EXPRESIONES
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               father = insertTree ("OP_MOD",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -218,7 +220,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                            //CHEQUEAR TIPOS DE EXPRESIONES
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               father = insertTree ("OP_MINOR",0,OPER_REL);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -233,7 +235,8 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                            //CHEQUEAR TIPOS DE EXPRESIONES
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+
                                                               father = insertTree ("OP_MAJOR",0,OPER_REL);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -250,7 +253,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             bool tipearit1 = (t1 == OPER_AR || t1 == INTEGERAUX);
-                                                            bool tipearit2 = (t1 == OPER_AR || t1 == INTEGERAUX);
+                                                            bool tipearit2 = (t2 == OPER_AR || t2 == INTEGERAUX);
                                                             if(tipearit1 == tipearit2){
                                                               father = insertTree ("OP_EQUAL",0,OPER_REL);
                                                               concatLeft(father,$1);
@@ -266,7 +269,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                            //CHEQUEAR TIPOS DE EXPRESIONES
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            if(t1 == OPER_LOG || t1 == BOOLAUX || t2 == OPER_LOG || t2 == BOOLAUX || t1 == OPER_REL || t2 == OPER_REL){
+                                                            if((t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL) && (t2 == OPER_LOG || t2 == BOOLAUX ||  t2 == OPER_REL)){
                                                               father = insertTree ("OP_AND",0,OPER_LOG);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -280,7 +283,7 @@ expr : ID                                                 { $$ = insertTree ($1-
       | expr OP_OR expr                                   { node *father;
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            if(t1 == OPER_LOG || t1 == BOOLAUX || t2 == OPER_LOG || t2 == BOOLAUX || t1 == OPER_REL || t2 == OPER_REL){
+                                                            if((t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL) && (t2 == OPER_LOG || t2 == BOOLAUX ||  t2 == OPER_REL)){
                                                               father = insertTree ("OP_OR",0,OPER_LOG);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
