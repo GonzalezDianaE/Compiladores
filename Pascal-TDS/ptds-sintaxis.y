@@ -130,15 +130,12 @@ method_call : ID PAR_LEFT expr PAR_RIGHT                              {printf("m
       | ID PAR_LEFT PAR_RIGHT                                         {printf("method_call ID ()\n");}
     ;
 
-expr : ID                                                 { node *father;
-                                                            father->content = findTable($1->value);
-                                                            $$ = father;
-                                                          }
+expr : ID                                                 { $$ = insertTree ($1->value,0,VAR);}
       | method_call                                       {//NO TENGO NI IDEAAAAAA
                                                             printf("expr method_call\n");}
       | literal                                           {$$ = $1;}
       | expr OP_ADD expr                                  {node *father;
-                                                           insertTree ("OP_ADD",0,OPER_AR);
+                                                           father = insertTree ("OP_ADD",0,OPER_AR);
                                                            //CHEQUEAR TIPOS DE EXPRESIONES
                                                            concatLeft(father,$1);
                                                            concatRight(father,$3);
