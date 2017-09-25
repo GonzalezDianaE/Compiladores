@@ -61,8 +61,16 @@ void yyerror(const char *s);
 %type<p> param
 %type<t> expr
 %type<t> literal
+%type<t> statement
+%type<t> statements
+%type<t> method_call
+%type<t> block
+%type<t> blockAux
+
+
 %type<i> bool_literal
 %type<i> integer_literal
+
 
 
 
@@ -98,12 +106,12 @@ param : type ID                                                         {printf(
       | param COMMA type ID                                             {printf("param recursive\n");}
     ;
 
-block: {openLevel();} blockAux                                         {closeLevel();}
+block: {openLevel();} blockAux                                         {closeLevel(); $$=$2;}
     ;
 
 
-blockAux: BEGINN var_decls SEMICOLON statements END                    {printf("bloque var_decl statement\n");}
-      | BEGINN statements END                                          {printf("bloque statement\n");}
+blockAux: BEGINN var_decls SEMICOLON statements END                    {$$=$4;}
+      | BEGINN statements END                                          {$$=$2;}
       | BEGINN var_decls SEMICOLON END                                 {printf("bloque var_decl\n");}
       | BEGINN END                                                     {printf("bloque BEGINN END\n");}
     ;
@@ -112,38 +120,118 @@ type : INTEGER                                                         {$$ = INT
       | BOOL                                                           {$$ = BOOLAUX;}
     ;
 
-statement : ID OP_ASS expr SEMICOLON                                  {printf("statement ID\n");}
-      | method_call SEMICOLON                                         {printf("statement method_call\n");}
-      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              {printf("statement IF expr THEN block ELSE block\n");}
-      | IF PAR_LEFT expr PAR_RIGHT THEN block                         {printf("statement IF expr THEN block\n");}
-      | WHILE expr block                                              {printf("statement WHILE expr block\n");}
-      | RETURN expr SEMICOLON                                         {printf("statement RETURN expr\n");}
-      | RETURN SEMICOLON                                              {printf("statement RETURN\n");}
-      | SEMICOLON                                                     {printf("statement ;\n");}
-      | block                                                         {printf("statement block\n");}
+statement : ID OP_ASS expr SEMICOLON                                  {call *node = insertTree($1->value,0,ASSIGN);
+                                                                        //en insert tree revisar que la variable ya este declarada!!!!!
+                                                                       call->left = concatLeft ($3);
+                                                                       $$=call;                                                       
+                                                                      }
+      | method_call SEMICOLON                                         {$$=$1;}
+      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              {call *node = insertTree("IF",0,IF);
+                                                                      //chequear tipo expr tiene q ser una funcion q retorne bool, bool, op_log, op_rel
+                                                                        call->left = $3;
+                                                                        call->middle = $6;
+                                                                        call->right = $8;
+                                                                        $$ = call;
+                                                                      }
+      | IF PAR_LEFT expr PAR_RIGHT THEN block                         {call *node = insertTree("IF_ELSE",0,IF_ELSE);
+                                                                      //chequear tipo expr tiene q ser una funcion q retorne bool, bool, op_log, op_rel
+                                                                        call->left = $3;
+                                                                        call->right = $6;
+                                                                        $$ = call;
+                                                                      }
+      | WHILE expr block                                              {call *node = insertTree("WHILE",0,WHILE);
+                                                                      //chequear tipo expr tiene q ser una funcion q retorne bool, bool, op_log, op_rel
+                                                                        call->left = $2;
+                                                                        call->right = $3;
+                                                                        $$ = call;
+                                                                      }
+      | RETURN expr SEMICOLON                                         {call *node = insertTree("RETURN_EXPR",0,RETURN_EXPR);
+                                                                        call->left = $2;
+                                                                        $$ = call;
+                                                                      }
+      | RETURN SEMICOLON                                              {call *node = insertTree("RETURN",0,RETURN);
+                                                                        $$ = call;
+                                                                      }
+      | SEMICOLON                                                     {}                                                              
+      | block                                                         {$$=$1}
     ;
 
-statements: statement                                                 {printf("statements \n");}
-      | statements statement                                          {printf("statements recursive\n");}
+statements: statement                                                 {$$=$1}
+      | statements statement                                          {call *node = insertTree("STATEMENTS",0,STATEMENTS);
+                                                                        call->left= $1;
+                                                                        call->right = $2;
+                                                                        $$ = call;
+                                                                      }
     ;
 
-method_call : ID PAR_LEFT exprs PAR_RIGHT                              {printf("method_call ID (expr)\n");}
-      | ID PAR_LEFT PAR_RIGHT                                         {printf("method_call ID ()\n");}
+method_call : ID PAR_LEFT {paramNo=0} paramscall PAR_RIGHT            { call *node;
+                                                                        call = $4;
+                                                                        (call->content)->function = searchFuntion($1->value);
+                                                                        (call->content)->name = $1->value;
+                                                                        size = paramNo;
+                                                                        paramNo = 0;
+                                                                        bool error = false;
+                                                                        int t1;
+                                                                        while (paramNo<=size || !error){
+                                                                          t1 = call->callFunnc[paramNo]->type;
+                                                                          if (((call->content)->function)->params[paramNo] == NULL){
+                                                                            error = true;
+                                                                        }
+                                                                        if (t1 == FUNCTION_CALL && !error){
+                                                                          t1 = ((call->content)->function)->ret;
+                                                                        }
+                                                                        if (((call->content)->function)->params[paramNo]=INTEGERAUX && !error)
+                                                                        {                                                       
+                                                                          error = (t1 == OPER_AR || t1 == INTEGERAUX);
+                                                                        }else{
+                                                                          error = (t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL);
+                                                                        }
+
+                                                                        paramNo++;
+                                                                        }
+                                                                        if (((call->content)->function)->params[paramNo] != NULL){
+                                                                          error = true;
+                                                                        }
+                                                                        if (!error){
+                                                                          $$ = call;
+                                                                        }
+                                                                      }
+      | ID PAR_LEFT PAR_RIGHT                                         {
+                                                                        call *node;
+                                                                        call=insertTree($1->value,0,FUNCTION_CALL);
+                                                                        (call->content)->function = searchFuntion($1->value);
+                                                                        /* if  ((call->content)->function->cantParams == 0){
+                                                                          $$ == call;
+                                                                          }else{
+                                                                            $$ = insertTree ("ERROR",0,ERROR);
+                                                                            fprintf(stderr, "Error: no match type\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        */
+                                                                      }
     ;
 
-exprs : expr
-      | exprs COMMA expr
+paramscall : expr                                         {
+                                                          call *node;
+                                                          call=insertTree("CALLFUNCTION",0,FUNCTION_CALL);
+                                                          call->callFunnc[paramNo]=$1;
+                                                          paramNo++;
+                                                          $$=call;
+                                                          }
+      | paramscall COMMA expr                             {                                                            
+                                                          call = $1;
+                                                          call->callFunnc[paramNo]=$3;
+                                                          paramNo++;
+                                                          $$=call;
+                                                          }
     ;
 
 expr : ID                                                 { $$ = insertTree ($1->value,0,VAR);}
-      | method_call                                       {//NO TENGO NI IDEAAAAAA
-                                                            printf("expr method_call\n");}
+      | method_call                                       { $$ = $1;}
       | literal                                           { $$ = $1;}
       | expr OP_ADD expr                                  { node *father;
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
-                                                            printf("AAAAAAA\n");}
-
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               father = insertTree ("OP_ADD",0,OPER_AR);
                                                               concatLeft(father,$1);
@@ -153,8 +241,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
-                                                            }
-
+                                                           }
                                                           }
       | expr OP_SUB expr                                  { node *father;
                                                            //CHEQUEAR TIPOS DE EXPRESIONES

@@ -6,6 +6,8 @@ la semantica de las funciones suma producto y parentesis
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
+
 
 /*constantes para definir tipo de valor en los items de lista
 y tablas (si son variables ,constantes o operaciones)*/
@@ -20,6 +22,19 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define ERROR 8
 #define INDETERMINATE 9
 #define FUNCTION 10
+#define FUNCTION_CALL 11
+#define IF 12
+#define IF_ELSE 13
+#define ASSIGN 14
+#define WHILE 15
+#define RETURN 16
+#define RETURN_EXPR 17
+#define STATEMENTS 18
+#define BLOCK 19
+
+
+
+
 
 
 ////////DECLARACION DE TIPOS
@@ -52,7 +67,9 @@ typedef struct items{
   char name[32];
   int value;
   int type;
+  bool val_asign;
   itemFunc *function;
+  node *callfunc[10];
 } item;
 
 /*
@@ -80,7 +97,7 @@ void openLevel();
 void closeLevel();
 int typeLastVar();
 item * findTable(char n[32]);
-item * searchFunction(char n[32]);
+itemFunc * searchFunction(char n[32]);
 void insertTable(char n[32], int v, int t);
 
 // List
@@ -179,13 +196,13 @@ item * findTable(char n[32]){
   return NULL;
 }
 
-item * searchFunction (char n[32]){
+itemFunc * searchFunction (char n[32]){
   //printf("Begin searchFunction\n");
   item *aux = (item *) malloc(sizeof(item));
   aux = findList(levels[0],n);
   if(aux != NULL){
     //printf("End searchFunction\n");
-    return aux;
+    return aux->function;
   }
   //printf("End searchFunction\n");
   return NULL;
@@ -321,7 +338,11 @@ node * insertTree (char n[32], int v, int t){
   //printf("Begin insertTree\n");
   item *content;
   if (t == VAR){
-    content = findTable(n);
+    content = (item *) malloc(sizeof(item));
+    item *contentAux = findTable(n);
+    strcpy(content->name,contentAux->name);
+    content->value = contentAux->value;
+    content->type = contentAux->type;
   }else{
     content = (item *) malloc(sizeof(item));
     strcpy(content->name,n);
