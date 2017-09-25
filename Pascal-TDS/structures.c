@@ -13,12 +13,13 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define CONSTANT 1
 #define OPER_AR 2
 #define OPER_LOG 3
-#define INTEGERAUX 4
-#define BOOLAUX 5
-#define VOIDAUX 6
-#define ERROR 7
-#define INDETERMINATE 8
-#define FUNCTION 9
+#define OPER_REL 4
+#define INTEGERAUX 5
+#define BOOLAUX 6
+#define VOIDAUX 7
+#define ERROR 8
+#define INDETERMINATE 9
+#define FUNCTION 10
 
 
 ////////DECLARACION DE TIPOS

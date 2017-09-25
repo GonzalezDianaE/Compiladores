@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "types.c"
 #include "structures.c"
 extern int yylineno;
@@ -126,33 +127,203 @@ statements: statement                                                 {printf("s
       | statements statement                                          {printf("statements recursive\n");}
     ;
 
-method_call : ID PAR_LEFT expr PAR_RIGHT                              {printf("method_call ID (expr)\n");}
+method_call : ID PAR_LEFT exprs PAR_RIGHT                              {printf("method_call ID (expr)\n");}
       | ID PAR_LEFT PAR_RIGHT                                         {printf("method_call ID ()\n");}
+    ;
+
+exprs : expr
+      | exprs COMMA expr
     ;
 
 expr : ID                                                 { $$ = insertTree ($1->value,0,VAR);}
       | method_call                                       {//NO TENGO NI IDEAAAAAA
                                                             printf("expr method_call\n");}
-      | literal                                           {$$ = $1;}
-      | expr OP_ADD expr                                  {node *father;
-                                                           father = insertTree ("OP_ADD",0,OPER_AR);
-                                                           //CHEQUEAR TIPOS DE EXPRESIONES
-                                                           concatLeft(father,$1);
-                                                           concatRight(father,$3);
-                                                           $$ = father;
+      | literal                                           { $$ = $1;}
+      | expr OP_ADD expr                                  { node *father;
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                              father = insertTree ("OP_ADD",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+
                                                           }
-      | expr OP_SUB expr                                  {printf("expr bin_op expr\n");}
-      | expr OP_PROD expr                                 {printf("expr bin_op expr\n");}
-      | expr OP_DIV expr                                  {printf("expr bin_op expr\n");}
-      | expr OP_MOD expr                                  {printf("expr bin_op expr\n");}
-      | expr OP_MINOR expr                                {printf("expr bin_op expr\n");}
-      | expr OP_MAJOR expr                                {printf("expr bin_op expr\n");}
-      | expr OP_EQUAL expr                                {printf("expr bin_op expr\n");}
-      | expr OP_AND expr                                  {printf("expr bin_op expr\n");}
-      | expr OP_OR expr                                   {printf("expr bin_op expr\n");}
-      | OP_SUB expr %prec NEG                             {printf("expr -\n");}
-      | OP_NOT expr %prec NEG                             {printf("expr !\n");}
-      | PAR_LEFT expr PAR_RIGHT                           {printf("expr (expr)\n");}
+      | expr OP_SUB expr                                  { node *father;
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if(t1 == OPER_AR || t1 == INTEGERAUX|| t2 == OPER_AR || t2 == INTEGERAUX){
+                                                              father = insertTree ("OP_SUB",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_PROD expr                                 { node *father;
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                              father = insertTree ("OP_PROD",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_DIV expr                                  { node *father;
+                                                            //CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                              father = insertTree ("OP_DIV",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_MOD expr                                  { node *father;
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                              father = insertTree ("OP_MOD",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_MINOR expr                                { node *father;
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                              father = insertTree ("OP_MINOR",0,OPER_REL);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_MAJOR expr                                { node *father;
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if(t1 == OPER_AR || t1 == INTEGERAUX || t2 == OPER_AR || t2 == INTEGERAUX){
+                                                              father = insertTree ("OP_MAJOR",0,OPER_REL);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_EQUAL expr                                { node *father;
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
+                                                            concatLeft(father,$1);
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            bool tipearit1 = (t1 == OPER_AR || t1 == INTEGERAUX);
+                                                            bool tipearit2 = (t1 == OPER_AR || t1 == INTEGERAUX);
+                                                            if(tipearit1 == tipearit2){
+                                                              father = insertTree ("OP_EQUAL",0,OPER_REL);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_AND expr                                  { node *father;
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if(t1 == OPER_LOG || t1 == BOOLAUX || t2 == OPER_LOG || t2 == BOOLAUX || t1 == OPER_REL || t2 == OPER_REL){
+                                                              father = insertTree ("OP_AND",0,OPER_LOG);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_OR expr                                   { node *father;
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if(t1 == OPER_LOG || t1 == BOOLAUX || t2 == OPER_LOG || t2 == BOOLAUX || t1 == OPER_REL || t2 == OPER_REL){
+                                                              father = insertTree ("OP_OR",0,OPER_LOG);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | OP_SUB expr %prec NEG                             { node *father;
+                                                            father = insertTree ("OP_NEG",0,OPER_LOG);
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $2->content->type;
+                                                            if(t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL){
+                                                              father = insertTree ("OP_NOT",0,OPER_LOG);
+                                                              concatLeft(father,$2);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | OP_NOT expr %prec NEG                             { node *father;
+                                                            father = insertTree ("OP_NOT",0,OPER_LOG);
+                                                            int t1 = $2->content->type;
+                                                            if(t1 == OPER_AR || t1 == INTEGERAUX){
+                                                              father = insertTree ("OP_NOT",0,OPER_LOG);
+                                                              concatLeft(father,$2);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | PAR_LEFT expr PAR_RIGHT                           {//node *father;
+                                                           //father = insertTree ("OP_PARATHESIS",0,INDETERMINATE);
+                                                           //CHEQUEAR TIPOS DE EXPRESIONES
+                                                           //concatLeft(father,$2);
+                                                           $$ = $2;
+                                                          }
     ;
 
 literal : integer_literal                                 {$$ = insertTree("int_lit",$1,INTEGERAUX);}
