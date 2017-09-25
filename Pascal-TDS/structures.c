@@ -200,27 +200,23 @@ void insertTable(char n[32], int v, int t){
 Busca un elemento en la tabla de simbolos
 */
 item * findList(symbol *head,char n[32]){
-  printf("Begin findList\n");
+  //printf("Begin findList\n");
   symbol *aux = head;
-  printf("asign head\n");
   if((aux->next)!=NULL){
-    printf("at least one element\n");
     aux=aux->next;
-    while((aux->next)!=NULL && strcmp((aux->content)->name,n)){
-      printf("loop\n");
+    while(aux!=NULL && strcmp((aux->content)->name,n)){
       aux = aux->next;
     }
-    printf("after loop\n");
     if(aux == NULL){
       return NULL;
     } else {
-      printf("End findList\n");
+      //printf("End findList\n");
       return aux->content;
     }
   }else{
     printf("Empty list.\n");
   }
-  printf("End findList\n");
+  //printf("End findList\n");
   return  NULL;
 }
 
