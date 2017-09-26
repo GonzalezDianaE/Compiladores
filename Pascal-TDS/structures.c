@@ -357,18 +357,17 @@ node * insertTree (char n[32], int v, int t){
     }else{
       content = (item *) malloc(sizeof(item));
       item *contentAux = findTable(n);
-      strcpy(content->name,contentAux->name);
-      content->value =contentAux->value;
-      content->type = contentAux->type;
-      //verificar el valor que se le asigna por defecto cuando unicamente se la define 
-      /*if(content->value != 0){ 
+      if(contentAux->val_asign == false){
+        fprintf(stderr, "Error: var %s uninitialized \n", n);
+        exit(EXIT_FAILURE);
+      }else{
+        strcpy(content->name,contentAux->name);
+        content->value =contentAux->value;
+        content->type = contentAux->type;
         content->val_asign = true;
       }
-      else{ 
-        content->val_asign = false; 
-      } */
     }
-  } else{
+  }else{
     content = (item *) malloc(sizeof(item));
     strcpy(content->name,n);
     content->value = v;
