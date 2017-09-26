@@ -271,8 +271,7 @@ params_call : expr                                         {
 expr : ID                                                 { $$ = insertTree ($1->value,0,VAR);}
       | method_call                                       { $$ = $1;}
       | literal                                           { $$ = $1;}
-      | expr OP_ADD expr                                  { node *father;
-                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+      | expr OP_ADD expr                                  { /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
                                                             en caso contrario, debe ser un operacion aritmetica o integer */
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
@@ -283,6 +282,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              node *father;
                                                               father = insertTree ("OP_ADD",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -293,8 +293,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                            }
                                                           }
-      | expr OP_SUB expr                                  { node *father;
-                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+      | expr OP_SUB expr                                  {/*Chequeo de tipos, en caso de ser una funcion debe retornar integer
                                                             en caso contrario, debe ser un operacion aritmetica o integer */
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
@@ -305,6 +304,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              node *father;
                                                               father = insertTree ("OP_SUB",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -315,8 +315,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | expr OP_PROD expr                                 { node *father;
-                                                           /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+      | expr OP_PROD expr                                 { /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
                                                             en caso contrario, debe ser un operacion aritmetica o integer */
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
@@ -327,6 +326,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              node *father;
                                                               father = insertTree ("OP_PROD",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -337,8 +337,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | expr OP_DIV expr                                  { node *father;
-                                                            /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+      | expr OP_DIV expr                                  { /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
                                                             en caso contrario, debe ser un operacion aritmetica o integer */
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
@@ -349,6 +348,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              node *father;
                                                               father = insertTree ("OP_DIV",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -359,8 +359,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | expr OP_MOD expr                                  { node *father;
-                                                           /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+      | expr OP_MOD expr                                  {/*Chequeo de tipos, en caso de ser una funcion debe retornar integer
                                                             en caso contrario, debe ser un operacion aritmetica o integer */
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
@@ -371,6 +370,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              node *father;
                                                               father = insertTree ("OP_MOD",0,OPER_AR);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -381,8 +381,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | expr OP_MINOR expr                                { node *father;
-                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+      | expr OP_MINOR expr                                {/*Chequeo de tipos, en caso de ser una funcion debe retornar integer
                                                             en caso contrario, debe ser un operacion aritmetica o integer */
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
@@ -393,6 +392,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              node *father;
                                                               father = insertTree ("OP_MINOR",0,OPER_REL);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -403,8 +403,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | expr OP_MAJOR expr                                { node *father;
-                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+      | expr OP_MAJOR expr                                {/*Chequeo de tipos, en caso de ser una funcion debe retornar integer
                                                             en caso contrario, debe ser un operacion aritmetica o integer */
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
@@ -415,7 +414,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
-
+                                                              node *father;
                                                               father = insertTree ("OP_MAJOR",0,OPER_REL);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -426,10 +425,8 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | expr OP_EQUAL expr                                { node *father;
-                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer o bool
+      | expr OP_EQUAL expr                                {/*Chequeo de tipos, en caso de ser una funcion debe retornar integer o bool
                                                             en caso contrario, debe ser un operacion aritmetica o integer */
-                                                            concatLeft(father,$1);
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
@@ -438,10 +435,8 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             if (t2 == FUNCTION_CALL){
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
-                                                            bool tipearit1 = (t1 == OPER_AR || t1 == INTEGERAUX || t1 == BOOLAUX);
-                                                            bool tipearit2 = (t2 == OPER_AR || t2 == INTEGERAUX || t2 == BOOLAUX);
-                                                            /* PUEDO TENER 2+2 == 4  UNA OPERACION ARITMETICA Y UN INTEGER*/
-                                                            if(tipearit1 == tipearit2){
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX || t1 == BOOLAUX) && (t2 == OPER_AR || t2 == INTEGERAUX || t2 == BOOLAUX)){
+                                                              node *father;
                                                               father = insertTree ("OP_EQUAL",0,OPER_REL);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -452,8 +447,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | expr OP_AND expr                                  { node *father;
-                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar bool
+      | expr OP_AND expr                                  {/*Chequeo de tipos, en caso de ser una funcion debe retornar bool
                                                             en caso contrario, debe ser un oper_log, oper_rel o bool */
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
@@ -464,6 +458,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL) && (t2 == OPER_LOG || t2 == BOOLAUX ||  t2 == OPER_REL)){
+                                                              node *father;
                                                               father = insertTree ("OP_AND",0,OPER_LOG);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -474,8 +469,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | expr OP_OR expr                                   { node *father;
-                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar bool
+      | expr OP_OR expr                                   {/*Chequeo de tipos, en caso de ser una funcion debe retornar bool
                                                             en caso contrario, debe ser un oper_log, oper_rel o bool */
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
@@ -486,6 +480,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                                 t2 = ((call->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL) && (t2 == OPER_LOG || t2 == BOOLAUX ||  t2 == OPER_REL)){
+                                                              node *father;
                                                               father = insertTree ("OP_OR",0,OPER_LOG);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
@@ -496,31 +491,31 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | OP_SUB expr %prec NEG                             { node *father;
-                                                            father = insertTree ("OP_NEG",0,OPER_LOG);
-                                                           // FALTA CHEQUEAR TIPOS DE EXPRESIONES
-                                                            int t1 = $2->content->type;
-                                                            if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
-                                                            }
-                                                            if(t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL){
-                                                              father = insertTree ("OP_NOT",0,OPER_LOG);
-                                                              concatLeft(father,$2);
-                                                              $$ = father;
-                                                            }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
-                                                              fprintf(stderr, "Error: no match type\n");
-                                                              exit(EXIT_FAILURE);
-                                                            }
-                                                          }
-      | OP_NOT expr %prec NEG                             { node *father;
-                                                            father = insertTree ("OP_NOT",0,OPER_LOG);
-                                                            // FALTA CHEQUEAR TIPOS DE EXPRESIONES
+      | OP_SUB expr %prec NEG                             { /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+                                                            en caso contrario, debe ser un oper_ar o integer*/
                                                             int t1 = $2->content->type;
                                                             if (t1 == FUNCTION_CALL){
                                                                 t1 = ((call->content)->function)->ret;
                                                             }
                                                             if(t1 == OPER_AR || t1 == INTEGERAUX){
+                                                              node *father;
+                                                              father = insertTree ("OP_SUB",0,OPER_AR);
+                                                              concatLeft(father,$2);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | OP_NOT expr %prec NEG                             { /*Chequeo de tipos, en caso de ser una funcion debe retornar bool
+                                                            en caso contrario, debe ser un oper_log, oper_rel o bool */
+                                                            int t1 = $2->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if(t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL){
+                                                              node *father;
                                                               father = insertTree ("OP_NOT",0,OPER_LOG);
                                                               concatLeft(father,$2);
                                                               $$ = father;
@@ -530,12 +525,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               exit(EXIT_FAILURE);
                                                             }
                                                           }
-      | PAR_LEFT expr PAR_RIGHT                           {//node *father;
-                                                           //father = insertTree ("OP_PARATHESIS",0,INDETERMINATE);
-                                                           //CHEQUEAR TIPOS DE EXPRESIONES
-                                                           //concatLeft(father,$2);
-                                                           $$ = $2;
-                                                          }
+      | PAR_LEFT expr PAR_RIGHT                           {$$ = $2;} /* Ignora parentesis */
     ;
 
 literal : integer_literal                                 {$$ = insertTree("int_lit",$1,INTEGERAUX);}
