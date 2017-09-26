@@ -15,7 +15,7 @@ void yyerror(const char *s);
 %}
 
 
-%union { int i; char *s; struct tokensVal *tv; struct tokensStr *ts; struct tree *t; int p[10];}
+%union { int i; char *s; struct tokensVal *tv; struct tokensStr *ts; struct tree *t; struct paramsList pl; struct paramsCall pc;}
 
 %token<tv> INT
 %token<ts> ID
@@ -58,7 +58,8 @@ void yyerror(const char *s);
 %right NEG
 
 %type<i> type
-%type<p> param
+%type<pl> param
+%type<pc> param_call
 %type<t> expr
 %type<t> literal
 %type<t> statement
@@ -122,7 +123,7 @@ type : INTEGER                                                         {$$ = INT
 
 statement : ID OP_ASS expr SEMICOLON                                  { call *node = insertTree($1->value,0,ASSIGN);
                                                                         call->left = concatLeft ($3);
-                                                                        $$=call;                                                       
+                                                                        $$=call;
                                                                       }
       | method_call SEMICOLON                                         { $$=$1;}
       | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              { call *node = insertTree("IFAUX",0,IFAUX);
@@ -131,11 +132,11 @@ statement : ID OP_ASS expr SEMICOLON                                  { call *no
                                                                         int t1 = $3->content->type;
                                                                         if (t1 == FUNCTION_CALL){
                                                                           int t2 = ((call->content)->function)->ret;
-                                                                          if (t2 != BOOLAUX){ 
+                                                                          if (t2 != BOOLAUX){
                                                                            fprintf(stderr, "Error: no match type.\n");
                                                                             exit(EXIT_FAILURE);
                                                                           }
-                                                                        }else{ 
+                                                                        }else{
                                                                           if(!(t1 == BOOLAUX || t1 == OPER_LOG || t1 == OPER_REL)){
                                                                             fprintf(stderr, "Error: invalid expression.\n");
                                                                             exit(EXIT_FAILURE);
@@ -152,11 +153,11 @@ statement : ID OP_ASS expr SEMICOLON                                  { call *no
                                                                         int t1 = $3->content->type;
                                                                         if (t1 == FUNCTION_CALL){
                                                                           int t2 = ((call->content)->function)->ret;
-                                                                          if (t2 != BOOLAUX){ 
+                                                                          if (t2 != BOOLAUX){
                                                                            fprintf(stderr, "Error: no match type.\n");
                                                                             exit(EXIT_FAILURE);
                                                                           }
-                                                                        }else{ 
+                                                                        }else{
                                                                           if(!(t1 == BOOLAUX || t1 == OPER_LOG || t1 == OPER_REL)){
                                                                             fprintf(stderr, "Error: invalid expression.\n");
                                                                             exit(EXIT_FAILURE);
@@ -172,11 +173,11 @@ statement : ID OP_ASS expr SEMICOLON                                  { call *no
                                                                         int t1 = $2->content->type;
                                                                         if (t1 == FUNCTION_CALL){
                                                                           int t2 = ((call->content)->function)->ret;
-                                                                          if (t2 != BOOLAUX){ 
+                                                                          if (t2 != BOOLAUX){
                                                                            fprintf(stderr, "Error: no match type.\n");
                                                                             exit(EXIT_FAILURE);
                                                                           }
-                                                                        }else{ 
+                                                                        }else{
                                                                           if(!(t1 == BOOLAUX || t1 == OPER_LOG || t1 == OPER_REL)){
                                                                             fprintf(stderr, "Error: invalid expression.\n");
                                                                             exit(EXIT_FAILURE);
@@ -193,7 +194,7 @@ statement : ID OP_ASS expr SEMICOLON                                  { call *no
       | RETURN SEMICOLON                                              {call *node = insertTree("RETURNAUX",0,RETURNAUX);
                                                                         $$ = call;
                                                                       }
-      | SEMICOLON                                                     {}                                                              
+      | SEMICOLON                                                     {}
       | block                                                         {$$=$1}
     ;
 
@@ -205,7 +206,7 @@ statements: statement                                                 {$$=$1}
                                                                       }
     ;
 
-method_call : ID PAR_LEFT {paramNo=0} paramscall PAR_RIGHT            { call *node;
+method_call : ID PAR_LEFT {paramNo=0} params_call PAR_RIGHT            { call *node;
                                                                         call = $4;
                                                                         (call->content)->function = searchFuntion($1->value);
                                                                         (call->content)->name = $1->value;
@@ -222,7 +223,7 @@ method_call : ID PAR_LEFT {paramNo=0} paramscall PAR_RIGHT            { call *no
                                                                           t1 = ((call->content)->function)->ret;
                                                                         }
                                                                         if (((call->content)->function)->params[paramNo]=INTEGERAUX && !error)
-                                                                        {                                                       
+                                                                        {
                                                                           error = (t1 == OPER_AR || t1 == INTEGERAUX);
                                                                         }else{
                                                                           error = (t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL);
@@ -252,14 +253,14 @@ method_call : ID PAR_LEFT {paramNo=0} paramscall PAR_RIGHT            { call *no
                                                                       }
     ;
 
-paramscall : expr                                         {
+params_call : expr                                         {
                                                           call *node;
                                                           call=insertTree("CALLFUNCTION",0,FUNCTION_CALL);
                                                           call->callFunnc[paramNo]=$1;
                                                           paramNo++;
                                                           $$=call;
                                                           }
-      | paramscall COMMA expr                             {                                                            
+      | params_call COMMA expr                             {
                                                           call = $1;
                                                           call->callFunnc[paramNo]=$3;
                                                           paramNo++;

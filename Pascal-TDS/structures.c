@@ -45,6 +45,10 @@ typedef struct items item;
 typedef struct symbolTable symbol;
 typedef struct paramsLists paramsList;
 
+typedef struct paramsCalls{
+  node *params[10];
+  int paramsNo;
+} paramsCall;
 
 typedef struct paramsLists{
   int params[10];
@@ -75,7 +79,7 @@ typedef struct items{
   int type;
   bool val_asign;
   itemFunc *function;
-  node *callfunc[10];
+  paramsCall params;
 } item;
 
 /*
@@ -360,7 +364,7 @@ node * insertTree (char n[32], int v, int t){
       content = (item *) malloc(sizeof(item));
       item *contentAux = findTable(n);
       strcpy(content->name,contentAux->name);
-      content->value = v; 
+      content->value = v;
       content->type = contentAux->type;
       content->val_asign = true;
     }
