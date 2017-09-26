@@ -23,11 +23,11 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define INDETERMINATE 9
 #define FUNCTION 10
 #define FUNCTION_CALL 11
-#define IF 12
+#define IFAUX 12
 #define IF_ELSE 13
 #define ASSIGN 14
-#define WHILE 15
-#define RETURN 16
+#define WHILEAUX 15
+#define RETURNAUX 16
 #define RETURN_EXPR 17
 #define STATEMENTS 18
 #define BLOCK 19
@@ -45,8 +45,8 @@ typedef struct items item;
 typedef struct symbolTable symbol;
 
 /*
-Define un item adeicionales para las funciones del arbol o tabla de simbolos
-ret: define el tipo de retorno de la funcion
+Define un item adicional para las funciones del arbol o tabla de simbolos
+ret: tipo de retorno de la funcion
 value: lista de parametros de la funcion
 type: arbol de sentencias de la funcion
 */
@@ -58,10 +58,9 @@ typedef struct itemsFunc{
 
 /*
 Define un item del arbol o tabla de simbolos
-name: Si es una variable define su nombe,
-    en caso de ser una operacion define el tipo de operacion (*,+,())
-value: define el valor de la constante o variable
-type: define el tipo de item (operacion, variable o constante)
+name: Si es una variable define su nombe, en caso de ser una operacion define el tipo de operacion (*,+,())
+value: valor de la constante o variable
+type: tipo de item (operacion, variable o constante)
 */
 typedef struct items{
   char name[32];
@@ -337,13 +336,39 @@ si el elemento es de tipo Var busca sus datos en la tabla de Simbolos
 node * insertTree (char n[32], int v, int t){
   //printf("Begin insertTree\n");
   item *content;
+  if (t == ASSIGN){
+    if (!findTable(n)){ //chequeo de variable declarada
+      fprintf(stderr, "Error: var %s undeclared. \n", n);
+      printf("End insertTree\n");
+      exit(EXIT_FAILURE);
+    }else{
+      content = (item *) malloc(sizeof(item));
+      item *contentAux = findTable(n);
+      strcpy(content->name,contentAux->name);
+      content->value = v; 
+      content->type = contentAux->type;
+      content->val_asign = true;
+    }
+  }
   if (t == VAR){
-    content = (item *) malloc(sizeof(item));
-    item *contentAux = findTable(n);
-    strcpy(content->name,contentAux->name);
-    content->value = contentAux->value;
-    content->type = contentAux->type;
-  }else{
+    if (findTable(n)){ //chequeo de variable declarada
+      fprintf(stderr, "Error: var %s declared before \n", n);
+      exit(EXIT_FAILURE);
+    }else{
+      content = (item *) malloc(sizeof(item));
+      item *contentAux = findTable(n);
+      strcpy(content->name,contentAux->name);
+      content->value =contentAux->value;
+      content->type = contentAux->type;
+      //verificar el valor que se le asigna por defecto cuando unicamente se la define 
+      /*if(content->value != 0){ 
+        content->val_asign = true;
+      }
+      else{ 
+        content->val_asign = false; 
+      } */
+    }
+  } else{
     content = (item *) malloc(sizeof(item));
     strcpy(content->name,n);
     content->value = v;
@@ -383,7 +408,7 @@ void concatMiddle (node *father, node *son){
 /*
 Muestra la estructura del arbol de modo InOrder
 */
-void showTree(node *aux){
+/*void showTree(node *aux){
   //printf("Begin showTree\n");
   if(aux!=NULL){
     if((aux->content)->type==CONSTANT){
@@ -452,7 +477,7 @@ void showTree(node *aux){
     printf("Empty Tree.\n");
   }
   //printf("End showTree\n");
-}
+} */
 
 
 
