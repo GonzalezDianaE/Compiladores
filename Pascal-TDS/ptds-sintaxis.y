@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "types.c"
 #include "structures.c"
 extern int yylineno;
@@ -60,8 +61,16 @@ void yyerror(const char *s);
 %type<p> param
 %type<t> expr
 %type<t> literal
+%type<t> statement
+%type<t> statements
+%type<t> method_call
+%type<t> block
+%type<t> blockAux
+
+
 %type<i> bool_literal
 %type<i> integer_literal
+
 
 
 
@@ -97,12 +106,12 @@ param : type ID                                                         {printf(
       | param COMMA type ID                                             {printf("param recursive\n");}
     ;
 
-block: {openLevel();} blockAux
+block: {openLevel();} blockAux                                         {closeLevel(); $$=$2;}
     ;
 
 
-blockAux: BEGINN var_decls SEMICOLON statements END                    {printf("bloque var_decl statement\n");}
-      | BEGINN statements END                                          {printf("bloque statement\n");}
+blockAux: BEGINN var_decls SEMICOLON statements END                    {$$=$4;}
+      | BEGINN statements END                                          {$$=$2;}
       | BEGINN var_decls SEMICOLON END                                 {printf("bloque var_decl\n");}
       | BEGINN END                                                     {printf("bloque BEGINN END\n");}
     ;
@@ -111,51 +120,421 @@ type : INTEGER                                                         {$$ = INT
       | BOOL                                                           {$$ = BOOLAUX;}
     ;
 
-statement : ID OP_ASS expr SEMICOLON                                  {printf("statement ID\n");}
-      | method_call SEMICOLON                                         {printf("statement method_call\n");}
-      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              {printf("statement IF expr THEN block ELSE block\n");}
-      | IF PAR_LEFT expr PAR_RIGHT THEN block                         {printf("statement IF expr THEN block\n");}
-      | WHILE expr block                                              {printf("statement WHILE expr block\n");}
-      | RETURN expr SEMICOLON                                         {printf("statement RETURN expr\n");}
-      | RETURN SEMICOLON                                              {printf("statement RETURN\n");}
-      | SEMICOLON                                                     {printf("statement ;\n");}
-      | block                                                         {printf("statement block\n");}
+statement : ID OP_ASS expr SEMICOLON                                  { call *node = insertTree($1->value,0,ASSIGN);
+                                                                        call->left = concatLeft ($3);
+                                                                        $$=call;                                                       
+                                                                      }
+      | method_call SEMICOLON                                         { $$=$1;}
+      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              { call *node = insertTree("IFAUX",0,IFAUX);
+                                                                        /*Chequeo de tipos, en caso de ser una funcion debe retornar un booleano
+                                                                        en caso contrario, debe ser de tipo bool, op_log, op_rel */
+                                                                        int t1 = $3->content->type;
+                                                                        if (t1 == FUNCTION_CALL){
+                                                                          int t2 = ((call->content)->function)->ret;
+                                                                          if (t2 != BOOLAUX){ 
+                                                                           fprintf(stderr, "Error: no match type.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }else{ 
+                                                                          if(!(t1 == BOOLAUX || t1 == OPER_LOG || t1 == OPER_REL)){
+                                                                            fprintf(stderr, "Error: invalid expression.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }
+                                                                        call->left = $3;
+                                                                        call->middle = $6;
+                                                                        call->right = $8;
+                                                                        $$ = call;
+                                                                      }
+      | IF PAR_LEFT expr PAR_RIGHT THEN block                         {call *node = insertTree("IF_ELSE",0,IF_ELSE);
+                                                                      /*Chequeo de tipos, en caso de ser una funcion debe retornar un booleano
+                                                                        en caso contrario, debe ser de tipo bool, op_log, op_rel */
+                                                                        int t1 = $3->content->type;
+                                                                        if (t1 == FUNCTION_CALL){
+                                                                          int t2 = ((call->content)->function)->ret;
+                                                                          if (t2 != BOOLAUX){ 
+                                                                           fprintf(stderr, "Error: no match type.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }else{ 
+                                                                          if(!(t1 == BOOLAUX || t1 == OPER_LOG || t1 == OPER_REL)){
+                                                                            fprintf(stderr, "Error: invalid expression.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }
+                                                                        call->left = $3;
+                                                                        call->right = $6;
+                                                                        $$ = call;
+                                                                      }
+      | WHILE expr block                                              {call *node = insertTree("WHILEAUX",0,WHILEAUX);
+                                                                      /*Chequeo de tipos, en caso de ser una funcion debe retornar un booleano
+                                                                        en caso contrario, debe ser de tipo bool, op_log, op_rel */
+                                                                        int t1 = $2->content->type;
+                                                                        if (t1 == FUNCTION_CALL){
+                                                                          int t2 = ((call->content)->function)->ret;
+                                                                          if (t2 != BOOLAUX){ 
+                                                                           fprintf(stderr, "Error: no match type.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }else{ 
+                                                                          if(!(t1 == BOOLAUX || t1 == OPER_LOG || t1 == OPER_REL)){
+                                                                            fprintf(stderr, "Error: invalid expression.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }
+                                                                        call->left = $2;
+                                                                        call->right = $3;
+                                                                        $$ = call;
+                                                                      }
+      | RETURN expr SEMICOLON                                         {call *node = insertTree("RETURN_EXPR",0,RETURN_EXPR);
+                                                                        call->left = $2;
+                                                                        $$ = call;
+                                                                      }
+      | RETURN SEMICOLON                                              {call *node = insertTree("RETURNAUX",0,RETURNAUX);
+                                                                        $$ = call;
+                                                                      }
+      | SEMICOLON                                                     {}                                                              
+      | block                                                         {$$=$1}
     ;
 
-statements: statement                                                 {printf("statements \n");}
-      | statements statement                                          {printf("statements recursive\n");}
+statements: statement                                                 {$$=$1}
+      | statements statement                                          {call *node = insertTree("STATEMENTS",0,STATEMENTS);
+                                                                        call->left= $1;
+                                                                        call->right = $2;
+                                                                        $$ = call;
+                                                                      }
     ;
 
-method_call : ID PAR_LEFT expr PAR_RIGHT                              {printf("method_call ID (expr)\n");}
-      | ID PAR_LEFT PAR_RIGHT                                         {printf("method_call ID ()\n");}
+method_call : ID PAR_LEFT {paramNo=0} paramscall PAR_RIGHT            { call *node;
+                                                                        call = $4;
+                                                                        (call->content)->function = searchFuntion($1->value);
+                                                                        (call->content)->name = $1->value;
+                                                                        size = paramNo;
+                                                                        paramNo = 0;
+                                                                        bool error = false;
+                                                                        int t1;
+                                                                        while (paramNo<=size || !error){
+                                                                          t1 = call->callFunnc[paramNo]->type;
+                                                                          if (((call->content)->function)->params[paramNo] == NULL){
+                                                                            error = true;
+                                                                        }
+                                                                        if (t1 == FUNCTION_CALL && !error){
+                                                                          t1 = ((call->content)->function)->ret;
+                                                                        }
+                                                                        if (((call->content)->function)->params[paramNo]=INTEGERAUX && !error)
+                                                                        {                                                       
+                                                                          error = (t1 == OPER_AR || t1 == INTEGERAUX);
+                                                                        }else{
+                                                                          error = (t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL);
+                                                                        }
+
+                                                                        paramNo++;
+                                                                        }
+                                                                        if (((call->content)->function)->params[paramNo] != NULL){
+                                                                          error = true;
+                                                                        }
+                                                                        if (!error){
+                                                                          $$ = call;
+                                                                        }
+                                                                      }
+      | ID PAR_LEFT PAR_RIGHT                                         {
+                                                                        call *node;
+                                                                        call=insertTree($1->value,0,FUNCTION_CALL);
+                                                                        (call->content)->function = searchFuntion($1->value);
+                                                                        /* if  ((call->content)->function->cantParams == 0){
+                                                                          $$ == call;
+                                                                          }else{
+                                                                            $$ = insertTree ("ERROR",0,ERROR);
+                                                                            fprintf(stderr, "Error: no match type\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        */
+                                                                      }
     ;
 
-expr : ID                                                 { node *father;
-                                                            father->content = findTable($1->value);
-                                                            $$ = father;
+paramscall : expr                                         {
+                                                          call *node;
+                                                          call=insertTree("CALLFUNCTION",0,FUNCTION_CALL);
+                                                          call->callFunnc[paramNo]=$1;
+                                                          paramNo++;
+                                                          $$=call;
                                                           }
-      | method_call                                       {//NO TENGO NI IDEAAAAAA
-                                                            printf("expr method_call\n");}
-      | literal                                           {$$ = $1;}
-      | expr OP_ADD expr                                  {node *father;
-                                                           insertTree ("OP_ADD",0,OPER_AR);
+      | paramscall COMMA expr                             {                                                            
+                                                          call = $1;
+                                                          call->callFunnc[paramNo]=$3;
+                                                          paramNo++;
+                                                          $$=call;
+                                                          }
+    ;
+
+expr : ID                                                 { $$ = insertTree ($1->value,0,VAR);}
+      | method_call                                       { $$ = $1;}
+      | literal                                           { $$ = $1;}
+      | expr OP_ADD expr                                  { node *father;
+                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+                                                            en caso contrario, debe ser un operacion aritmetica o integer */
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              father = insertTree ("OP_ADD",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                           }
+                                                          }
+      | expr OP_SUB expr                                  { node *father;
+                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+                                                            en caso contrario, debe ser un operacion aritmetica o integer */
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              father = insertTree ("OP_SUB",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_PROD expr                                 { node *father;
+                                                           /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+                                                            en caso contrario, debe ser un operacion aritmetica o integer */
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              father = insertTree ("OP_PROD",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_DIV expr                                  { node *father;
+                                                            /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+                                                            en caso contrario, debe ser un operacion aritmetica o integer */
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              father = insertTree ("OP_DIV",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_MOD expr                                  { node *father;
+                                                           /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+                                                            en caso contrario, debe ser un operacion aritmetica o integer */
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              father = insertTree ("OP_MOD",0,OPER_AR);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_MINOR expr                                { node *father;
+                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+                                                            en caso contrario, debe ser un operacion aritmetica o integer */
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+                                                              father = insertTree ("OP_MINOR",0,OPER_REL);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_MAJOR expr                                { node *father;
+                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
+                                                            en caso contrario, debe ser un operacion aritmetica o integer */
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
+
+                                                              father = insertTree ("OP_MAJOR",0,OPER_REL);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_EQUAL expr                                { node *father;
+                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar integer o bool
+                                                            en caso contrario, debe ser un operacion aritmetica o integer */
+                                                            concatLeft(father,$1);
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            bool tipearit1 = (t1 == OPER_AR || t1 == INTEGERAUX || t1 == BOOLAUX);
+                                                            bool tipearit2 = (t2 == OPER_AR || t2 == INTEGERAUX || t2 == BOOLAUX);
+                                                            /* PUEDO TENER 2+2 == 4  UNA OPERACION ARITMETICA Y UN INTEGER*/
+                                                            if(tipearit1 == tipearit2){
+                                                              father = insertTree ("OP_EQUAL",0,OPER_REL);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_AND expr                                  { node *father;
+                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar bool
+                                                            en caso contrario, debe ser un oper_log, oper_rel o bool */
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            if((t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL) && (t2 == OPER_LOG || t2 == BOOLAUX ||  t2 == OPER_REL)){
+                                                              father = insertTree ("OP_AND",0,OPER_LOG);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | expr OP_OR expr                                   { node *father;
+                                                          /*Chequeo de tipos, en caso de ser una funcion debe retornar bool
+                                                            en caso contrario, debe ser un oper_log, oper_rel o bool */
+                                                            int t1 = $1->content->type;
+                                                            int t2 = $3->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if (t2 == FUNCTION_CALL){
+                                                                t2 = ((call->content)->function)->ret;
+                                                            }
+                                                            if((t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL) && (t2 == OPER_LOG || t2 == BOOLAUX ||  t2 == OPER_REL)){
+                                                              father = insertTree ("OP_OR",0,OPER_LOG);
+                                                              concatLeft(father,$1);
+                                                              concatRight(father,$3);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | OP_SUB expr %prec NEG                             { node *father;
+                                                            father = insertTree ("OP_NEG",0,OPER_LOG);
+                                                           // FALTA CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $2->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if(t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL){
+                                                              father = insertTree ("OP_NOT",0,OPER_LOG);
+                                                              concatLeft(father,$2);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | OP_NOT expr %prec NEG                             { node *father;
+                                                            father = insertTree ("OP_NOT",0,OPER_LOG);
+                                                            // FALTA CHEQUEAR TIPOS DE EXPRESIONES
+                                                            int t1 = $2->content->type;
+                                                            if (t1 == FUNCTION_CALL){
+                                                                t1 = ((call->content)->function)->ret;
+                                                            }
+                                                            if(t1 == OPER_AR || t1 == INTEGERAUX){
+                                                              father = insertTree ("OP_NOT",0,OPER_LOG);
+                                                              concatLeft(father,$2);
+                                                              $$ = father;
+                                                            }else{
+                                                              //$$ = insertTree ("ERROR",0,ERROR);
+                                                              fprintf(stderr, "Error: no match type\n");
+                                                              exit(EXIT_FAILURE);
+                                                            }
+                                                          }
+      | PAR_LEFT expr PAR_RIGHT                           {//node *father;
+                                                           //father = insertTree ("OP_PARATHESIS",0,INDETERMINATE);
                                                            //CHEQUEAR TIPOS DE EXPRESIONES
-                                                           concatLeft(father,$1);
-                                                           concatRight(father,$3);
-                                                           $$ = father;
+                                                           //concatLeft(father,$2);
+                                                           $$ = $2;
                                                           }
-      | expr OP_SUB expr                                  {printf("expr bin_op expr\n");}
-      | expr OP_PROD expr                                 {printf("expr bin_op expr\n");}
-      | expr OP_DIV expr                                  {printf("expr bin_op expr\n");}
-      | expr OP_MOD expr                                  {printf("expr bin_op expr\n");}
-      | expr OP_MINOR expr                                {printf("expr bin_op expr\n");}
-      | expr OP_MAJOR expr                                {printf("expr bin_op expr\n");}
-      | expr OP_EQUAL expr                                {printf("expr bin_op expr\n");}
-      | expr OP_AND expr                                  {printf("expr bin_op expr\n");}
-      | expr OP_OR expr                                   {printf("expr bin_op expr\n");}
-      | OP_SUB expr %prec NEG                             {printf("expr -\n");}
-      | OP_NOT expr %prec NEG                             {printf("expr !\n");}
-      | PAR_LEFT expr PAR_RIGHT                           {printf("expr (expr)\n");}
     ;
 
 literal : integer_literal                                 {$$ = insertTree("int_lit",$1,INTEGERAUX);}

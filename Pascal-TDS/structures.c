@@ -6,6 +6,8 @@ la semantica de las funciones suma producto y parentesis
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
+
 
 /*constantes para definir tipo de valor en los items de lista
 y tablas (si son variables ,constantes o operaciones)*/
@@ -13,12 +15,26 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define CONSTANT 1
 #define OPER_AR 2
 #define OPER_LOG 3
-#define INTEGERAUX 4
-#define BOOLAUX 5
-#define VOIDAUX 6
-#define ERROR 7
-#define INDETERMINATE 8
-#define FUNCTION 9
+#define OPER_REL 4
+#define INTEGERAUX 5
+#define BOOLAUX 6
+#define VOIDAUX 7
+#define ERROR 8
+#define INDETERMINATE 9
+#define FUNCTION 10
+#define FUNCTION_CALL 11
+#define IFAUX 12
+#define IF_ELSE 13
+#define ASSIGN 14
+#define WHILEAUX 15
+#define RETURNAUX 16
+#define RETURN_EXPR 17
+#define STATEMENTS 18
+#define BLOCK 19
+
+
+
+
 
 
 ////////DECLARACION DE TIPOS
@@ -36,8 +52,8 @@ typedef struct paramsLists{
 } paramsList;
 
 /*
-Define un item adeicionales para las funciones del arbol o tabla de simbolos
-ret: define el tipo de retorno de la funcion
+Define un item adicional para las funciones del arbol o tabla de simbolos
+ret: tipo de retorno de la funcion
 value: lista de parametros de la funcion
 type: arbol de sentencias de la funcion
 */
@@ -49,16 +65,17 @@ typedef struct itemsFunc{
 
 /*
 Define un item del arbol o tabla de simbolos
-name: Si es una variable define su nombe,
-    en caso de ser una operacion define el tipo de operacion (*,+,())
-value: define el valor de la constante o variable
-type: define el tipo de item (operacion, variable o constante)
+name: Si es una variable define su nombe, en caso de ser una operacion define el tipo de operacion (*,+,())
+value: valor de la constante o variable
+type: tipo de item (operacion, variable o constante)
 */
 typedef struct items{
   char name[32];
   int value;
   int type;
+  bool val_asign;
   itemFunc *function;
+  node *callfunc[10];
 } item;
 
 /*
@@ -87,7 +104,7 @@ void openLevel();
 void closeLevel();
 int typeLastVar();
 item * findTable(char n[32]);
-item * searchFunction(char n[32]);
+itemFunc * searchFunction(char n[32]);
 void insertTable(char n[32], int v, int t);
 
 // List
@@ -187,13 +204,13 @@ item * findTable(char n[32]){
   return NULL;
 }
 
-item * searchFunction (char n[32]){
+itemFunc * searchFunction (char n[32]){
   //printf("Begin searchFunction\n");
   item *aux = (item *) malloc(sizeof(item));
   aux = findList(levels[0],n);
   if(aux != NULL){
     //printf("End searchFunction\n");
-    return aux;
+    return aux->function;
   }
   //printf("End searchFunction\n");
   return NULL;
@@ -334,8 +351,37 @@ si el elemento es de tipo Var busca sus datos en la tabla de Simbolos
 node * insertTree (char n[32], int v, int t){
   //printf("Begin insertTree\n");
   item *content;
+  if (t == ASSIGN){
+    if (!findTable(n)){ //chequeo de variable declarada
+      fprintf(stderr, "Error: var %s undeclared. \n", n);
+      printf("End insertTree\n");
+      exit(EXIT_FAILURE);
+    }else{
+      content = (item *) malloc(sizeof(item));
+      item *contentAux = findTable(n);
+      strcpy(content->name,contentAux->name);
+      content->value = v; 
+      content->type = contentAux->type;
+      content->val_asign = true;
+    }
+  }
   if (t == VAR){
-    content = findTable(n);
+    if (findTable(n)){ //chequeo de variable declarada
+      fprintf(stderr, "Error: var %s declared before \n", n);
+      exit(EXIT_FAILURE);
+    }else{
+      content = (item *) malloc(sizeof(item));
+      item *contentAux = findTable(n);
+      if(contentAux->val_asign == false){
+        fprintf(stderr, "Error: var %s uninitialized \n", n);
+        exit(EXIT_FAILURE);
+      }else{
+        strcpy(content->name,contentAux->name);
+        content->value =contentAux->value;
+        content->type = contentAux->type;
+        content->val_asign = true;
+      }
+    }
   }else{
     content = (item *) malloc(sizeof(item));
     strcpy(content->name,n);
@@ -376,7 +422,7 @@ void concatMiddle (node *father, node *son){
 /*
 Muestra la estructura del arbol de modo InOrder
 */
-void showTree(node *aux){
+/*void showTree(node *aux){
   //printf("Begin showTree\n");
   if(aux!=NULL){
     if((aux->content)->type==CONSTANT){
@@ -445,7 +491,7 @@ void showTree(node *aux){
     printf("Empty Tree.\n");
   }
   //printf("End showTree\n");
-}
+} */
 
 
 
