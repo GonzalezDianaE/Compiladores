@@ -27,6 +27,13 @@ typedef struct tree node;
 typedef struct itemsFunc itemFunc;
 typedef struct items item;
 typedef struct symbolTable symbol;
+typedef struct paramsLists paramsList;
+
+
+typedef struct paramsLists{
+  int params[10];
+  int paramsNo;
+} paramsList;
 
 /*
 Define un item adeicionales para las funciones del arbol o tabla de simbolos
@@ -36,7 +43,7 @@ type: arbol de sentencias de la funcion
 */
 typedef struct itemsFunc{
   int ret;
-  int params[10];
+  paramsList params;
   node *tree;
 } itemFunc;
 
@@ -72,6 +79,7 @@ typedef struct tree{
   struct tree *right;
 } node;
 
+
 // Table
 int isEmpty();
 int isFull();
@@ -85,7 +93,8 @@ void insertTable(char n[32], int v, int t);
 // List
 item * findList(symbol *head, char n[32]);
 void insertList(symbol *head, char n[32], int v, int t);
-void insertFunction(symbol *head,char n[32], int v, int t, int r, int p[10]);
+void insertFunction(symbol *head,char n[32], int v, int t, int r, paramsList *p);
+void addParam(paramsList *l,int type);
 void showList(symbol *head);
 
 // Tree
@@ -252,7 +261,7 @@ void insertList(symbol *head,char n[32], int v, int t){
   printf("End insertList\n");
 }
 
-void insertFunction(symbol *head,char n[32], int v, int t, int r, int p[10]){
+void insertFunction(symbol *head,char n[32], int v, int t, int r, paramsList *p){
   //printf("Begin insertFunction\n");
   if (searchFunction(n)){
     fprintf(stderr, "Error: FUNCTION %s declared before\n", n);
@@ -268,9 +277,9 @@ void insertFunction(symbol *head,char n[32], int v, int t, int r, int p[10]){
     strcpy(content->name,n);
     content->value = v;
     content->type = t;
-    int loop;
-    for (loop=1; loop<sizeof(int[10]); loop++){
-      contentFunc->params[loop]=p[loop];
+    int totalParams = p->paramsNo;
+    for(int i=0; i<totalParams; i++){
+      addParam(&(contentFunc->params),(p->params)[i]);
     }
     contentFunc->ret=r;
     content->function= contentFunc;
@@ -288,6 +297,12 @@ void insertFunction(symbol *head,char n[32], int v, int t, int r, int p[10]){
   }
   //printf("End insertFunction\n");
 }
+
+void addParam(paramsList *l,int type){
+  (l->params)[l->paramsNo]=type;
+  (l->paramsNo) = (l->paramsNo)+1;
+}
+
 /*
 Muestra la tabla de simbolos
 */
