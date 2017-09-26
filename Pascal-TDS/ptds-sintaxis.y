@@ -120,27 +120,68 @@ type : INTEGER                                                         {$$ = INT
       | BOOL                                                           {$$ = BOOLAUX;}
     ;
 
-statement : ID OP_ASS expr SEMICOLON                                  {call *node = insertTree($1->value,0,ASSIGN);
-                                                                        //en insert tree revisar que la variable ya este declarada!!!!!
-                                                                       call->left = concatLeft ($3);
-                                                                       $$=call;                                                       
+statement : ID OP_ASS expr SEMICOLON                                  { call *node = insertTree($1->value,0,ASSIGN);
+                                                                        call->left = concatLeft ($3);
+                                                                        $$=call;                                                       
                                                                       }
-      | method_call SEMICOLON                                         {$$=$1;}
-      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              {call *node = insertTree("IF",0,IF);
-                                                                      //chequear tipo expr tiene q ser una funcion q retorne bool, bool, op_log, op_rel
+      | method_call SEMICOLON                                         { $$=$1;}
+      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              { call *node = insertTree("IFAUX",0,IFAUX);
+                                                                        /*Chequeo de tipos, en caso de ser una funcion debe retornar un booleano
+                                                                        en caso contrario, debe ser de tipo bool, op_log, op_rel */
+                                                                        int t1 = $3->content->type;
+                                                                        if (t1 == FUNCTION_CALL){
+                                                                          int t2 = ((call->content)->function)->ret;
+                                                                          if (t2 != BOOLAUX){ 
+                                                                           fprintf(stderr, "Error: no match type.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }else{ 
+                                                                          if(!(t1 == BOOLAUX || t1 == OPER_LOG || t1 == OPER_REL)){
+                                                                            fprintf(stderr, "Error: invalid expression.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }
                                                                         call->left = $3;
                                                                         call->middle = $6;
                                                                         call->right = $8;
                                                                         $$ = call;
                                                                       }
       | IF PAR_LEFT expr PAR_RIGHT THEN block                         {call *node = insertTree("IF_ELSE",0,IF_ELSE);
-                                                                      //chequear tipo expr tiene q ser una funcion q retorne bool, bool, op_log, op_rel
+                                                                      /*Chequeo de tipos, en caso de ser una funcion debe retornar un booleano
+                                                                        en caso contrario, debe ser de tipo bool, op_log, op_rel */
+                                                                        int t1 = $3->content->type;
+                                                                        if (t1 == FUNCTION_CALL){
+                                                                          int t2 = ((call->content)->function)->ret;
+                                                                          if (t2 != BOOLAUX){ 
+                                                                           fprintf(stderr, "Error: no match type.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }else{ 
+                                                                          if(!(t1 == BOOLAUX || t1 == OPER_LOG || t1 == OPER_REL)){
+                                                                            fprintf(stderr, "Error: invalid expression.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }
                                                                         call->left = $3;
                                                                         call->right = $6;
                                                                         $$ = call;
                                                                       }
-      | WHILE expr block                                              {call *node = insertTree("WHILE",0,WHILE);
-                                                                      //chequear tipo expr tiene q ser una funcion q retorne bool, bool, op_log, op_rel
+      | WHILE expr block                                              {call *node = insertTree("WHILEAUX",0,WHILEAUX);
+                                                                      /*Chequeo de tipos, en caso de ser una funcion debe retornar un booleano
+                                                                        en caso contrario, debe ser de tipo bool, op_log, op_rel */
+                                                                        int t1 = $2->content->type;
+                                                                        if (t1 == FUNCTION_CALL){
+                                                                          int t2 = ((call->content)->function)->ret;
+                                                                          if (t2 != BOOLAUX){ 
+                                                                           fprintf(stderr, "Error: no match type.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }else{ 
+                                                                          if(!(t1 == BOOLAUX || t1 == OPER_LOG || t1 == OPER_REL)){
+                                                                            fprintf(stderr, "Error: invalid expression.\n");
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                        }
                                                                         call->left = $2;
                                                                         call->right = $3;
                                                                         $$ = call;
@@ -149,7 +190,7 @@ statement : ID OP_ASS expr SEMICOLON                                  {call *nod
                                                                         call->left = $2;
                                                                         $$ = call;
                                                                       }
-      | RETURN SEMICOLON                                              {call *node = insertTree("RETURN",0,RETURN);
+      | RETURN SEMICOLON                                              {call *node = insertTree("RETURNAUX",0,RETURNAUX);
                                                                         $$ = call;
                                                                       }
       | SEMICOLON                                                     {}                                                              
