@@ -15,7 +15,7 @@ void yyerror(const char *s);
 %}
 
 
-%union { int i; char *s; struct tokensVal *tv; struct tokensStr *ts; struct tree *t; struct paramsList pl; struct paramsCall pc;}
+%union { int i; char *s; struct tokensVal *tv; struct tokensStr *ts; struct tree *t; struct paramsLists *pl; struct paramsCalls *pc;}
 
 %token<tv> INT
 %token<ts> ID
@@ -86,25 +86,38 @@ prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END            {printf("p
     ;
 
 var_decl : type ID                                                    {insertTable ($2->value,0,$1);}
-      | var_decl COMMA ID                                             {insertTree ($3->value,0,typeLastVar());}
+      | var_decl COMMA ID                                             {insertTable ($3->value,0,typeLastVar());}
     ;
 
 var_decls : var_decl                                                  {printf("var_decl\n");}
       | var_decls SEMICOLON var_decl                                  {printf("var_decls var_decl\n");}
     ;
 
-method_decl : type ID PAR_LEFT param PAR_RIGHT block                   {printf("metodo decl type ID (var_decl) block\n");}
-      | VOID ID PAR_LEFT param PAR_RIGHT block                         {printf("metodo decl VOID ID (var_decl) block\n");}
-      | type ID PAR_LEFT PAR_RIGHT block                               {printf("metodo decl type ID () block\n");}
-      | VOID ID PAR_LEFT PAR_RIGHT block                               {printf("metodo decl VOID ID () block\n");}
+method_decl : type ID PAR_LEFT param PAR_RIGHT block                   {insertFunction($2->value, 0, FUNCTION, $1, $4,$6);}
+      | VOID ID PAR_LEFT param PAR_RIGHT block                         {insertFunction($2->value, 0, FUNCTION, $1, $4,$6);}
+      | type ID PAR_LEFT PAR_RIGHT block                               {paramsList *params = (paramsList *) malloc(sizeof(paramsList));
+                                                                        (params->paramsNo) = 0;
+                                                                        insertFunction($2->value, 0, FUNCTION, $1, params,$5);}
+      | VOID ID PAR_LEFT PAR_RIGHT block                               { paramsList *params = (paramsList *) malloc(sizeof(paramsList));
+                                                                        (params->paramsNo) = 0;
+                                                                        insertFunction($2->value, 0, FUNCTION, $1, params,$5);}
      ;
 
 method_decls : method_decl                                             {printf("method_decl\n");}
       | method_decls method_decl                                       {printf("method_decls recursive\n");}
      ;
 
-param : type ID                                                         {printf("param\n");}
-      | param COMMA type ID                                             {printf("param recursive\n");}
+param : type ID                                                         {
+                                                                          paramsList *params = (paramsList *) malloc(sizeof(paramsList));
+                                                                          (params->paramsNo) = 0;
+                                                                          addParamList(params,$1,$2->value);
+                                                                          //insertTable();
+                                                                          $$ = params;
+                                                                        }
+      | param COMMA type ID                                             {
+                                                                          addParamList($1,$3,$4->value);
+                                                                          $$=$1;
+                                                                        }
     ;
 
 block: {openLevel();} blockAux                                         {closeLevel(); $$=$2;}
@@ -121,12 +134,12 @@ type : INTEGER                                                         {$$ = INT
       | BOOL                                                           {$$ = BOOLAUX;}
     ;
 
-statement : ID OP_ASS expr SEMICOLON                                  { call *node = insertTree($1->value,0,ASSIGN);
-                                                                        call->left = concatLeft ($3);
+statement : ID OP_ASS expr SEMICOLON                                  { node *call = insertTree($1->value,0,ASSIGN);
+                                                                        concatLeft (call,$3);
                                                                         $$=call;
                                                                       }
       | method_call SEMICOLON                                         { $$=$1;}
-      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              { call *node = insertTree("IFAUX",0,IFAUX);
+      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block              { node *call = insertTree("IFAUX",0,IFAUX);
                                                                         /*Chequeo de tipos, en caso de ser una funcion debe retornar un booleano
                                                                         en caso contrario, debe ser de tipo bool, op_log, op_rel */
                                                                         int t1 = $3->content->type;
@@ -147,7 +160,7 @@ statement : ID OP_ASS expr SEMICOLON                                  { call *no
                                                                         call->right = $8;
                                                                         $$ = call;
                                                                       }
-      | IF PAR_LEFT expr PAR_RIGHT THEN block                         {call *node = insertTree("IF_ELSE",0,IF_ELSE);
+      | IF PAR_LEFT expr PAR_RIGHT THEN block                         {node *call = insertTree("IF_ELSE",0,IF_ELSE);
                                                                       /*Chequeo de tipos, en caso de ser una funcion debe retornar un booleano
                                                                         en caso contrario, debe ser de tipo bool, op_log, op_rel */
                                                                         int t1 = $3->content->type;
@@ -167,7 +180,7 @@ statement : ID OP_ASS expr SEMICOLON                                  { call *no
                                                                         call->right = $6;
                                                                         $$ = call;
                                                                       }
-      | WHILE expr block                                              {call *node = insertTree("WHILEAUX",0,WHILEAUX);
+      | WHILE expr block                                              {node *call = insertTree("WHILEAUX",0,WHILEAUX);
                                                                       /*Chequeo de tipos, en caso de ser una funcion debe retornar un booleano
                                                                         en caso contrario, debe ser de tipo bool, op_log, op_rel */
                                                                         int t1 = $2->content->type;
@@ -187,84 +200,81 @@ statement : ID OP_ASS expr SEMICOLON                                  { call *no
                                                                         call->right = $3;
                                                                         $$ = call;
                                                                       }
-      | RETURN expr SEMICOLON                                         {call *node = insertTree("RETURN_EXPR",0,RETURN_EXPR);
+      | RETURN expr SEMICOLON                                         {node *call = insertTree("RETURN_EXPR",0,RETURN_EXPR);
                                                                         call->left = $2;
                                                                         $$ = call;
                                                                       }
-      | RETURN SEMICOLON                                              {call *node = insertTree("RETURNAUX",0,RETURNAUX);
+      | RETURN SEMICOLON                                              {node *call = insertTree("RETURNAUX",0,RETURNAUX);
                                                                         $$ = call;
                                                                       }
       | SEMICOLON                                                     {}
-      | block                                                         {$$=$1}
+      | block                                                         {$$=$1;}
     ;
 
-statements: statement                                                 {$$=$1}
-      | statements statement                                          {call *node = insertTree("STATEMENTS",0,STATEMENTS);
+statements: statement                                                 {$$=$1;}
+      | statements statement                                          {node *call = insertTree("STATEMENTS",0,STATEMENTS);
                                                                         call->left= $1;
                                                                         call->right = $2;
                                                                         $$ = call;
                                                                       }
     ;
 
-method_call : ID PAR_LEFT {paramNo=0} params_call PAR_RIGHT            { call *node;
-                                                                        call = $4;
-                                                                        (call->content)->function = searchFuntion($1->value);
-                                                                        (call->content)->name = $1->value;
-                                                                        size = paramNo;
-                                                                        paramNo = 0;
+method_call : ID PAR_LEFT params_call PAR_RIGHT                       { node *call;
+                                                                        call=insertTree($1->value,0,FUNCTION_CALL);
+                                                                        paramsCall pc = *($3);
+                                                                        itemFunc *func = searchFunction($1->value);
+                                                                        int size = pc.paramsNo;
+                                                                        int i = 0;
                                                                         bool error = false;
                                                                         int t1;
-                                                                        while (paramNo<=size || !error){
-                                                                          t1 = call->callFunnc[paramNo]->type;
-                                                                          if (((call->content)->function)->params[paramNo] == NULL){
-                                                                            error = true;
-                                                                        }
-                                                                        if (t1 == FUNCTION_CALL && !error){
-                                                                          t1 = ((call->content)->function)->ret;
-                                                                        }
-                                                                        if (((call->content)->function)->params[paramNo]=INTEGERAUX && !error)
-                                                                        {
-                                                                          error = (t1 == OPER_AR || t1 == INTEGERAUX);
-                                                                        }else{
-                                                                          error = (t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL);
-                                                                        }
-
-                                                                        paramNo++;
-                                                                        }
-                                                                        if (((call->content)->function)->params[paramNo] != NULL){
-                                                                          error = true;
-                                                                        }
-                                                                        if (!error){
-                                                                          $$ = call;
+                                                                        if(size!=(func->params).paramsNo){
+                                                                          //tirar error
+                                                                        } else {
+                                                                          while (i<size && !error){
+                                                                            t1 = ((pc.params[i])->content)->type;
+                                                                            if (t1 == FUNCTION_CALL){
+                                                                              t1 = ((pc.params[i]->content)->function)->ret;
+                                                                            }
+                                                                            if (((func->params).params[i]).type == INTEGERAUX){
+                                                                              error = (t1 == OPER_AR || t1 == INTEGERAUX);
+                                                                            }else{
+                                                                              error = (t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL);
+                                                                            }
+                                                                            i++;
+                                                                          }
+                                                                          if (!error){
+                                                                            (call->content)->params = pc;
+                                                                            (call->content)->function = func;
+                                                                            $$ = call;
+                                                                          } else {
+                                                                            // tirar error
+                                                                          }
                                                                         }
                                                                       }
       | ID PAR_LEFT PAR_RIGHT                                         {
-                                                                        call *node;
+                                                                        node *call;
                                                                         call=insertTree($1->value,0,FUNCTION_CALL);
-                                                                        (call->content)->function = searchFuntion($1->value);
-                                                                        /* if  ((call->content)->function->cantParams == 0){
-                                                                          $$ == call;
-                                                                          }else{
-                                                                            $$ = insertTree ("ERROR",0,ERROR);
-                                                                            fprintf(stderr, "Error: no match type\n");
-                                                                            exit(EXIT_FAILURE);
-                                                                          }
-                                                                        */
+                                                                        itemFunc *func = searchFunction($1->value);
+                                                                        if((func->params).paramsNo==0){
+                                                                          (call->content)->function = func;
+                                                                          $$ = call;
+                                                                        }else{
+                                                                          //$$ = insertTree ("ERROR",0,ERROR);
+                                                                          //fprintf(stderr, "Error: no match type\n");
+                                                                          //exit(EXIT_FAILURE);
+                                                                        }
                                                                       }
     ;
 
-params_call : expr                                         {
-                                                          call *node;
-                                                          call=insertTree("CALLFUNCTION",0,FUNCTION_CALL);
-                                                          call->callFunnc[paramNo]=$1;
-                                                          paramNo++;
-                                                          $$=call;
+params_call : expr                                        {
+                                                            paramsCall *params = (paramsCall *) malloc(sizeof(paramsCall));;
+                                                            addParamCall(params,$1);
+                                                            //insertTable();
+                                                            $$ = params;
                                                           }
-      | params_call COMMA expr                             {
-                                                          call = $1;
-                                                          call->callFunnc[paramNo]=$3;
-                                                          paramNo++;
-                                                          $$=call;
+      | params_call COMMA expr                            {
+                                                            addParamCall($1,$3);
+                                                            $$ = $1;
                                                           }
     ;
 
@@ -276,10 +286,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               node *father;
@@ -298,10 +308,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               node *father;
@@ -320,10 +330,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               node *father;
@@ -342,10 +352,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               node *father;
@@ -364,10 +374,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               node *father;
@@ -386,10 +396,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               node *father;
@@ -408,10 +418,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX) && (t2 == OPER_AR || t2 == INTEGERAUX)){
                                                               node *father;
@@ -430,10 +440,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_AR || t1 == INTEGERAUX || t1 == BOOLAUX) && (t2 == OPER_AR || t2 == INTEGERAUX || t2 == BOOLAUX)){
                                                               node *father;
@@ -452,10 +462,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL) && (t2 == OPER_LOG || t2 == BOOLAUX ||  t2 == OPER_REL)){
                                                               node *father;
@@ -474,10 +484,10 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int t1 = $1->content->type;
                                                             int t2 = $3->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($1->content)->function)->ret;
                                                             }
                                                             if (t2 == FUNCTION_CALL){
-                                                                t2 = ((call->content)->function)->ret;
+                                                                t2 = (($3->content)->function)->ret;
                                                             }
                                                             if((t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL) && (t2 == OPER_LOG || t2 == BOOLAUX ||  t2 == OPER_REL)){
                                                               node *father;
@@ -495,7 +505,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             en caso contrario, debe ser un oper_ar o integer*/
                                                             int t1 = $2->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($2->content)->function)->ret;
                                                             }
                                                             if(t1 == OPER_AR || t1 == INTEGERAUX){
                                                               node *father;
@@ -512,7 +522,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             en caso contrario, debe ser un oper_log, oper_rel o bool */
                                                             int t1 = $2->content->type;
                                                             if (t1 == FUNCTION_CALL){
-                                                                t1 = ((call->content)->function)->ret;
+                                                                t1 = (($2->content)->function)->ret;
                                                             }
                                                             if(t1 == OPER_LOG || t1 == BOOLAUX || t1 == OPER_REL){
                                                               node *father;

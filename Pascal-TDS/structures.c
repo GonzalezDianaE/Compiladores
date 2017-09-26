@@ -44,6 +44,13 @@ typedef struct itemsFunc itemFunc;
 typedef struct items item;
 typedef struct symbolTable symbol;
 typedef struct paramsLists paramsList;
+typedef struct paramsCalls paramsCall;
+typedef struct parameters parameter;
+
+typedef struct parameters{
+  int type;
+  char name[32];
+} parameter;
 
 typedef struct paramsCalls{
   node *params[10];
@@ -51,7 +58,7 @@ typedef struct paramsCalls{
 } paramsCall;
 
 typedef struct paramsLists{
-  int params[10];
+  parameter params[10];
   int paramsNo;
 } paramsList;
 
@@ -114,8 +121,9 @@ void insertTable(char n[32], int v, int t);
 // List
 item * findList(symbol *head, char n[32]);
 void insertList(symbol *head, char n[32], int v, int t);
-void insertFunction(symbol *head,char n[32], int v, int t, int r, paramsList *p);
-void addParam(paramsList *l,int type);
+void insertFunction(char n[32], int v, int t, int r, paramsList *p, node *tree);
+void addParamList(paramsList *l,int type, char name[32]);
+void addParamCall(paramsCall *l, node *p);
 void showList(symbol *head);
 
 // Tree
@@ -282,7 +290,7 @@ void insertList(symbol *head,char n[32], int v, int t){
   printf("End insertList\n");
 }
 
-void insertFunction(symbol *head,char n[32], int v, int t, int r, paramsList *p){
+void insertFunction(char n[32], int v, int t, int r, paramsList *p, node *tree){
   //printf("Begin insertFunction\n");
   if (searchFunction(n)){
     fprintf(stderr, "Error: FUNCTION %s declared before\n", n);
@@ -300,12 +308,14 @@ void insertFunction(symbol *head,char n[32], int v, int t, int r, paramsList *p)
     content->type = t;
     int totalParams = p->paramsNo;
     for(int i=0; i<totalParams; i++){
-      addParam(&(contentFunc->params),(p->params)[i]);
+      addParamList(&(contentFunc->params),((p->params)[i]).type,((p->params)[i]).name);
     }
     contentFunc->ret=r;
+    contentFunc->tree = tree;
     content->function= contentFunc;
     element->content = content;
     element->next = NULL;
+    symbol *head = levels[0];
     if(head->next==NULL){
       head->next = element;
     } else {
@@ -319,8 +329,14 @@ void insertFunction(symbol *head,char n[32], int v, int t, int r, paramsList *p)
   //printf("End insertFunction\n");
 }
 
-void addParam(paramsList *l,int type){
-  (l->params)[l->paramsNo]=type;
+void addParamList(paramsList *l,int type, char name[32]){
+  ((l->params)[l->paramsNo]).type=type;
+  strcpy(((l->params)[l->paramsNo]).name,name);
+  (l->paramsNo) = (l->paramsNo)+1;
+}
+
+void addParamCall(paramsCall *l,node *p){
+  (l->params)[l->paramsNo]=p;
   (l->paramsNo) = (l->paramsNo)+1;
 }
 
