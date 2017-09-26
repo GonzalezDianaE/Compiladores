@@ -59,7 +59,7 @@ void yyerror(const char *s);
 
 %type<i> type
 %type<pl> param
-%type<pc> param_call
+%type<pc> params_call
 %type<t> expr
 %type<t> literal
 %type<t> statement
