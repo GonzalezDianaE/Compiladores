@@ -79,25 +79,25 @@ void yyerror(const char *s);
 program: {openLevel();} prog
 ;
 
-prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END            {printf("programa var_decl ; method_decl ; \n");}
-      | PROGRAM BEGINN method_decls END                               {printf("programa method_decl\n");}
-      | PROGRAM BEGINN var_decls SEMICOLON END                        {printf("programa var_decl\n");}
-      | PROGRAM BEGINN END                                            {printf("programa BEGINN END\n");}
+prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END            {   printf("programa var_decl ; method_decl ; \n");}
+      | PROGRAM BEGINN method_decls END                               {   printf("programa method_decl\n");}
+      | PROGRAM BEGINN var_decls SEMICOLON END                        {   printf("programa var_decl\n");}
+      | PROGRAM BEGINN END                                            {   printf("programa BEGINN END\n");}
     ;
 
-var_decl : type ID                                                    {insertTable ($2->value,0,VAR,$1);}
-      | var_decl COMMA ID                                             {insertTable ($3->value,0,VAR,typeLastVar());}
+var_decl : type ID                                                    {   insertTable ($2->value,0,VAR,$1);}
+      | var_decl COMMA ID                                             {    insertTable ($3->value,0,VAR,typeLastVar());}
     ;
 
-var_decls : var_decl                                                  {printf("var_decl\n");}
-      | var_decls SEMICOLON var_decl                                  {printf("var_decls var_decl\n");}
+var_decls : var_decl                                                  {   printf("var_decl\n");}
+      | var_decls SEMICOLON var_decl                                  {   printf("var_decls var_decl\n");}
     ;
 
-method_decl : type ID PAR_LEFT param PAR_RIGHT block                   {insertFunction($2->value, 0, FUNCTION, $1, $4,$6);}
-      | VOID ID PAR_LEFT param PAR_RIGHT block                         {insertFunction($2->value, 0, FUNCTION, $1, $4,$6);}
-      | type ID PAR_LEFT PAR_RIGHT block                               {paramsList *params = (paramsList *) malloc(sizeof(paramsList));
-                                                                        (params->paramsNo) = 0;
-                                                                        insertFunction($2->value, 0, FUNCTION, $1, params,$5);}
+method_decl : type ID PAR_LEFT param PAR_RIGHT block                   {  insertFunction($2->value, 0, FUNCTION, $1, $4,$6);}
+      | VOID ID PAR_LEFT param PAR_RIGHT block                         {  insertFunction($2->value, 0, FUNCTION, $1, $4,$6);}
+      | type ID PAR_LEFT PAR_RIGHT block                               {  paramsList *params = (paramsList *) malloc(sizeof(paramsList));
+                                                                          (params->paramsNo) = 0;
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, params,$5);}
       | VOID ID PAR_LEFT PAR_RIGHT block                               { paramsList *params = (paramsList *) malloc(sizeof(paramsList));
                                                                         (params->paramsNo) = 0;
                                                                         insertFunction($2->value, 0, FUNCTION, $1, params,$5);}
@@ -119,7 +119,10 @@ param : type ID                                                         {
                                                                         }
     ;
 
-block: {openLevel();} blockAux                                         {closeLevel(); $$=$2;}
+block: {openLevel();} blockAux                                         {closeLevel();
+                                                                        node *call = insertTree("BLOCK",0,BLOCK,INDETERMINATE);
+                                                                        concatLeft (call,$2);
+                                                                        }
     ;
 
 
@@ -201,7 +204,7 @@ statements: statement                                                 {$$=$1;}
                                                                       }
     ;
 
-method_call : ID PAR_LEFT {openLevel();} params_call PAR_RIGHT                       { 
+method_call : ID PAR_LEFT {openLevel();} params_call PAR_RIGHT          { 
                                                                         item *func = searchFunction($1->value);
                                                                         if (func == NULL){
                                                                           //TIRAR ERROR
@@ -211,8 +214,10 @@ method_call : ID PAR_LEFT {openLevel();} params_call PAR_RIGHT                  
                                                                         if (checkParams (pl,pc)){
                                                                           node *call;
                                                                           call=insertTree($1->value,0,FUNCTION_CALL_P,func->ret);
-                                                                          concatLeft(call,insertParams(pl,pc));
-                                                                          concatRight(call,(func->function)->tree);
+                                                                          call->content->function= func->function;
+                                                                          call->content->paramsCall = &pc;
+                                                                          //concatLeft(call,insertParams(pl,pc));
+                                                                          //concatRight(call,(func->function)->tree);
                                                                           $$=call;
                                                                         }else{
                                                                           //error
@@ -260,7 +265,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                            }
@@ -276,7 +280,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -292,7 +295,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -308,7 +310,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -324,7 +325,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -340,7 +340,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -356,7 +355,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -378,7 +376,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -394,7 +391,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -410,7 +406,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatRight(father,$3);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -424,7 +419,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatLeft(father,$2);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }
@@ -438,7 +432,6 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                               concatLeft(father,$2);
                                                               $$ = father;
                                                             }else{
-                                                              //$$ = insertTree ("ERROR",0,ERROR);
                                                               fprintf(stderr, "Error: no match type\n");
                                                               exit(EXIT_FAILURE);
                                                             }

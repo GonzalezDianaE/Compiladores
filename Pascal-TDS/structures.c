@@ -24,7 +24,7 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define FUNCTION 10
 #define FUNCTION_CALL_NP 11
 #define FUNCTION_CALL_P 12
-#define PARAMETER 13
+#define PARAMETERS 13
 #define IFAUX 14
 #define IF_ELSE 15
 #define ASSIGN 16
@@ -84,11 +84,11 @@ type: tipo de item (operacion, variable o constante)
 */
 typedef struct items{
   char name[32];
-  bool val_asign;
   int value;
   int type;
   int ret;
   itemFunc *function;
+  paramsCall *paramsCall;
 } item;
 
 /*
@@ -375,7 +375,6 @@ node * insertTree (char n[32], int v, int t, int r){
       strcpy(content->name,contentAux->name);
       content->value = v;
       content->type = ASSIGN;
-      content->val_asign = true;//revisarr!!!!!!x=x+1;
       if (contentAux->ret==r){
         content->ret = contentAux->ret;
       }else{
@@ -384,27 +383,17 @@ node * insertTree (char n[32], int v, int t, int r){
       }
     }
   }
-  if (t == VAR || t==PARAMETER){
+  if (t == VAR){
       content = (item *) malloc(sizeof(item));
       item *contentAux = findTable(n);
     if (!contentAux){
               fprintf(stderr, "Error: var %s undeclared \n", n);
         exit(EXIT_FAILURE);
     }else{
-      if(contentAux->val_asign == false){
-        fprintf(stderr, "Error: var %s uninitialized \n", n);
-        exit(EXIT_FAILURE);
-      }else{
-        strcpy(content->name,contentAux->name);
-        content->value =contentAux->value;
-        if (t==VAR){
-          content->type = VAR;
-        }
-        else{
-          content->type = PARAMETER;
-        }
-        content->ret = contentAux->ret;
-      }
+      strcpy(content->name,contentAux->name);
+      content->value =contentAux->value;
+      content->type = VAR;
+      content->ret = contentAux->ret;
     }
   }else{
     content = (item *) malloc(sizeof(item));
@@ -456,12 +445,13 @@ void addParamCall(paramsCall *l,node *p){
 }
 
 node * insertParamAux (char name[32],int ret,node *expr) {
-    insertTable(name, 0, PARAMETER, ret);
+    insertTable(name, 0, VAR, ret);
     node *assign = insertTree(name,0,ASSIGN, (expr->content)->ret);
     concatLeft (assign,expr);
     return assign;
 }
 
+/*
 node * insertParams (paramsList l,paramsCall c){
   int size = c.paramsNo;
   node *expr;
@@ -472,7 +462,7 @@ node * insertParams (paramsList l,paramsCall c){
     aux1 = insertParamAux(l.params[i].name,l.params[i].type,c.params[i]);
     i++;
     while (i<size){
-      aux2 = insertTree("STATEMENTS",0,STATEMENTS,INDETERMINATE);
+      aux2 = insertTree("PARAMETERS",0,PARAMETERS,INDETERMINATE);
       concatLeft (aux2,aux1);
       aux1 = insertParamAux(l.params[i].name,l.params[i].type,c.params[i]);  
       concatRight (aux2, aux1);
@@ -481,7 +471,7 @@ node * insertParams (paramsList l,paramsCall c){
     } 
   }
   return aux1;
-}
+}*/
 
 bool checkParams (paramsList l,paramsCall c){
   int size = c.paramsNo;
