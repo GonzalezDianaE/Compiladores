@@ -446,35 +446,6 @@ void addParamCall(paramsCall *l,node *p){
   (l->paramsNo) = (l->paramsNo)+1;
 }
 
-node * insertParamAux (char name[32],int ret,node *expr) {
-    insertTable(name, 0, VAR, ret);
-    node *assign = insertTree(name,0,ASSIGN, (expr->content)->ret);
-    concatLeft (assign,expr);
-    return assign;
-}
-
-/*
-node * insertParams (paramsList l,paramsCall c){
-  int size = c.paramsNo;
-  node *expr;
-  node *aux1 = NULL;
-  node *aux2 = NULL;
-  int i =0;
-  if (i<size){
-    aux1 = insertParamAux(l.params[i].name,l.params[i].type,c.params[i]);
-    i++;
-    while (i<size){
-      aux2 = insertTree("PARAMETERS",0,PARAMETERS,INDETERMINATE);
-      concatLeft (aux2,aux1);
-      aux1 = insertParamAux(l.params[i].name,l.params[i].type,c.params[i]);
-      concatRight (aux2, aux1);
-      aux1=aux2;
-      i++;
-    }
-  }
-  return aux1;
-}*/
-
 bool checkParams (paramsList l,paramsCall c){
   int size = c.paramsNo;
   int i = 0;

@@ -12,6 +12,7 @@ extern int yylineno;
 %{
 int yylex();
 void yyerror(const char *s);
+int yyparse();
 %}
 
 
