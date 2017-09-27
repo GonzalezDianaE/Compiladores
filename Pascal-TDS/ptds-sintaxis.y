@@ -208,7 +208,8 @@ statements: statement                                                 {$$=$1;}
 method_call : ID PAR_LEFT {openLevel();} params_call PAR_RIGHT          {
                                                                         item *func = searchFunction($1->value);
                                                                         if (func == NULL){
-                                                                          //TIRAR ERROR
+                                                                          fprintf(stderr, "Error: no encontro funcion\n");
+                                                                          exit(EXIT_FAILURE);
                                                                         }
                                                                         paramsList pl = (func->function)->params;
                                                                         paramsCall pc = *($4);
@@ -221,7 +222,8 @@ method_call : ID PAR_LEFT {openLevel();} params_call PAR_RIGHT          {
                                                                           //concatRight(call,(func->function)->tree);
                                                                           $$=call;
                                                                         }else{
-                                                                          //error
+                                                                          fprintf(stderr, "Error: parametros incorrectos\n");
+                                                                           exit(EXIT_FAILURE);
                                                                         }
                                                                       }
       | ID PAR_LEFT PAR_RIGHT                                         {
@@ -234,8 +236,8 @@ method_call : ID PAR_LEFT {openLevel();} params_call PAR_RIGHT          {
                                                                           $$ = call;
                                                                         }else{
                                                                           //$$ = insertTree ("ERROR",0,ERROR);
-                                                                          //fprintf(stderr, "Error: no match type\n");
-                                                                          //exit(EXIT_FAILURE);
+                                                                          fprintf(stderr, "Error: parametros incorrectos\n");
+                                                                          exit(EXIT_FAILURE);
                                                                         }
                                                                         closeLevel();
                                                                       }
