@@ -107,6 +107,7 @@ typedef struct tree{
   struct tree *middle;
   struct tree *left;
   struct tree *right;
+  int lineNo;
 } node;
 
 
@@ -129,7 +130,7 @@ void addParamCall(paramsCall *l, node *p);
 void showList(symbol *head);
 
 // Tree
-node * insertTree (char n[32], int v, int t, int r);
+node * insertTree (char n[32], int v, int t, int r, int lineNo);
 void concatLeft (node *father, node *son);
 void concatRight (node *father, node *son);
 void concatMiddle (node *father, node *son);
@@ -361,7 +362,7 @@ void showList(symbol *head){
 Crea un elemento de tipo arbol con sus hijos NULL,
 si el elemento es de tipo Var busca sus datos en la tabla de Simbolos
 */
-node * insertTree (char n[32], int v, int t, int r){
+node * insertTree (char n[32], int v, int t, int r, int lineNo){
   //printf("Begin insertTree\n");
   item *content;
   if (t == ASSIGN){
@@ -405,6 +406,7 @@ node * insertTree (char n[32], int v, int t, int r){
   node *element;
   element = (node *) malloc(sizeof(node));
   element->content = content;
+  element->lineNo = lineNo;
   //printf("End insertTree\n");
   return element;
 }
@@ -464,11 +466,11 @@ node * insertParams (paramsList l,paramsCall c){
     while (i<size){
       aux2 = insertTree("PARAMETERS",0,PARAMETERS,INDETERMINATE);
       concatLeft (aux2,aux1);
-      aux1 = insertParamAux(l.params[i].name,l.params[i].type,c.params[i]);  
+      aux1 = insertParamAux(l.params[i].name,l.params[i].type,c.params[i]);
       concatRight (aux2, aux1);
       aux1=aux2;
       i++;
-    } 
+    }
   }
   return aux1;
 }*/

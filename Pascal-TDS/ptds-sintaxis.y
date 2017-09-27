@@ -120,7 +120,7 @@ param : type ID                                                         {
     ;
 
 block: {openLevel();} blockAux                                         {closeLevel();
-                                                                        node *call = insertTree("BLOCK",0,BLOCK,INDETERMINATE);
+                                                                        node *call = insertTree("BLOCK",0,BLOCK,INDETERMINATE,yylineno);
                                                                         concatLeft (call,$2);
                                                                         }
     ;
@@ -136,7 +136,7 @@ type : INTEGER                                                         {$$ = INT
       | BOOL                                                           {$$ = BOOLAUX;}
     ;
 
-statement : ID OP_ASS expr SEMICOLON                                  { node *call = insertTree($1->value,0,ASSIGN,($3->content)->ret);
+statement : ID OP_ASS expr SEMICOLON                                  { node *call = insertTree($1->value,0,ASSIGN,($3->content)->ret,yylineno);
                                                                         concatLeft (call,$3);
                                                                         $$=call;
                                                                       }
@@ -148,9 +148,9 @@ statement : ID OP_ASS expr SEMICOLON                                  { node *ca
                                                                         if(!(t1 == BOOLAUX)){
                                                                             fprintf(stderr, "Error: invalid expression.\n");
                                                                             exit(EXIT_FAILURE);
-                                                                        
+
                                                                         }else{
-                                                                          node *call = insertTree("IFAUX",0,IFAUX,INDETERMINATE);
+                                                                          node *call = insertTree("IFAUX",0,IFAUX,INDETERMINATE,yylineno);
                                                                           concatLeft(call,$3);//call->left = $3;
                                                                           concatMiddle(call,$6);//call->middle = $6;
                                                                           concatRight(call,$8);//call->right = $8;
@@ -163,9 +163,9 @@ statement : ID OP_ASS expr SEMICOLON                                  { node *ca
                                                                         int t1 = $3->content->ret;
                                                                         if(!(t1 == BOOLAUX)){
                                                                             fprintf(stderr, "Error: invalid expression.\n");
-                                                                            exit(EXIT_FAILURE);                                                                        
+                                                                            exit(EXIT_FAILURE);
                                                                         }else{
-                                                                          node *call = insertTree("IF_ELSE",0,IF_ELSE,INDETERMINATE);
+                                                                          node *call = insertTree("IF_ELSE",0,IF_ELSE,INDETERMINATE,yylineno);
                                                                           concatLeft(call,$3);//call->left = $3;
                                                                           concatRight(call,$6);//call->right = $6;
                                                                           $$ = call;
@@ -177,19 +177,19 @@ statement : ID OP_ASS expr SEMICOLON                                  { node *ca
                                                                         int t1 = $2->content->ret;
                                                                         if(!(t1 == BOOLAUX)){
                                                                           fprintf(stderr, "Error: invalid expression.\n");
-                                                                          exit(EXIT_FAILURE);                                                                        
+                                                                          exit(EXIT_FAILURE);
                                                                         }else{
-                                                                        node *call = insertTree("WHILEAUX",0,WHILEAUX,INDETERMINATE);
+                                                                        node *call = insertTree("WHILEAUX",0,WHILEAUX,INDETERMINATE,yylineno);
                                                                         concatLeft(call,$2);//call->left = $2;
                                                                         concatRight(call,$3);//call->right = $3;
                                                                         $$ = call;
                                                                         }
                                                                       }
-      | RETURN expr SEMICOLON                                         {node *call = insertTree("RETURN_EXPR",0,RETURN_EXPR,($2->content)->ret);
+      | RETURN expr SEMICOLON                                         {node *call = insertTree("RETURN_EXPR",0,RETURN_EXPR,($2->content)->ret,yylineno);
                                                                         concatLeft(call,$2);//call->left = $2;
                                                                         $$ = call;
                                                                       }
-      | RETURN SEMICOLON                                              {node *call = insertTree("RETURNAUX",0,RETURNAUX,VOIDAUX);
+      | RETURN SEMICOLON                                              {node *call = insertTree("RETURNAUX",0,RETURNAUX,VOIDAUX,yylineno);
                                                                         $$ = call;
                                                                       }
       | SEMICOLON                                                     {}
@@ -197,23 +197,23 @@ statement : ID OP_ASS expr SEMICOLON                                  { node *ca
     ;
 
 statements: statement                                                 {$$=$1;}
-      | statements statement                                          {node *call = insertTree("STATEMENTS",0,STATEMENTS,INDETERMINATE);
+      | statements statement                                          {node *call = insertTree("STATEMENTS",0,STATEMENTS,INDETERMINATE,yylineno);
                                                                         concatLeft(call,$1);//call->left= $1;
                                                                         concatRight(call,$2);//call->right = $2;
                                                                         $$ = call;
                                                                       }
     ;
 
-method_call : ID PAR_LEFT {openLevel();} params_call PAR_RIGHT          { 
+method_call : ID PAR_LEFT {openLevel();} params_call PAR_RIGHT          {
                                                                         item *func = searchFunction($1->value);
                                                                         if (func == NULL){
                                                                           //TIRAR ERROR
                                                                         }
-                                                                        paramsList pl = (func->function)->params; 
+                                                                        paramsList pl = (func->function)->params;
                                                                         paramsCall pc = *($4);
                                                                         if (checkParams (pl,pc)){
                                                                           node *call;
-                                                                          call=insertTree($1->value,0,FUNCTION_CALL_P,func->ret);
+                                                                          call=insertTree($1->value,0,FUNCTION_CALL_P,func->ret,yylineno);
                                                                           call->content->function= func->function;
                                                                           call->content->paramsCall = &pc;
                                                                           //concatLeft(call,insertParams(pl,pc));
@@ -228,7 +228,7 @@ method_call : ID PAR_LEFT {openLevel();} params_call PAR_RIGHT          {
                                                                         item *func = searchFunction($1->value);
                                                                         if(((func->function)->params).paramsNo==0){
                                                                           node *call;
-                                                                          call=insertTree($1->value,0,FUNCTION_CALL_NP,func->ret);
+                                                                          call=insertTree($1->value,0,FUNCTION_CALL_NP,func->ret,yylineno);
                                                                           concatLeft(call,(func->function)->tree);
                                                                           $$ = call;
                                                                         }else{
@@ -251,16 +251,17 @@ params_call : expr                                        {
                                                           }
     ;
 
-expr : ID                                                 { $$ = insertTree ($1->value,0,VAR,0);}
+expr : ID                                                 { $$ = insertTree ($1->value,0,VAR,0,yylineno);}
       | method_call                                       { $$ = $1;}
       | literal                                           { $$ = $1;}
+
       | expr OP_ADD expr                                  { /*Chequeo de tipos, en caso de ser una funcion debe retornar integer
                                                             en caso contrario, debe ser un operacion aritmetica o integer */
                                                             int r1 = ($1->content)->ret;
                                                             int r2 = ($3->content)->ret;
                                                             if((r1 == INTEGERAUX) && (r2 == INTEGERAUX)){
                                                               node *father;
-                                                              father = insertTree ("OP_ADD",0,OPER_AR,INTEGERAUX);
+                                                              father = insertTree ("OP_ADD",0,OPER_AR,INTEGERAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -275,7 +276,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r2 = ($3->content)->ret;
                                                             if((r1 == INTEGERAUX) && (r2 == INTEGERAUX)){
                                                               node *father;
-                                                              father = insertTree ("OP_SUB",0,OPER_AR,INTEGERAUX);
+                                                              father = insertTree ("OP_SUB",0,OPER_AR,INTEGERAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -290,7 +291,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r2 = ($3->content)->ret;
                                                             if((r1 == INTEGERAUX) && (r2 == INTEGERAUX)){
                                                               node *father;
-                                                              father = insertTree ("OP_PROD",0,OPER_AR,INTEGERAUX);
+                                                              father = insertTree ("OP_PROD",0,OPER_AR,INTEGERAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -305,7 +306,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r2 = ($3->content)->ret;
                                                             if((r1 == INTEGERAUX) && (r2 == INTEGERAUX)){
                                                               node *father;
-                                                              father = insertTree ("OP_DIV",0,OPER_AR,INTEGERAUX);
+                                                              father = insertTree ("OP_DIV",0,OPER_AR,INTEGERAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -320,7 +321,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r2 = ($3->content)->ret;
                                                             if((r1 == INTEGERAUX) && (r2 == INTEGERAUX)){
                                                               node *father;
-                                                              father = insertTree ("OP_MOD",0,OPER_AR,INTEGERAUX);
+                                                              father = insertTree ("OP_MOD",0,OPER_AR,INTEGERAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -335,7 +336,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r2 = ($3->content)->ret;
                                                             if((r1 == INTEGERAUX) && (r2 == INTEGERAUX)){
                                                               node *father;
-                                                              father = insertTree ("OP_MINOR",0,OPER_REL,BOOLAUX);
+                                                              father = insertTree ("OP_MINOR",0,OPER_REL,BOOLAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -350,7 +351,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r2 = ($3->content)->ret;
                                                             if((r1 == INTEGERAUX) && (r2 == INTEGERAUX)){
                                                               node *father;
-                                                              father = insertTree ("OP_MAJOR",0,OPER_REL,BOOLAUX);
+                                                              father = insertTree ("OP_MAJOR",0,OPER_REL,BOOLAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -365,13 +366,13 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r2 = ($3->content)->ret;
                                                             int t1 = ($1->content)->type;
                                                             int t2 = ($3->content)->type;
-                                                            bool intCont = ((r1 == INTEGERAUX && r2 == INTEGERAUX)); 
+                                                            bool intCont = ((r1 == INTEGERAUX && r2 == INTEGERAUX));
                                                             bool boolCont = ((r1 == BOOLAUX) && (r2 == BOOLAUX));
                                                             bool boolContType1 = (t1 == CONSTANT || t1 == VAR || t1==FUNCTION_CALL_NP || t1==FUNCTION_CALL_P);
                                                             bool boolContType2 = (t2 == CONSTANT || t2 == VAR || t2==FUNCTION_CALL_NP || t2==FUNCTION_CALL_P);
                                                             if( intCont || (boolCont && boolContType1 && boolContType2)){
                                                               node *father;
-                                                              father = insertTree ("OP_EQUAL",0,OPER_REL,BOOLAUX);
+                                                              father = insertTree ("OP_EQUAL",0,OPER_REL,BOOLAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -383,10 +384,10 @@ expr : ID                                                 { $$ = insertTree ($1-
       | expr OP_AND expr                                  {/*Chequeo de tipos, en caso de ser una funcion debe retornar bool
                                                             en caso contrario, debe ser un oper_log, oper_rel o bool */
                                                             int r1 = ($1->content)->ret;
-                                                            int r2 = ($3->content)->ret;                                                            
+                                                            int r2 = ($3->content)->ret;
                                                             if((r1 == BOOLAUX) && (r2 == BOOLAUX)){
                                                               node *father;
-                                                              father = insertTree ("OP_AND",0,OPER_LOG,BOOLAUX);
+                                                              father = insertTree ("OP_AND",0,OPER_LOG,BOOLAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -401,7 +402,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r2 = ($3->content)->ret;
                                                             if((r1 == BOOLAUX) && (r2 == BOOLAUX)){
                                                               node *father;
-                                                              father = insertTree ("OP_OR",0,OPER_LOG,BOOLAUX);
+                                                              father = insertTree ("OP_OR",0,OPER_LOG,BOOLAUX,yylineno);
                                                               concatLeft(father,$1);
                                                               concatRight(father,$3);
                                                               $$ = father;
@@ -415,7 +416,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r1 = $2->content->ret;
                                                             if(r1 == INTEGERAUX){
                                                               node *father;
-                                                              father = insertTree ("OP_SUB",0,OPER_AR,INTEGERAUX);
+                                                              father = insertTree ("OP_SUB",0,OPER_AR,INTEGERAUX,yylineno);
                                                               concatLeft(father,$2);
                                                               $$ = father;
                                                             }else{
@@ -428,7 +429,7 @@ expr : ID                                                 { $$ = insertTree ($1-
                                                             int r1 = $2->content->ret;
                                                             if(r1 == BOOLAUX){
                                                               node *father;
-                                                              father = insertTree ("OP_NOT",0,OPER_LOG,BOOLAUX);
+                                                              father = insertTree ("OP_NOT",0,OPER_LOG,BOOLAUX,yylineno);
                                                               concatLeft(father,$2);
                                                               $$ = father;
                                                             }else{
@@ -439,8 +440,8 @@ expr : ID                                                 { $$ = insertTree ($1-
       | PAR_LEFT expr PAR_RIGHT                           {$$ = $2;} /* Ignora parentesis */
     ;
 
-literal : integer_literal                                 {$$ = insertTree("int_lit",$1,CONSTANT,INTEGERAUX);}
-      | bool_literal                                      {$$ = insertTree("bool_lit",$1,CONSTANT,BOOLAUX);}
+literal : integer_literal                                 {$$ = insertTree("int_lit",$1,CONSTANT,INTEGERAUX,yylineno);}
+      | bool_literal                                      {$$ = insertTree("bool_lit",$1,CONSTANT,BOOLAUX,yylineno);}
     ;
 
 integer_literal : INT                                     {$$ = $1->value;}
