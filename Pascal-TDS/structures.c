@@ -22,15 +22,18 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define ERROR 8
 #define INDETERMINATE 9
 #define FUNCTION 10
-#define FUNCTION_CALL 11
-#define IFAUX 12
-#define IF_ELSE 13
-#define ASSIGN 14
-#define WHILEAUX 15
-#define RETURNAUX 16
-#define RETURN_EXPR 17
-#define STATEMENTS 18
-#define BLOCK 19
+#define FUNCTION_CALL_NP 11
+#define FUNCTION_CALL_P 12
+#define PARAMETER 13
+#define IFAUX 14
+#define IF_ELSE 15
+#define ASSIGN 16
+#define WHILEAUX 17
+#define RETURNAUX 18
+#define RETURN_EXPR 19
+#define STATEMENTS 20
+#define BLOCK 21
+
 
 
 
@@ -69,7 +72,6 @@ value: lista de parametros de la funcion
 type: arbol de sentencias de la funcion
 */
 typedef struct itemsFunc{
-  int ret;
   paramsList params;
   node *tree;
 } itemFunc;
@@ -82,11 +84,11 @@ type: tipo de item (operacion, variable o constante)
 */
 typedef struct items{
   char name[32];
+  bool val_asign;
   int value;
   int type;
-  bool val_asign;
+  int ret;
   itemFunc *function;
-  paramsCall params;
 } item;
 
 /*
@@ -115,19 +117,19 @@ void openLevel();
 void closeLevel();
 int typeLastVar();
 item * findTable(char n[32]);
-itemFunc * searchFunction(char n[32]);
-void insertTable(char n[32], int v, int t);
+item * searchFunction(char n[32]);
+void insertTable(char n[32], int v, int t, int r);
 
 // List
 item * findList(symbol *head, char n[32]);
-void insertList(symbol *head, char n[32], int v, int t);
+void insertList(symbol *head, char n[32], int v, int t ,int r);
 void insertFunction(char n[32], int v, int t, int r, paramsList *p, node *tree);
 void addParamList(paramsList *l,int type, char name[32]);
 void addParamCall(paramsCall *l, node *p);
 void showList(symbol *head);
 
 // Tree
-node * insertTree (char n[32], int v, int t);
+node * insertTree (char n[32], int v, int t, int r);
 void concatLeft (node *father, node *son);
 void concatRight (node *father, node *son);
 void concatMiddle (node *father, node *son);
@@ -216,22 +218,20 @@ item * findTable(char n[32]){
   return NULL;
 }
 
-itemFunc * searchFunction (char n[32]){
+item * searchFunction (char n[32]){
   //printf("Begin searchFunction\n");
   item *aux = (item *) malloc(sizeof(item));
   aux = findList(levels[0],n);
   if(aux != NULL){
     //printf("End searchFunction\n");
-    return aux->function;
+    return aux;
   }
   //printf("End searchFunction\n");
   return NULL;
 }
 
-void insertTable(char n[32], int v, int t){
-  printf("Begin insertTable\n");
-  insertList(levels[top],n,v,t);
-  printf("End insertTable\n");
+void insertTable(char n[32], int v, int t, int r){
+  insertList(levels[top],n,v,t,r);
 }
 
 /*
@@ -261,7 +261,7 @@ item * findList(symbol *head,char n[32]){
 /*
 Inserta un elemento en la tabla de simbolos
 */
-void insertList(symbol *head,char n[32], int v, int t){
+void insertList(symbol *head,char n[32], int v, int t,int r){
   printf("Begin insertList\n");
   if (findList(head,n)){
     fprintf(stderr, "Error: var %s declared before\n", n);
@@ -275,6 +275,7 @@ void insertList(symbol *head,char n[32], int v, int t){
     strcpy(content->name,n);
     content->value = v;
     content->type = t;
+    content->ret = r;
     element->content = content;
     element->next = NULL;
     if(head->next==NULL){
@@ -306,11 +307,11 @@ void insertFunction(char n[32], int v, int t, int r, paramsList *p, node *tree){
     strcpy(content->name,n);
     content->value = v;
     content->type = t;
+    content->ret=r;
     int totalParams = p->paramsNo;
     for(int i=0; i<totalParams; i++){
       addParamList(&(contentFunc->params),((p->params)[i]).type,((p->params)[i]).name);
     }
-    contentFunc->ret=r;
     contentFunc->tree = tree;
     content->function= contentFunc;
     element->content = content;
@@ -329,20 +330,12 @@ void insertFunction(char n[32], int v, int t, int r, paramsList *p, node *tree){
   //printf("End insertFunction\n");
 }
 
-void addParamList(paramsList *l,int type, char name[32]){
-  ((l->params)[l->paramsNo]).type=type;
-  strcpy(((l->params)[l->paramsNo]).name,name);
-  (l->paramsNo) = (l->paramsNo)+1;
-}
 
-void addParamCall(paramsCall *l,node *p){
-  (l->params)[l->paramsNo]=p;
-  (l->paramsNo) = (l->paramsNo)+1;
-}
 
 /*
 Muestra la tabla de simbolos
 */
+/*
 void showList(symbol *head){
   //printf("Begin showList\n");
   int i = top;
@@ -361,14 +354,14 @@ void showList(symbol *head){
     i = i - 1;
   }
   //printf("End showList\n");
-}
+}*/
 
 
 /*
 Crea un elemento de tipo arbol con sus hijos NULL,
 si el elemento es de tipo Var busca sus datos en la tabla de Simbolos
 */
-node * insertTree (char n[32], int v, int t){
+node * insertTree (char n[32], int v, int t, int r){
   //printf("Begin insertTree\n");
   item *content;
   if (t == ASSIGN){
@@ -381,25 +374,36 @@ node * insertTree (char n[32], int v, int t){
       item *contentAux = findTable(n);
       strcpy(content->name,contentAux->name);
       content->value = v;
-      content->type = contentAux->type;
-      content->val_asign = true;
+      content->type = ASSIGN;
+      content->val_asign = true;//revisarr!!!!!!x=x+1;
+      if (contentAux->ret==r){
+        content->ret = contentAux->ret;
+      }else{
+        fprintf(stderr, "Error: Error en tipos de assignacion \n");
+        exit(EXIT_FAILURE);
+      }
     }
   }
-  if (t == VAR){
-    if (findTable(n)){ //chequeo de variable declarada
-      fprintf(stderr, "Error: var %s declared before \n", n);
-      exit(EXIT_FAILURE);
-    }else{
+  if (t == VAR || t==PARAMETER){
       content = (item *) malloc(sizeof(item));
       item *contentAux = findTable(n);
+    if (!contentAux){
+              fprintf(stderr, "Error: var %s undeclared \n", n);
+        exit(EXIT_FAILURE);
+    }else{
       if(contentAux->val_asign == false){
         fprintf(stderr, "Error: var %s uninitialized \n", n);
         exit(EXIT_FAILURE);
       }else{
         strcpy(content->name,contentAux->name);
         content->value =contentAux->value;
-        content->type = contentAux->type;
-        content->val_asign = true;
+        if (t==VAR){
+          content->type = VAR;
+        }
+        else{
+          content->type = PARAMETER;
+        }
+        content->ret = contentAux->ret;
       }
     }
   }else{
@@ -407,6 +411,7 @@ node * insertTree (char n[32], int v, int t){
     strcpy(content->name,n);
     content->value = v;
     content->type = t;
+    content->ret = r;
   }
   node *element;
   element = (node *) malloc(sizeof(node));
@@ -438,6 +443,71 @@ void concatMiddle (node *father, node *son){
   father->middle=son;
   //printf("concatMiddle\n");
 }
+
+void addParamList(paramsList *l,int type, char name[32]){
+  ((l->params)[l->paramsNo]).type=type;
+  strcpy(((l->params)[l->paramsNo]).name,name);
+  (l->paramsNo) = (l->paramsNo)+1;
+}
+
+void addParamCall(paramsCall *l,node *p){
+  (l->params)[l->paramsNo]=p;
+  (l->paramsNo) = (l->paramsNo)+1;
+}
+
+node * insertParamAux (char name[32],int ret,node *expr) {
+    insertTable(name, 0, PARAMETER, ret);
+    node *assign = insertTree(name,0,ASSIGN, (expr->content)->ret);
+    concatLeft (assign,expr);
+    return assign;
+}
+
+node * insertParams (paramsList l,paramsCall c){
+  int size = c.paramsNo;
+  node *expr;
+  node *aux1 = NULL;
+  node *aux2 = NULL;
+  int i =0;
+  if (i<size){
+    aux1 = insertParamAux(l.params[i].name,l.params[i].type,c.params[i]);
+    i++;
+    while (i<size){
+      aux2 = insertTree("STATEMENTS",0,STATEMENTS,INDETERMINATE);
+      concatLeft (aux2,aux1);
+      aux1 = insertParamAux(l.params[i].name,l.params[i].type,c.params[i]);  
+      concatRight (aux2, aux1);
+      aux1=aux2;
+      i++;
+    } 
+  }
+  return aux1;
+}
+
+bool checkParams (paramsList l,paramsCall c){
+  int size = c.paramsNo;
+  int i = 0;
+  bool error = false;
+  int t1;
+  if(size!=(l.paramsNo)){
+    return false;
+  }else {
+    while (i<size && !error){
+      t1 = ((c.params[i])->content)->ret;
+      if ((l.params[i]).type != t1){
+        error = true;
+      }
+      i++;
+      }
+    if (!error){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+}
+
+
 
 /*
 Muestra la estructura del arbol de modo InOrder
