@@ -1,0 +1,61 @@
+<html>
+	<head>
+		<title>
+			PASCAL-TDS : documentacion
+		</title>
+	</head>
+
+	
+	<body bgcolor=c4fae0> 
+		<font size=6 face="palatino" color=70066a>
+		<p align="center">
+		<em> Lenguaje: Pascal-TDS - 2017 - Taller de Dise&ntilde;o de Software (Cod. 3306) </em> </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Organizacion del grupo: </font> <br> </u> </p>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- Para comenzar, en cuanto a la comunicaci&oacute;n entre Lex y Yacc, se decidi&oacute; transmitir toda la informaci&oacute;n mediante tokens. A partir de all&iacute;, Boselli realiz&oacute; una  implementaci&oacute;n inicial del Analizador L&eacute;xico mientras que Gonz&aacute;lez y Etcharren realizaban la correspondiente al Analizador Sint&aacute;ctico. </p>
+
+		<p align="justify">
+		- Al finalizar las implementaciones "alfa", se solucionaron en conjunto los conflictos shift/reduce y se refinaron ambos analizadores. Luego,  para los casos de testing: comentarios, "end" y "begin" balanceados, a cargo de Boselli, if anidados, funciones, while, a cargo de Gonz&aacute;lez y Etcharren a cargo de la implementaci&oacute;n para descartar correctamente los comentarios largos. Se realiz&oacute; una &uacute;ltima reuni&oacute;n donde se revisaron en conjunto los puntos a mejorar para dar por finalizada esta etapa. </p>
+
+		<font size=4 face="palatino" color=70066a>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Decisiones de Dise&ntilde;o: </p> </u>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- Comunicaci&oacute;n entre Lex y Yacc mediante tokens. Esto ser&aacute; &uacute;til en un futuro para el analizador sem&aacute;ntico.
+
+		<p align="justify"> 
+		- Crear una librer&iacute;a <em>"types.c"</em> donde se definieron todos los tipos a utilizar. Para el an&aacute;lisis l&eacute;xico y sint&aacute;ctico se crearon dos de ellos: TokenStr, utilizado para enviar el nombre de una variable declarada con su numero de l&iacute;nea y TokenVal utilizado para literales enviando su valor y n&uacute;mero de l&iacute;nea. 
+
+		<p align="justify"> 
+		- Para el resto de los tokens se enviar&aacute; solo el n&uacute;mero de l&iacute;nea, ya que podr&aacute;n identificarse directamente por su nombre.
+
+		<font size=4 face="palatino" color=70066a>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Detalles de implementaci&oacute;n interesantes:  </p> </u>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- Implementaci&oacute;n de una funci&oacute;n error que permitir&aacute; especificar correctamente el error en casos de: 
+
+			-Un caracter extra&ntilde;o.
+			-Un entero mayor a 32 bits.
+			-Un comentario largo no cerrado.
+
+		<p> El resto de los errores ser&aacute;n notificados mediante yyerrror(). 
+
+		<p align="justify"> 
+		- Implementaci&oacute;n correcta de comentarios largos mediante condiciones de entrada de Flex.
+
+
+	</body>
+</html>
