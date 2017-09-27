@@ -1,0 +1,9 @@
+program
+  begin
+    void  main()
+      begin
+        integer x,y;
+        y = 12;
+        x = y*true;
+      end
+  end

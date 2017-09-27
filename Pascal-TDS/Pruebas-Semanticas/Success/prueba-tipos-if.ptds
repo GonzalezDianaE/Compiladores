@@ -1,0 +1,27 @@
+program
+  begin
+    {decremento de un numero}
+    integer dec (integer y)
+      begin
+        return y - 1;
+      end
+    {incremento de un numero}
+    integer inc (integer z)
+      begin
+        return y + 1;
+      end
+    void  main()
+      begin
+        integer y;
+        y=9;
+        {TIPO DE EXPRESION: booleano}
+        if (y > 0) then 
+          begin
+            return dec (y);
+          end
+        else
+          begin
+            return inc (y);
+          end
+      end
+  end

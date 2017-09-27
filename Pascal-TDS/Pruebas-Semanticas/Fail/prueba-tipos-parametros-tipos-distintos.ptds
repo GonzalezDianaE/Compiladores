@@ -1,0 +1,18 @@
+program
+  begin
+    integer inc (integer y)
+      begin
+        return true;
+      end
+    void  main()
+      begin
+        integer x;
+        x=11;
+        bool y;
+        y = true;
+        if (x>5) then 
+          begin
+            x = inc(y);
+          end
+      end
+  end

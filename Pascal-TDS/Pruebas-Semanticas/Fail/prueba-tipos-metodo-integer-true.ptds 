@@ -1,0 +1,20 @@
+program
+  begin
+    integer inc (integer y)
+      begin
+        return true;
+      end
+    void  main()
+      begin
+        integer x;
+        x=11;
+        while (x>10) 
+          begin
+            if (x==20) then
+              begin
+                return x;
+              end
+            x = inc(x);
+          end
+      end
+  end

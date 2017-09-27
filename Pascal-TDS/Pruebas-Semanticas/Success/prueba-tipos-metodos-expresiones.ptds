@@ -1,0 +1,32 @@
+program
+  begin
+  {decremento de una variable}
+    bool mayor (integer y, integer x)
+      begin
+        if (y > x) then
+          begin
+            return true;
+          end
+        else
+          begin
+            return false;
+          end
+      end
+    void  main()
+      begin
+        integer x,z,w;
+        w = 5 + (6 / 1) - 3; {8}
+        x = 20;
+        z = w * 10; {80}
+        bool y;
+        y = mayor(x,z); {true}
+        if (y) then
+          begin
+            return x;
+          end
+        else
+          begin
+            return z;
+          end
+      end
+  end

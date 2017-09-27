@@ -1,0 +1,11 @@
+program
+  begin
+    void  main()
+      begin
+      	integer y;
+      	y = 5;
+        bool x,z;
+        z = false;
+        x = (y||z);
+      end
+  end

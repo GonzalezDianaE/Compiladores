@@ -1,0 +1,10 @@
+program
+  begin
+    void  main()
+      begin
+        integer y;
+        bool x;
+        y = 12;
+        x = (y<true);
+      end
+  end

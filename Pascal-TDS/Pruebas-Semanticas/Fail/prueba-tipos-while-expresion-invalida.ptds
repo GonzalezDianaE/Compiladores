@@ -1,0 +1,16 @@
+program
+  begin
+    integer inc (integer y)
+      begin
+        return y+1;
+      end
+    void  main()
+      begin
+        integer x;
+        x=11;
+        while (hola) 
+          begin
+            return x;
+          end
+      end
+  end
