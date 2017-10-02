@@ -231,8 +231,6 @@ item * findList(symbol *head,char n[32]){
       return aux->content;
     }
   }else{
-    printf("%s\n",n );
-    printf("Empty list.\n");
   }
   return  NULL;
 }
@@ -396,7 +394,7 @@ void addParamCall(paramsCall *head,node *p){
 void checkParams (node *head){
   paramsCall *pc= head->content->paramsCall;
   symbol *pl= head->content->function->params;
-  if (pl->next!=NULL && pc->next!=NULL){
+  if (pl!=NULL && pc!=NULL){
     if  ((pl->next!=NULL && pc->next==NULL)){
       fprintf(stderr, "Error: mas parametros en la declaracion que en la llamada, Linea %d\n" ,head->lineNo);
       exit(EXIT_FAILURE);
@@ -410,6 +408,8 @@ void checkParams (node *head){
       pl = pl->next;
       pc = pc->next;
       ret = evalExpr(pc->param);
+      printf("%d\n", ret );
+      printf("%s\n", pl->content->name );
       if (pl->content->ret !=ret){
         fprintf(stderr, "Error: error de tipos llamada metodo, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
