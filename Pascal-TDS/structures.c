@@ -536,7 +536,7 @@ int evalExpr (node *head){
   if (t1==OPER_REL){
     return checkOpRel(head);
   }
-  return VOID;
+  return VOIDAUX;
 }
 
 int checkOpAritBin(node *head){
