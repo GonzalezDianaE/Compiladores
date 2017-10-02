@@ -10,7 +10,7 @@ program
       begin
         return z + 1;
       end
-    void  main()
+    integer  main()
       begin
         integer y;
         y=9;

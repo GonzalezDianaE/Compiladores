@@ -4,7 +4,7 @@ program
       begin
         return true;
       end
-    void  main()
+    integer  main()
       begin
         integer x;
         x=11;

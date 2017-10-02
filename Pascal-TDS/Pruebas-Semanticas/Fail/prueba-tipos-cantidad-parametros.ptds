@@ -2,11 +2,11 @@ program
   begin
     integer inc (integer y)
       begin
-        return true;
+        return y;
       end
     void  main()
       begin
-        integer x;
+        integer x,y,z;
         x=11;
         if (x>5) then 
           begin

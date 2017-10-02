@@ -531,11 +531,12 @@ y tablas (si son variables ,constantes o operaciones)*/
 
 int evalExpr (node *head){
   int t1 = head->content->type;
-  if (t1 == CONSTANT || t1 == VAR || t1 == PARAMETER || t1==FUNCTION_CALL_NP || t1==FUNCTION_CALL_P){
+  if (t1 == CONSTANT || t1 == VAR || t1 == PARAMETER){
     return head->content->ret;
   }
   if ((t1==FUNCTION_CALL_NP || t1==FUNCTION_CALL_P)){
     checkParams(head);
+    return head->content->ret;
   }
   if (t1==OPER_AR){
     return checkOpAritBin(head);
