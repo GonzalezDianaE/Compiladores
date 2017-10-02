@@ -109,19 +109,20 @@ int isFull();
 void openLevel();
 void closeLevel();
 int typeLastVar();
-item * findTable(char n[32]);
-item * searchFunction(char n[32]);
+item * findVar(char n[32]);
+item * findFunction(char n[32]);
 void insertTable(char n[32], int v, int t, int r);
 
 // List
-item * findList(symbol *head, char n[32]);
+item * findInList(symbol *head, char n[32],int type);
 void insertList(symbol *head, char n[32], int v, int t ,int r);
 void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree);
+symbol * initParamCall();
 void addParamCall(paramsCall *l, node *p);
-void showList(symbol *head);
 
 // Tree
 node * insertTree (char n[32], int v, int t, int r, int lineNo);
+node * insertVoidNode(int lineNo);
 void concatLeft (node *father, node *son);
 void concatRight (node *father, node *son);
 void concatMiddle (node *father, node *son);
@@ -189,11 +190,11 @@ int typeLastVar(){
   return (aux->content)->ret;
 }
 
-item * findTable(char n[32]){
+item * findVar(char n[32]){
   int i = top;
   item *aux = (item *) malloc(sizeof(item));
   while (i>=0){
-    aux = findList(levels[i],n);
+    aux = findInList(levels[i],n,0);
     if(aux != NULL){
       return aux;
     }
@@ -202,9 +203,9 @@ item * findTable(char n[32]){
   return NULL;
 }
 
-item * searchFunction (char n[32]){
+item * findFunction (char n[32]){
   item *aux = (item *) malloc(sizeof(item));
-  aux = findList(levels[0],n);
+  aux = findInList(levels[0],n,10);
   if(aux != NULL){
     return aux;
   }
@@ -218,11 +219,13 @@ void insertTable(char n[32], int v, int t, int r){
 /*
 Busca un elemento en la tabla de simbolos
 */
-item * findList(symbol *head,char n[32]){
+item * findInList(symbol *head,char n[32],int type){
   symbol *aux = head;
   if((aux->next)!=NULL){
     aux=aux->next;
-    while(aux!=NULL && strcmp((aux->content)->name,n)){
+    int auxiliarType = (aux->content)->type;
+    while(aux!=NULL && strcmp((aux->content)->name,n) && 
+      ((type==0)?(auxiliarType==VAR||auxiliarType==PARAMETER):(auxiliarType==FUNCTION))){
       aux = aux->next;
     }
     if(aux == NULL){
@@ -239,7 +242,7 @@ item * findList(symbol *head,char n[32]){
 Inserta un elemento en la tabla de simbolos
 */
 void insertList(symbol *head,char n[32], int v, int t,int r){
-  if (findList(head,n)){
+  if (findInList(head,n,t)){
     fprintf(stderr, "Error: var %s declared before\n", n);
     exit(EXIT_FAILURE);
   }else{
@@ -266,7 +269,7 @@ void insertList(symbol *head,char n[32], int v, int t,int r){
 }
 
 void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree){
-  if (searchFunction(n)){
+  if (findFunction(n)){
     fprintf(stderr, "Error: FUNCTION %s declared before\n", n);
     exit(EXIT_FAILURE);
   }else{
@@ -307,12 +310,12 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
   //printf("Begin insertTree\n");
   item *content;
   if (t == ASSIGN){
-    if (!findTable(n)){ //chequeo de variable declarada
+    if (!findVar(n)){ //chequeo de variable declarada
       fprintf(stderr, "Error: var %s undeclared.  %d \n", n, lineNo);
       exit(EXIT_FAILURE);
     }else{
       content = (item *) malloc(sizeof(item));
-      item *contentAux = findTable(n);
+      item *contentAux = findVar(n);
       strcpy(content->name,contentAux->name);
       content->value = v;
       content->type = ASSIGN;
@@ -326,7 +329,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
   }
   if (t == VAR){
       content = (item *) malloc(sizeof(item));
-      item *contentAux = findTable(n);
+      item *contentAux = findVar(n);
     if (!contentAux){
         fprintf(stderr, "Error: var %s undeclared  %d \n", n, lineNo);
         exit(EXIT_FAILURE);
@@ -354,6 +357,17 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
   return element;
 }
 
+node * insertVoidNode(int lineNo){
+  node *element;
+  element = (node *) malloc(sizeof(node));
+  element->content = NULL;
+  element->lineNo = lineNo;
+  element->right = NULL;
+  element->left = NULL;
+  element->middle = NULL;  
+  return element;
+}
+
 /*
 agrega el arbol son como hijo izquierdo del arbol father
 */
@@ -375,6 +389,12 @@ void concatMiddle (node *father, node *son){
   father->middle=son;
 }
 
+symbol * initParamCall(){
+  symbol *head = (symbol *) malloc(sizeof(symbol));
+  head->next = NULL;
+  return head;
+}
+
 void addParamCall(paramsCall *head,node *p){
   paramsCall *element = (paramsCall *) malloc(sizeof(paramsCall));
   element->param = p;
@@ -389,7 +409,6 @@ void addParamCall(paramsCall *head,node *p){
       aux->next = element;
     }
 }
-
 
 void checkParams (node *head){
   paramsCall *pc= head->content->paramsCall;
