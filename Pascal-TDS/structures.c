@@ -1,3 +1,6 @@
+////EN BUSQUEDAS DE VARIABLES Y FUNCIONES FALTA DIFERENCIAR
+///FALTA CHEQUEAR QUE POR LLAMADA A FUNCION QUE AL MENOS RETORNE ALGO
+
 /*
 Libreria que contiene los tipos y funciones necesarias para generar la tabla
 de simbolos y el arbol sintactico de la gramatica para el PreProyecto. Ademas contiene
@@ -24,7 +27,7 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define FUNCTION 10
 #define FUNCTION_CALL_NP 11
 #define FUNCTION_CALL_P 12
-#define PARAMETERS 13
+#define PARAMETER 13
 #define IFAUX 14
 #define IF_ELSE 15
 #define ASSIGN 16
@@ -33,10 +36,9 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define RETURN_EXPR 19
 #define STATEMENTS 20
 #define BLOCK 21
-
-
-
-
+#define OPER_AR_UN 22
+#define OPER_LOG_UN 23
+#define OPER_EQUAL 23
 
 
 
@@ -46,24 +48,14 @@ typedef struct tree node;
 typedef struct itemsFunc itemFunc;
 typedef struct items item;
 typedef struct symbolTable symbol;
-typedef struct paramsLists paramsList;
 typedef struct paramsCalls paramsCall;
 typedef struct parameters parameter;
 
-typedef struct parameters{
-  int type;
-  char name[32];
-} parameter;
 
 typedef struct paramsCalls{
-  node *params[10];
-  int paramsNo;
+  node *param;
+  struct paramsCalls *next;
 } paramsCall;
-
-typedef struct paramsLists{
-  parameter params[10];
-  int paramsNo;
-} paramsList;
 
 /*
 Define un item adicional para las funciones del arbol o tabla de simbolos
@@ -72,7 +64,7 @@ value: lista de parametros de la funcion
 type: arbol de sentencias de la funcion
 */
 typedef struct itemsFunc{
-  paramsList params;
+  symbol *params;
   node *tree;
 } itemFunc;
 
@@ -124,8 +116,7 @@ void insertTable(char n[32], int v, int t, int r);
 // List
 item * findList(symbol *head, char n[32]);
 void insertList(symbol *head, char n[32], int v, int t ,int r);
-void insertFunction(char n[32], int v, int t, int r, paramsList *p, node *tree);
-void addParamList(paramsList *l,int type, char name[32]);
+void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree);
 void addParamCall(paramsCall *l, node *p);
 void showList(symbol *head);
 
@@ -134,24 +125,25 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo);
 void concatLeft (node *father, node *son);
 void concatRight (node *father, node *son);
 void concatMiddle (node *father, node *son);
-void showTree(node *aux);
 
-/*int evalTree(node *aux);
-int semanticSum(node *sum);
-int semanticSub(node *sub);
-int semanticProd(node *prod);
-int semanticParenthesis(node *parenthesis);*/
+//Checkeo de tipos
+int evalExpr (node *head);
+int checkOpRel(node *head);
+int checkOpAritBin(node *head);
+int checkOpAritUn(node *head);
+int checkOpLogBin(node *head);
+int checkOpLogUn(node *head);
+int checkOpEqual(node *head);
+int checkOpRel(node *head);
+void checkTree (node *head, int functionRet);
+void checkParams (node *head);
+void checks (symbol *head);
 
 //////VARIABLES GLOBALES/////
 
 int MAXSIZE = 20;
 symbol *levels[20];
 int top = -1;
-
-/*
-puntero a la cabeza de un arbol
-*/
-//node *head;
 
 
 ///////IMPLEMENTACION DE FUNCIONES/////////
@@ -170,7 +162,6 @@ int isFull() {
 }
 
 void openLevel(){
-  //printf("Begin openLevel\n");
   if(!isFull()){
     top = top + 1;
     symbol *head = (symbol *) malloc(sizeof(symbol));
@@ -179,55 +170,44 @@ void openLevel(){
   } else {
     printf("Could not open a new level.\n");
   }
-  //printf("End openLevel\n");
 }
 
 void closeLevel(){
-  //printf("Begin closeLevel\n");
   if(!isEmpty()){
     top = top - 1;
   } else {
     printf("No levels open.\n");
   }
-  //printf("End closeLevel\n");
 }
 
 int typeLastVar(){
-  printf("Begin typeLastVar\n");
   symbol *aux = levels[top];
   if ((aux->next)!=NULL){
     while (aux->next!=NULL)
       aux = aux->next;
   }
-  printf("End typeLastVar\n");
-  return (aux->content)->type;
+  return (aux->content)->ret;
 }
 
 item * findTable(char n[32]){
-  printf("Begin findTable\n");
   int i = top;
   item *aux = (item *) malloc(sizeof(item));
   while (i>=0){
     aux = findList(levels[i],n);
     if(aux != NULL){
-      printf("End findTable\n");
       return aux;
     }
     i = i - 1;
   }
-  printf("End findTable\n");
   return NULL;
 }
 
 item * searchFunction (char n[32]){
-  //printf("Begin searchFunction\n");
   item *aux = (item *) malloc(sizeof(item));
   aux = findList(levels[0],n);
   if(aux != NULL){
-    //printf("End searchFunction\n");
     return aux;
   }
-  //printf("End searchFunction\n");
   return NULL;
 }
 
@@ -239,7 +219,6 @@ void insertTable(char n[32], int v, int t, int r){
 Busca un elemento en la tabla de simbolos
 */
 item * findList(symbol *head,char n[32]){
-  //printf("Begin findList\n");
   symbol *aux = head;
   if((aux->next)!=NULL){
     aux=aux->next;
@@ -249,13 +228,12 @@ item * findList(symbol *head,char n[32]){
     if(aux == NULL){
       return NULL;
     } else {
-      //printf("End findList\n");
       return aux->content;
     }
   }else{
+    printf("%s\n",n );
     printf("Empty list.\n");
   }
-  //printf("End findList\n");
   return  NULL;
 }
 
@@ -263,10 +241,8 @@ item * findList(symbol *head,char n[32]){
 Inserta un elemento en la tabla de simbolos
 */
 void insertList(symbol *head,char n[32], int v, int t,int r){
-  printf("Begin insertList\n");
   if (findList(head,n)){
     fprintf(stderr, "Error: var %s declared before\n", n);
-    printf("End insertList\n");
     exit(EXIT_FAILURE);
   }else{
     symbol *element;
@@ -289,14 +265,11 @@ void insertList(symbol *head,char n[32], int v, int t,int r){
       aux->next = element;
     }
   }
-  printf("End insertList\n");
 }
 
-void insertFunction(char n[32], int v, int t, int r, paramsList *p, node *tree){
-  //printf("Begin insertFunction\n");
+void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree){
   if (searchFunction(n)){
     fprintf(stderr, "Error: FUNCTION %s declared before\n", n);
-    //printf("End insertFunction\n");
     exit(EXIT_FAILURE);
   }else{
     symbol *element;
@@ -309,10 +282,7 @@ void insertFunction(char n[32], int v, int t, int r, paramsList *p, node *tree){
     content->value = v;
     content->type = t;
     content->ret=r;
-    int totalParams = p->paramsNo;
-    for(int i=0; i<totalParams; i++){
-      addParamList(&(contentFunc->params),((p->params)[i]).type,((p->params)[i]).name);
-    }
+    contentFunc->params = p;
     contentFunc->tree = tree;
     content->function= contentFunc;
     element->content = content;
@@ -328,34 +298,7 @@ void insertFunction(char n[32], int v, int t, int r, paramsList *p, node *tree){
       aux->next = element;
     }
   }
-  //printf("End insertFunction\n");
 }
-
-
-
-/*
-Muestra la tabla de simbolos
-*/
-/*
-void showList(symbol *head){
-  //printf("Begin showList\n");
-  int i = top;
-  printf("Showing table\n");
-  while (i>=0){
-    printf("Level %d\n",i);
-    symbol *aux = levels[i];
-    if((aux->next)!= NULL){
-      do{
-        aux = aux->next;
-        printf("  Name: %s, value %d\n",(aux->content)->name,(aux->content)->value);
-      } while (aux->next!=NULL);
-    }else{
-      printf("  Empty list.\n");
-    }
-    i = i - 1;
-  }
-  //printf("End showList\n");
-}*/
 
 
 /*
@@ -367,8 +310,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
   item *content;
   if (t == ASSIGN){
     if (!findTable(n)){ //chequeo de variable declarada
-      fprintf(stderr, "Error: var %s undeclared. \n", n);
-      printf("End insertTree\n");
+      fprintf(stderr, "Error: var %s undeclared.  %d \n", n, lineNo);
       exit(EXIT_FAILURE);
     }else{
       content = (item *) malloc(sizeof(item));
@@ -379,7 +321,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
       if (contentAux->ret==r){
         content->ret = contentAux->ret;
       }else{
-        fprintf(stderr, "Error: Error en tipos de assignacion \n");
+        fprintf(stderr, "Error: Error en tipos de assignacion %d\n" ,lineNo);
         exit(EXIT_FAILURE);
       }
     }
@@ -388,7 +330,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
       content = (item *) malloc(sizeof(item));
       item *contentAux = findTable(n);
     if (!contentAux){
-              fprintf(stderr, "Error: var %s undeclared \n", n);
+        fprintf(stderr, "Error: var %s undeclared  %d \n", n, lineNo);
         exit(EXIT_FAILURE);
     }else{
       strcpy(content->name,contentAux->name);
@@ -408,6 +350,9 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
   element->content = content;
   element->lineNo = lineNo;
   //printf("End insertTree\n");
+  element->right=NULL;
+  element->left=NULL;
+  element->middle=NULL;
   return element;
 }
 
@@ -416,7 +361,6 @@ agrega el arbol son como hijo izquierdo del arbol father
 */
 void concatLeft (node *father, node *son){
   father->left=son;
-  //printf("concatLeft\n");
 }
 
 /*
@@ -424,7 +368,6 @@ agrega el arbol son como hijo derecho del arbol father
 */
 void concatRight (node *father, node *son){
   father->right=son;
-  //printf("concatRight\n");
 }
 
 /*
@@ -432,215 +375,237 @@ agrega el arbol son como hijo del medio del arbol father
 */
 void concatMiddle (node *father, node *son){
   father->middle=son;
-  //printf("concatMiddle\n");
 }
 
-void addParamList(paramsList *l,int type, char name[32]){
-  ((l->params)[l->paramsNo]).type=type;
-  strcpy(((l->params)[l->paramsNo]).name,name);
-  (l->paramsNo) = (l->paramsNo)+1;
-}
-
-void addParamCall(paramsCall *l,node *p){
-  (l->params)[l->paramsNo]=p;
-  (l->paramsNo) = (l->paramsNo)+1;
-}
-
-bool checkParams (paramsList l,paramsCall c){
-  int size = c.paramsNo;
-  int i = 0;
-  bool error = false;
-  int t1;
-  if(size!=(l.paramsNo)){
-    return false;
-  }else {
-    while (i<size && !error){
-      t1 = ((c.params[i])->content)->ret;
-      if ((l.params[i]).type != t1){
-        error = true;
+void addParamCall(paramsCall *head,node *p){
+  paramsCall *element = (paramsCall *) malloc(sizeof(paramsCall));
+  element->param = p;
+  element->next = NULL;
+  if(head->next==NULL){
+      head->next = element;
+    } else {
+      paramsCall *aux = head->next;
+      while(aux->next != NULL){
+        aux = aux->next;
       }
-      i++;
-      }
-    if (!error){
-      return true;
+      aux->next = element;
     }
-    else{
-      return false;
+}
+
+
+void checkParams (node *head){
+  paramsCall *pc= head->content->paramsCall;
+  symbol *pl= head->content->function->params;
+  if (pl->next!=NULL && pc->next!=NULL){
+    if  ((pl->next!=NULL && pc->next==NULL)){
+      fprintf(stderr, "Error: mas parametros en la declaracion que en la llamada, Linea %d\n" ,head->lineNo);
+      exit(EXIT_FAILURE);
+    }
+    if  ((pl->next==NULL && pc->next!=NULL)){
+      fprintf(stderr, "Error: mas parametros en la llamada que en la declaracion, Linea %d\n" ,head->lineNo);
+      exit(EXIT_FAILURE);
+    }
+    int ret;
+    while (pl->next!=NULL && pc->next!=NULL){
+      pl = pl->next;
+      pc = pc->next;
+      ret = evalExpr(pc->param);
+      if (pl->content->ret !=ret){
+        fprintf(stderr, "Error: error de tipos llamada metodo, Linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+      }
+      if  ((pl->next!=NULL && pc->next==NULL)){
+        fprintf(stderr, "Error: mas parametros en la declaracion que en la llamada, Linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+      }
+      if  ((pl->next==NULL && pc->next!=NULL)){
+        fprintf(stderr, "Error: mas parametros en la llamada que en la declaracion, Linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+      }
+    }
+  }
+}
+
+void checks (symbol *head){
+  symbol *aux = head;
+  int r;
+  while((aux->next)!=NULL){
+    aux=aux->next;
+    if (aux->content->type==FUNCTION){
+      checkTree(aux->content->function->tree, aux->content->ret);
     }
   }
 }
 
 
-
-/*
-Muestra la estructura del arbol de modo InOrder
-*/
-/*void showTree(node *aux){
-  //printf("Begin showTree\n");
-  if(aux!=NULL){
-    if((aux->content)->type==CONSTANT){
-      printf(" %d ",(aux->content)->value);
-    }
-    if((aux->content)->type == VAR){
-    printf(" %s ",(aux->content)->name);
-    }
-    if((aux->content)->type == OPER_AR){
-      if(!strcmp((aux->content)->name,"()")){
-        printf (" (");
-        showTree (aux->left);
-        printf (" )");
-      }
-      else{
-        showTree (aux->left);
-        if(!strcmp((aux->content)->name,"+")){
-          printf (" + ");
-        }
-        if(!strcmp((aux->content)->name,"-")){
-          printf (" - ");
-        }
-        if(!strcmp((aux->content)->name,"*")){
-          printf (" * ");
-        }
-        if(!strcmp((aux->content)->name,"/")){   //DIVISION VER SIMBOLO
-          printf (" / ");
-        }
-        if(!strcmp((aux->content)->name,"MOD")){  //MODULO VER SIMBOLO
-          printf (" MOD ");
-        }
-        if(!strcmp((aux->content)->name,"<")){
-          printf (" < ");
-        }
-        else{
-          printf(" > ");
-        }
-        showTree (aux->right);
-      }
-    }
-    if((aux->content)->type == OPER_LOG){
-      if(!strcmp((aux->content)->name,"-")){ //OPERADOR SUB VER SIMBOLO
-        printf (" - ");
-        showTree (aux->right);
-      }
-      if(!strcmp((aux->content)->name,"!")){ //OPERADOR NOT
-        printf (" ! ");
-        showTree (aux->right);
-      }
-      else{
-        showTree (aux->left);
-        if(!strcmp((aux->content)->name,"=")){
-          printf (" = ");
-        }
-        if(!strcmp((aux->content)->name,"&&")){
-          printf (" && ");
-        }
-        else{
-          printf(" || ");
-        }
-        showTree (aux->right);
-      }
-    }
+void checkTree (node *head, int functionRet){
+/*constantes para definir tipo de valor en los items de lista
+y tablas (si son variables ,constantes o operaciones)*/
+  int ret;
+  if ((head->content)->type == FUNCTION){
+    checkTree(head->content->function->tree, functionRet);
   }
-  else{
-    printf("Empty Tree.\n");
-  }
-  //printf("End showTree\n");
-} */
+  if ((head->content)->type == FUNCTION_CALL_NP){
 
+    checkParams(head);
+    checkTree(head->content->function->tree, functionRet);
+  }  
+  if ((head->content)->type == FUNCTION_CALL_P){
 
-
-/*
-Evalua el arbol
-*/
-
-/*
-int evalTree(node *aux){
-  if((aux->content)->type == VAR || (aux->content)->type==CONSTANT){
-    return (aux->content)->value;
-  }
-  else{
-    if((aux->content)->type == OPER_AR){
-      if(!strcmp((aux->content)->name,"()")){
-        return semanticParenthesis(aux);
-      }
-      if(!strcmp((aux->content)->name,"+")){
-        return semanticSum(aux);
-      }
-      if(!strcmp((aux->content)->name,"-")){
-        return semanticSub(aux);
-      }
-      if(!strcmp((aux->content)->name,"*")){
-        return semanticProd(aux);
-      }
-      if(!strcmp((aux->content)->name,"/")){   //DIVISION VER SIMBOLO
-        printf (" / ");
-      }
-      if(!strcmp((aux->content)->name,"MOD")){  //MODULO VER SIMBOLO
-        printf (" MOD ");
-      }
-      if(!strcmp((aux->content)->name,"<")){
-        printf (" < ");
-      }
-      else{
-        printf(" > ");
-      }
+    checkParams(head);
+    checkTree(head->content->function->tree, functionRet);
+  }  
+  if ((head->content)->type == IFAUX){
+    ret = evalExpr (head->left);
+    if (ret!=BOOLAUX){
+        fprintf(stderr, "Error: expresion if debe retornar booleano, Linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
     }
-    if((aux->content)->type == OPER_LOG){
-      if(!strcmp((aux->content)->name,"-")){ //OPERADOR SUB VER SIMBOLO
-        printf (" - ");
-      }
-      if(!strcmp((aux->content)->name,"!")){ //OPERADOR NOT
-        printf (" ! ");
-      }
-      if(!strcmp((aux->content)->name,"=")){
-        printf (" = ");
-      }
-      if(!strcmp((aux->content)->name,"&&")){
-        printf (" && ");
-      }
-      else{
-        printf(" || ");
-      }
+    checkTree(head->middle, functionRet);
+    checkTree(head->right, functionRet);
+  }  
+  if ((head->content)->type == IF_ELSE){
+    ret = evalExpr (head->left);
+    if (ret!=BOOLAUX){
+        fprintf(stderr, "Error: expresion if debe retornar booleano, Linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
     }
-  return 0;///para que no tire error
+    checkTree(head->right, functionRet);
+
+  }  
+  if ((head->content)->type == ASSIGN){
+    ret = evalExpr (head->left);
+    if ((head->content)->ret != ret){
+        fprintf(stderr, "Error: Error de tipos asignacion en asignacion, Linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE); 
+    }
+  }  
+  if ((head->content)->type == WHILEAUX){
+    ret = evalExpr (head->left);
+    if (ret!=BOOLAUX){
+        fprintf(stderr, "Error: expresion while debe retornar booleano, Linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
+    checkTree(head->right, functionRet);
+  }  
+  if ((head->content)->type == RETURNAUX){
+    if (functionRet!=BOOLAUX){
+        fprintf(stderr, "Error: Return no devuelve nada y la funcion devuelve un valor, Linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
+  }  
+  if ((head->content)->type == RETURN_EXPR){
+    ret = evalExpr (head->left);
+    if (functionRet!=ret){
+        fprintf(stderr, "Error: Error en de tipo expresion return, Linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
+  }  
+  if ((head->content)->type == STATEMENTS){
+    checkTree(head->left, functionRet);
+    checkTree(head->right, functionRet);
   }
+  if ((head->content)->type == BLOCK){
+    checkTree(head->left, functionRet);
+  }
+} 
+
+int evalExpr (node *head){
+  int t1 = head->content->type;
+  if (t1 == CONSTANT || t1 == VAR || t1 == PARAMETER || t1==FUNCTION_CALL_NP || t1==FUNCTION_CALL_P){
+    return head->content->ret;
+  }
+  if ((t1==FUNCTION_CALL_NP || t1==FUNCTION_CALL_P)){
+    checkParams(head);
+  }
+  if (t1==OPER_AR){
+    return checkOpAritBin(head);
+  }  
+  if (t1==OPER_LOG){
+    return checkOpLogBin(head);
+  }
+  if (t1==OPER_AR_UN){
+    return checkOpAritUn(head);
+  }  
+  if (t1==OPER_LOG_UN){
+    return checkOpLogUn(head);
+  }  
+  if (t1==OPER_EQUAL){
+    return checkOpEqual(head);
+  }  
+  if (t1==OPER_REL){
+    return checkOpRel(head);
+  }
+  return VOID;
 }
-*/
 
-
-/*
-Semantica de la operacion Suma +
-*/
-
-/*
-int semanticSum(node *sum){
-    return (evalTree(sum->left) + evalTree(sum->right));
+int checkOpAritBin(node *head){
+    int left = evalExpr(head->left);
+    int right = evalExpr(head->right);
+    if((left == INTEGERAUX) && (right == INTEGERAUX)){
+      return INTEGERAUX;
+    }
+    else {
+        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
 }
-*/
 
-/*
-Semantica de la operacion Sustraccion -
-*/
-
-/*
-int semanticSub(node *sub){
-    return (evalTree(sub->left) - evalTree(sub->right));
+int checkOpLogBin(node *head){
+    int left = evalExpr(head->left);
+    int right = evalExpr(head->right);
+    if((left == BOOLAUX) && (right == BOOLAUX)){
+      return BOOLAUX;
+    }
+    else {
+        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
 }
-*/
 
-/*
-Semantica de la operacion Producto *
-*/
-/*
-int semanticProd(node *prod){
-    return (evalTree(prod->left) * evalTree(prod->right));
+int checkOpLogUn(node *head){
+    int left = evalExpr(head->left);
+    if(left == BOOLAUX){
+      return BOOLAUX;
+    }
+    else {
+        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
 }
-*/
 
-/*
-Semantica de la operacion Parentesis ()
-*/
-/*
-int semanticParenthesis(node *parenthesis){
-    return evalTree(parenthesis->left);
+int checkOpAritUn(node *head){
+    int left = evalExpr(head->left);
+    if(left == BOOLAUX){
+      return BOOLAUX;
+    }
+    else {
+        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
 }
-*/
+
+int checkOpEqual(node *head){
+    int left = evalExpr(head->left);
+    int right = evalExpr(head->right);
+    if(left == right){
+      return BOOLAUX;
+    }
+    else {
+        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
+}
+
+int checkOpRel(node *head){
+    int left = evalExpr(head->left);
+    int right = evalExpr(head->right);
+    if((left == INTEGERAUX) && (right == INTEGERAUX)){
+      return BOOLAUX;
+    }
+    else {
+        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
+}
+

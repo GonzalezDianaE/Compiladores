@@ -8,7 +8,7 @@ program
     {incremento de un numero}
     integer inc (integer z)
       begin
-        return y + 1;
+        return z + 1;
       end
     void  main()
       begin
