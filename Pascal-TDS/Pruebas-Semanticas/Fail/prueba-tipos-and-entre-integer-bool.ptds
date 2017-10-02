@@ -3,8 +3,8 @@ program
     void  main()
       begin
       	integer y;
-      	y = 5;
         bool x,z;
+      	y = 5;
         z = false;
         x = (y&&z);
       end

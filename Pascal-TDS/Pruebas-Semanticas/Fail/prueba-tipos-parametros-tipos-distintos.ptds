@@ -7,8 +7,8 @@ program
     void  main()
       begin
         integer x;
-        x=11;
         bool y;
+        x=11;
         y = true;
         if (x>5) then 
           begin
