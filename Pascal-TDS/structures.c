@@ -109,7 +109,7 @@ int isFull();
 void openLevel();
 void closeLevel();
 int typeLastVar();
-item * findVar(char n[32]);
+item * findVar(char n[32],int type);
 item * findFunction(char n[32]);
 void insertTable(char n[32], int v, int t, int r);
 
@@ -190,11 +190,11 @@ int typeLastVar(){
   return (aux->content)->ret;
 }
 
-item * findVar(char n[32]){
+item * findVar(char n[32],int type){
   int i = top;
   item *aux = (item *) malloc(sizeof(item));
   while (i>=0){
-    aux = findInList(levels[i],n,0);
+    aux = findInList(levels[i],n,type);
     if(aux != NULL){
       return aux;
     }
@@ -213,6 +213,7 @@ item * findFunction (char n[32]){
 }
 
 void insertTable(char n[32], int v, int t, int r){
+  printf("insert %s (type %d)\n",n,t);
   insertList(levels[top],n,v,t,r);
 }
 
@@ -224,18 +225,28 @@ item * findInList(symbol *head,char n[32],int type){
   if((aux->next)!=NULL){
     aux=aux->next;
     int auxiliarType = (aux->content)->type;
-    while(aux!=NULL && strcmp((aux->content)->name,n) && 
-      ((type==0)?(auxiliarType==VAR||auxiliarType==PARAMETER):(auxiliarType==FUNCTION))){
+    printf("Searching for %s (type %d)\n",n,type);
+    //while(aux!=NULL && strcmp((aux->content)->name,n)){
+    //while(aux!=NULL && !(strcmp((aux->content)->name,n)==0 && type==auxiliarType)){
+    //while(aux!=NULL && !(strcmp((aux->content)->name,n)==0 && ((auxiliarType==PARAMETER)?(type==PARAMETER||type==VAR||type==ASSIGN):type==FUNCTION))){
+    while(aux!=NULL && !(strcmp((aux->content)->name,n)==0 && ((type==VAR||type==ASSIGN)?(auxiliarType==PARAMETER||auxiliarType==VAR):auxiliarType==FUNCTION))){
+      printf("  compare %s (type %d) con %s (type %d)\n",n,type,(aux->content)->name,auxiliarType);
+      //printf("aux = %d\n",aux!=NULL);
+      //printf("second = %d\n",!(strcmp((aux->content)->name,n)==0 && ((auxiliarType==PARAMETER)?(type==PARAMETER||type==VAR):type==FUNCTION)));
+      //printf("strcmp = %d\n", strcmp((aux->content)->name,n)==0 );
+      //printf("types = %d\n",(auxiliarType==PARAMETER)?(type==PARAMETER||type==VAR):type==FUNCTION);
       aux = aux->next;
     }
     if(aux == NULL){
+      //printf("Not found\n");
       return NULL;
     } else {
+      //printf("Found\n");
       return aux->content;
     }
   }else{
-    printf("%s\n",n );
-    printf("Empty list.\n");
+    //printf("%s\n",n );
+    //printf("Empty list.\n");
   }
   return  NULL;
 }
@@ -303,7 +314,6 @@ void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree){
   }
 }
 
-
 /*
 Crea un elemento de tipo arbol con sus hijos NULL,
 si el elemento es de tipo Var busca sus datos en la tabla de Simbolos
@@ -312,15 +322,17 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
   //printf("Begin insertTree\n");
   item *content;
   if (t == ASSIGN){
-    if (!findVar(n)){ //chequeo de variable declarada
+    if (!findVar(n,t)){ //chequeo de variable declarada
       fprintf(stderr, "Error: var %s undeclared.  %d \n", n, lineNo);
       exit(EXIT_FAILURE);
     }else{
       content = (item *) malloc(sizeof(item));
-      item *contentAux = findVar(n);
+      item *contentAux = findVar(n,t);
       strcpy(content->name,contentAux->name);
       content->value = v;
       content->type = ASSIGN;
+      //printf("ret %d\n", contentAux->ret);
+      //printf("r %d\n", r);
       if (contentAux->ret==r){
         content->ret = contentAux->ret;
       }else{
@@ -331,7 +343,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
   }
   if (t == VAR){
       content = (item *) malloc(sizeof(item));
-      item *contentAux = findVar(n);
+      item *contentAux = findVar(n,t);
     if (!contentAux){
         fprintf(stderr, "Error: var %s undeclared  %d \n", n, lineNo);
         exit(EXIT_FAILURE);
@@ -461,6 +473,7 @@ void checkTree (node *head, int functionRet){
 /*constantes para definir tipo de valor en los items de lista
 y tablas (si son variables ,constantes o operaciones)*/
   int ret;
+  bool hasRet = false;
   if ((head->content)->type == FUNCTION){
     checkTree(head->content->function->tree, functionRet);
   }
