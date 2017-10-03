@@ -244,12 +244,6 @@ item * findInList(symbol *head,char n[32],int type){
       //printf("Found\n");
       return aux->content;
     }
-  }else{
-<<<<<<< HEAD
-    //printf("%s\n",n );
-    //printf("Empty list.\n");
-=======
->>>>>>> 5e623e1e9906168a53a6c873428cf7a28ab57eda
   }
   return  NULL;
 }
