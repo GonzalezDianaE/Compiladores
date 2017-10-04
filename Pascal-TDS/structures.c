@@ -480,7 +480,6 @@ y tablas (si son variables ,constantes o operaciones)*/
         fprintf(stderr, "Error: expresion if debe retornar booleano, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
     }
-    checkTree(head->middle, functionRet);
     checkTree(head->right, functionRet);
   }  
   if ((head->content)->type == IF_ELSE){
@@ -489,6 +488,7 @@ y tablas (si son variables ,constantes o operaciones)*/
         fprintf(stderr, "Error: expresion if debe retornar booleano, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
     }
+    checkTree(head->middle, functionRet);
     checkTree(head->right, functionRet);
 
   }  
@@ -508,7 +508,7 @@ y tablas (si son variables ,constantes o operaciones)*/
     checkTree(head->right, functionRet);
   }  
   if ((head->content)->type == RETURNAUX){
-    if (functionRet!=BOOLAUX){
+    if (functionRet!=VOIDAUX){
         fprintf(stderr, "Error: Return no devuelve nada y la funcion devuelve un valor, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
     }
