@@ -213,7 +213,7 @@ item * findFunction (char n[32]){
 }
 
 void insertTable(char n[32], int v, int t, int r){
-  printf("insert %s (type %d)\n",n,t);
+  //printf("insert %s (type %d)\n",n,t);
   insertList(levels[top],n,v,t,r);
 }
 
@@ -225,12 +225,12 @@ item * findInList(symbol *head,char n[32],int type){
   if((aux->next)!=NULL){
     aux=aux->next;
     int auxiliarType = (aux->content)->type;
-    printf("Searching for %s (type %d)\n",n,type);
+    //printf("Searching for %s (type %d)\n",n,type);
     //while(aux!=NULL && strcmp((aux->content)->name,n)){
     //while(aux!=NULL && !(strcmp((aux->content)->name,n)==0 && type==auxiliarType)){
     //while(aux!=NULL && !(strcmp((aux->content)->name,n)==0 && ((auxiliarType==PARAMETER)?(type==PARAMETER||type==VAR||type==ASSIGN):type==FUNCTION))){
     while(aux!=NULL && !(strcmp((aux->content)->name,n)==0 && ((type==VAR||type==ASSIGN)?(auxiliarType==PARAMETER||auxiliarType==VAR):auxiliarType==FUNCTION))){
-      printf("  compare %s (type %d) con %s (type %d)\n",n,type,(aux->content)->name,auxiliarType);
+      //printf("  compare %s (type %d) con %s (type %d)\n",n,type,(aux->content)->name,auxiliarType);
       //printf("aux = %d\n",aux!=NULL);
       //printf("second = %d\n",!(strcmp((aux->content)->name,n)==0 && ((auxiliarType==PARAMETER)?(type==PARAMETER||type==VAR):type==FUNCTION)));
       //printf("strcmp = %d\n", strcmp((aux->content)->name,n)==0 );
@@ -438,8 +438,6 @@ void checkParams (node *head){
       pl = pl->next;
       pc = pc->next;
       ret = evalExpr(pc->param);
-      printf("%d\n", ret );
-      printf("%s\n", pl->content->name );
       if (pl->content->ret !=ret){
         fprintf(stderr, "Error: error de tipos llamada metodo, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
