@@ -38,7 +38,7 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define BLOCK 21
 #define OPER_AR_UN 22
 #define OPER_LOG_UN 23
-#define OPER_EQUAL 23
+#define OPER_EQUAL 24
 
 
 
