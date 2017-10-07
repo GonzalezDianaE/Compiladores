@@ -38,7 +38,7 @@ y tablas (si son variables ,constantes o operaciones)*/
 #define BLOCK 21
 #define OPER_AR_UN 22
 #define OPER_LOG_UN 23
-#define OPER_EQUAL 23
+#define OPER_EQUAL 24
 
 
 
@@ -427,8 +427,6 @@ void checkParams (node *head){
       pl = pl->next;
       pc = pc->next;
       ret = evalExpr(pc->param);
-      printf("%d\n", ret );
-      printf("%s\n", pl->content->name );
       if (pl->content->ret !=ret){
         fprintf(stderr, "Error: error de tipos llamada metodo, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
@@ -481,7 +479,6 @@ y tablas (si son variables ,constantes o operaciones)*/
         fprintf(stderr, "Error: expresion if debe retornar booleano, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
     }
-    checkTree(head->middle, functionRet);
     checkTree(head->right, functionRet);
   }  
   if ((head->content)->type == IF_ELSE){
@@ -490,6 +487,7 @@ y tablas (si son variables ,constantes o operaciones)*/
         fprintf(stderr, "Error: expresion if debe retornar booleano, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
     }
+    checkTree(head->middle, functionRet);
     checkTree(head->right, functionRet);
 
   }  
@@ -509,7 +507,7 @@ y tablas (si son variables ,constantes o operaciones)*/
     checkTree(head->right, functionRet);
   }  
   if ((head->content)->type == RETURNAUX){
-    if (functionRet!=BOOLAUX){
+    if (functionRet!=VOIDAUX){
         fprintf(stderr, "Error: Return no devuelve nada y la funcion devuelve un valor, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
     }

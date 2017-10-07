@@ -80,13 +80,13 @@ int yyparse();
 program: {openLevel();} prog
 ;
 
-prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              { checks(levels[0]);}
+prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {checks(levels[0]);printf("%s\n","Compilacion exitosa");}
 
-      | PROGRAM BEGINN method_decls END                                 { checks(levels[0]);}
+      | PROGRAM BEGINN method_decls END                                 {checks(levels[0]);printf("%s\n","Compilacion exitosa");}
 
-      | PROGRAM BEGINN var_decls SEMICOLON END                          {}
+      | PROGRAM BEGINN var_decls SEMICOLON END                          {printf("%s\n","Compilacion exitosa");}
 
-      | PROGRAM BEGINN END                                              {}
+      | PROGRAM BEGINN END                                              {printf("%s\n","Compilacion exitosa");}
     ;
 
 var_decl : type ID                                                      { insertTable ($2->value,0,VAR,$1);}
@@ -164,27 +164,27 @@ statement : ID OP_ASS expr SEMICOLON                                    { node *
 
       | method_call SEMICOLON                                           { $$=$1;}
 
-      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block                { node *call = insertTree("IFAUX",0,IFAUX,INDETERMINATE,yylineno);
+      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block                { node *call = insertTree("IF_ELSE",0,IF_ELSE,INDETERMINATE,yylineno);
                                                                           concatLeft(call,$3);
                                                                           concatMiddle(call,$6);
                                                                           concatRight(call,$8);
                                                                           $$ = call;
                                                                         }
 
-      | IF PAR_LEFT expr PAR_RIGHT THEN block                           { node *call = insertTree("IF_ELSE",0,IF_ELSE,INDETERMINATE,yylineno);
+      | IF PAR_LEFT expr PAR_RIGHT THEN block                           { node *call = insertTree("IFAUX",0,IFAUX,INDETERMINATE,yylineno);
                                                                           concatLeft(call,$3);
                                                                           concatRight(call,$6);
                                                                           $$ = call;                                                                        
                                                                         }
 
       | WHILE expr block                                                { node *call = insertTree("WHILEAUX",0,WHILEAUX,INDETERMINATE,yylineno);
-                                                                          concatLeft(call,$2);//call->left = $2;
-                                                                          concatRight(call,$3);//call->right = $3;
+                                                                          concatLeft(call,$2);
+                                                                          concatRight(call,$3);
                                                                           $$ = call;                                                                       
                                                                         }
 
       | RETURN expr SEMICOLON                                           { node *call = insertTree("RETURN_EXPR",0,RETURN_EXPR,($2->content)->ret,yylineno);
-                                                                          concatLeft(call,$2);//call->left = $2;
+                                                                          concatLeft(call,$2);
                                                                           $$ = call;
                                                                         }
 
