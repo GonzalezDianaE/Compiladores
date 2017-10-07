@@ -1,0 +1,16 @@
+program
+  begin
+  {decremento de una variable}
+    integer dec (integer y)
+      begin
+      end
+    void  main()
+      begin
+        integer x;
+        x=20;
+        while (x>10) 
+          begin
+            x = dec(x); 
+          end
+      end
+  end

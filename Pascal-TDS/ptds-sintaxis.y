@@ -13,6 +13,8 @@ extern int yylineno;
 int yylex();
 void yyerror(const char *s);
 int yyparse();
+bool notVoidFunction;
+int returnCount = 0;
 %}
 
 
@@ -99,19 +101,33 @@ var_decls : var_decl                                                    {}
       | var_decls SEMICOLON var_decl                                    {}
     ;
 
-method_decl : type ID PAR_LEFT param PAR_RIGHT block                    { insertFunction($2->value, 0, FUNCTION, $1, $4,$6);
+method_decl : 
+
+      type ID PAR_LEFT param PAR_RIGHT block                            { if (returnCount==0) {
+                                                                            fprintf(stderr, "Error: Missing return statement for %s function.\n", $2->value);
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                          returnCount = 0;
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6);
                                                                           closeLevel();
                                                                         }
 
-      | VOID ID PAR_LEFT param  PAR_RIGHT block                         { insertFunction($2->value, 0, FUNCTION, $1, $4,$6);
+      | VOID ID PAR_LEFT param PAR_RIGHT block                          { returnCount = 0;
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6);
                                                                           closeLevel();
                                                                         }
 
-      | type ID PAR_LEFT PAR_RIGHT block                                { symbol *head = initParamCall();
+      | type ID PAR_LEFT PAR_RIGHT block                                { if (returnCount==0) {
+                                                                            fprintf(stderr, "Error: Missing return statement for %s function.\n", $2->value);
+                                                                            exit(EXIT_FAILURE);
+                                                                          }
+                                                                          returnCount = 0;
+                                                                          symbol *head = initParamCall();
                                                                           insertFunction($2->value, 0, FUNCTION, $1, head,$5);
                                                                         }
 
-      | VOID ID PAR_LEFT PAR_RIGHT block                                { symbol *head = initParamCall();
+      | VOID ID PAR_LEFT PAR_RIGHT block                                { returnCount = 0;
+                                                                          symbol *head = initParamCall();
                                                                           insertFunction($2->value, 0, FUNCTION, $1, head,$5);
                                                                         }
      ;
@@ -183,7 +199,8 @@ statement : ID OP_ASS expr SEMICOLON                                    { node *
                                                                           $$ = call;                                                                       
                                                                         }
 
-      | RETURN expr SEMICOLON                                           { node *call = insertTree("RETURN_EXPR",0,RETURN_EXPR,($2->content)->ret,yylineno);
+      | RETURN expr SEMICOLON                                           { returnCount++;
+                                                                          node *call = insertTree("RETURN_EXPR",0,RETURN_EXPR,($2->content)->ret,yylineno);
                                                                           concatLeft(call,$2);
                                                                           $$ = call;
                                                                         }
