@@ -9,6 +9,7 @@
 
 void error(const char *s);
 void yyerror();
+int debug;
 
 %}
 %x comment
@@ -153,6 +154,12 @@ void yyerror(){
 }
 
 int main(int argc,char *argv[]){
+    char aux[] = "0";
+    if (strcmp(argv[1],aux)==0){
+        debug = 0;
+    } else {
+        debug = 1;
+    }
 	++argv,--argc;
 	if (argc > 0)
 		yyin = fopen(argv[0],"r");

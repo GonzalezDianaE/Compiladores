@@ -6,6 +6,7 @@
 #include "types.c"
 #include "structures.c"
 extern int yylineno;
+extern bool debug;
 
 %}
 
@@ -13,8 +14,8 @@ extern int yylineno;
 int yylex();
 void yyerror(const char *s);
 int yyparse();
-bool notVoidFunction;
 int returnCount = 0;
+bool deb;
 %}
 
 
@@ -79,21 +80,21 @@ int returnCount = 0;
 
 
 %%
-program: {openLevel();} prog
+program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel();} prog
 ;
 
-prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {checks(levels[0]);printf("%s\n","Compilacion exitosa");}
+prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
 
-      | PROGRAM BEGINN method_decls END                                 {checks(levels[0]);printf("%s\n","Compilacion exitosa");}
+      | PROGRAM BEGINN method_decls END                                 {checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
 
       | PROGRAM BEGINN var_decls SEMICOLON END                          {printf("%s\n","Compilacion exitosa");}
 
       | PROGRAM BEGINN END                                              {printf("%s\n","Compilacion exitosa");}
     ;
 
-var_decl : type ID                                                      { insertTable ($2->value,0,VAR,$1);}
+var_decl : type ID                                                      { insertTable ($2->value,0,VAR,$1,deb);}
 
-      | var_decl COMMA ID                                               { insertTable ($3->value,0,VAR,typeLastVar());}
+      | var_decl COMMA ID                                               { insertTable ($3->value,0,VAR,typeLastVar(),deb);}
     ;
 
 var_decls : var_decl                                                    {}
@@ -108,12 +109,12 @@ method_decl :
                                                                             exit(EXIT_FAILURE);
                                                                           }
                                                                           returnCount = 0;
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6);
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6,deb);
                                                                           closeLevel();
                                                                         }
 
       | VOID ID PAR_LEFT param PAR_RIGHT block                          { returnCount = 0;
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6);
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6,deb);
                                                                           closeLevel();
                                                                         }
 
@@ -123,12 +124,12 @@ method_decl :
                                                                           }
                                                                           returnCount = 0;
                                                                           symbol *head = initParamCall();
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, head,$5);
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, head,$5,deb);
                                                                         }
 
       | VOID ID PAR_LEFT PAR_RIGHT block                                { returnCount = 0;
                                                                           symbol *head = initParamCall();
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, head,$5);
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, head,$5,deb);
                                                                         }
      ;
 
@@ -138,17 +139,17 @@ method_decls : method_decl                                              {}
      ;
 
 param : type ID                                                         { openLevel();
-                                                                          insertTable($2->value,0,PARAMETER,$1);
+                                                                          insertTable($2->value,0,PARAMETER,$1,deb);
                                                                           $$ = levels[top];
                                                                         }
 
-      | param COMMA type ID                                             { insertTable($4->value,0,PARAMETER,$3);
+      | param COMMA type ID                                             { insertTable($4->value,0,PARAMETER,$3,deb);
                                                                           $$ = $1;
                                                                         }
     ;
 
 block: {openLevel();} blockAux                                          { closeLevel();
-                                                                          node *call = insertTree("BLOCK",0,BLOCK,INDETERMINATE,yylineno);
+                                                                          node *call = insertTree("BLOCK",0,BLOCK,INDETERMINATE,yylineno,deb);
                                                                           concatLeft (call,$2);
                                                                           $$=call;
                                                                         }
@@ -173,39 +174,39 @@ type : INTEGER                                                          { $$ = I
       | BOOL                                                            { $$ = BOOLAUX;}
     ;
 
-statement : ID OP_ASS expr SEMICOLON                                    { node *call = insertTree($1->value,0,ASSIGN,($3->content)->ret,yylineno);
+statement : ID OP_ASS expr SEMICOLON                                    { node *call = insertTree($1->value,0,ASSIGN,($3->content)->ret,yylineno,deb);
                                                                           concatLeft (call,$3);
                                                                           $$=call;
                                                                         }
 
       | method_call SEMICOLON                                           { $$=$1;}
 
-      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block                { node *call = insertTree("IF_ELSE",0,IF_ELSE,INDETERMINATE,yylineno);
+      | IF PAR_LEFT expr PAR_RIGHT THEN block ELSE block                { node *call = insertTree("IF_ELSE",0,IF_ELSE,INDETERMINATE,yylineno,deb);
                                                                           concatLeft(call,$3);
                                                                           concatMiddle(call,$6);
                                                                           concatRight(call,$8);
                                                                           $$ = call;
                                                                         }
 
-      | IF PAR_LEFT expr PAR_RIGHT THEN block                           { node *call = insertTree("IFAUX",0,IFAUX,INDETERMINATE,yylineno);
+      | IF PAR_LEFT expr PAR_RIGHT THEN block                           { node *call = insertTree("IFAUX",0,IFAUX,INDETERMINATE,yylineno,deb);
                                                                           concatLeft(call,$3);
                                                                           concatRight(call,$6);
                                                                           $$ = call;                                                                        
                                                                         }
 
-      | WHILE expr block                                                { node *call = insertTree("WHILEAUX",0,WHILEAUX,INDETERMINATE,yylineno);
+      | WHILE expr block                                                { node *call = insertTree("WHILEAUX",0,WHILEAUX,INDETERMINATE,yylineno,deb);
                                                                           concatLeft(call,$2);
                                                                           concatRight(call,$3);
                                                                           $$ = call;                                                                       
                                                                         }
 
       | RETURN expr SEMICOLON                                           { returnCount++;
-                                                                          node *call = insertTree("RETURN_EXPR",0,RETURN_EXPR,($2->content)->ret,yylineno);
+                                                                          node *call = insertTree("RETURN_EXPR",0,RETURN_EXPR,($2->content)->ret,yylineno,deb);
                                                                           concatLeft(call,$2);
                                                                           $$ = call;
                                                                         }
 
-      | RETURN SEMICOLON                                                { node *call = insertTree("RETURNAUX",0,RETURNAUX,VOIDAUX,yylineno);
+      | RETURN SEMICOLON                                                { node *call = insertTree("RETURNAUX",0,RETURNAUX,VOIDAUX,yylineno,deb);
                                                                           $$ = call;
                                                                         }
 
@@ -218,27 +219,27 @@ statement : ID OP_ASS expr SEMICOLON                                    { node *
 
 statements : statement                                                  { $$=$1;}
 
-      | statements statement                                            { node *call = insertTree("STATEMENTS",0,STATEMENTS,INDETERMINATE,yylineno);
+      | statements statement                                            { node *call = insertTree("STATEMENTS",0,STATEMENTS,INDETERMINATE,yylineno,deb);
                                                                           concatLeft(call,$1);
                                                                           concatRight(call,$2);
                                                                           $$ = call;
                                                                         }
     ;
 
-method_call : ID PAR_LEFT params_call PAR_RIGHT                         { item *func = findFunction($1->value);
+method_call : ID PAR_LEFT params_call PAR_RIGHT                         { item *func = findFunction($1->value,deb);
                                                                           paramsCall pc = *($3);
                                                                           if (func == NULL){
                                                                             fprintf(stderr, "Error: no encontro funcion\n");
                                                                             exit(EXIT_FAILURE);
                                                                           }
                                                                           node *call;
-                                                                          call=insertTree($1->value,0,FUNCTION_CALL_P,func->ret,yylineno);
+                                                                          call=insertTree($1->value,0,FUNCTION_CALL_P,func->ret,yylineno,deb);
                                                                           call->content->function= func->function;
                                                                           call->content->paramsCall = &pc;
                                                                           $$=call;
                                                                         }
 
-      | ID PAR_LEFT PAR_RIGHT                                           { item *func = findFunction($1->value);
+      | ID PAR_LEFT PAR_RIGHT                                           { item *func = findFunction($1->value,deb);
                                                                           if (func == NULL){
                                                                             fprintf(stderr, "Error: no encontro funcion\n");
                                                                             exit(EXIT_FAILURE);
@@ -246,7 +247,7 @@ method_call : ID PAR_LEFT params_call PAR_RIGHT                         { item *
                                                                           node *call;
                                                                           paramsCall *pc = (paramsCall *) malloc(sizeof(paramsCall));
                                                                           pc->next=NULL;
-                                                                          call=insertTree($1->value,0,FUNCTION_CALL_P,func->ret,yylineno);
+                                                                          call=insertTree($1->value,0,FUNCTION_CALL_P,func->ret,yylineno,deb);
                                                                           call->content->function= func->function;
                                                                           call->content->paramsCall = pc;
                                                                           $$=call;
@@ -255,98 +256,98 @@ method_call : ID PAR_LEFT params_call PAR_RIGHT                         { item *
 
 params_call : expr                                                      { paramsCall *head = (paramsCall *) malloc(sizeof(paramsCall));
                                                                           head->next=NULL;
-                                                                          addParamCall(head,$1);
+                                                                          addParamCall(head,$1,deb);
                                                                           $$ = head;
                                                                         }
 
-      | params_call COMMA expr                                          { addParamCall($1,$3);
+      | params_call COMMA expr                                          { addParamCall($1,$3,deb);
                                                                           $$ = $1;
                                                                         }
     ;
 
-expr : ID                                                 { $$ = insertTree ($1->value,0,VAR,0,yylineno);}
+expr : ID                                                 { $$ = insertTree ($1->value,0,VAR,0,yylineno,deb);}
 
       | method_call                                       { $$ = $1;}
 
       | literal                                           { $$ = $1;}
 
       | expr OP_ADD expr                                  { node *father;
-                                                            father = insertTree ("OP_ADD",0,OPER_AR,INTEGERAUX,yylineno);
+                                                            father = insertTree ("OP_ADD",0,OPER_AR,INTEGERAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;
                                                           }
 
       | expr OP_SUB expr                                  { node *father;
-                                                            father = insertTree ("OP_SUB",0,OPER_AR,INTEGERAUX,yylineno);
+                                                            father = insertTree ("OP_SUB",0,OPER_AR,INTEGERAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;
                                                           }
 
       | expr OP_PROD expr                                 { node *father;
-                                                            father = insertTree ("OP_PROD",0,OPER_AR,INTEGERAUX,yylineno);
+                                                            father = insertTree ("OP_PROD",0,OPER_AR,INTEGERAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;                                                        
                                                           }
 
       | expr OP_DIV expr                                  { node *father;
-                                                            father = insertTree ("OP_DIV",0,OPER_AR,INTEGERAUX,yylineno);
+                                                            father = insertTree ("OP_DIV",0,OPER_AR,INTEGERAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;
                                                           }
 
       | expr OP_MOD expr                                  { node *father;
-                                                            father = insertTree ("OP_MOD",0,OPER_AR,INTEGERAUX,yylineno);
+                                                            father = insertTree ("OP_MOD",0,OPER_AR,INTEGERAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;                                                            
                                                           }
 
       | expr OP_MINOR expr                                { node *father;
-                                                            father = insertTree ("OP_MINOR",0,OPER_REL,BOOLAUX,yylineno);
+                                                            father = insertTree ("OP_MINOR",0,OPER_REL,BOOLAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;
                                                           }
       | expr OP_MAJOR expr                                { node *father;
-                                                            father = insertTree ("OP_MAJOR",0,OPER_REL,BOOLAUX,yylineno);
+                                                            father = insertTree ("OP_MAJOR",0,OPER_REL,BOOLAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;
                                                           }
 
       | expr OP_EQUAL expr                                { node *father;
-                                                            father = insertTree ("OP_EQUAL",0,OPER_EQUAL,BOOLAUX,yylineno);
+                                                            father = insertTree ("OP_EQUAL",0,OPER_EQUAL,BOOLAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;
                                                           }
 
       | expr OP_AND expr                                  { node *father;
-                                                            father = insertTree ("OP_AND",0,OPER_LOG,BOOLAUX,yylineno);
+                                                            father = insertTree ("OP_AND",0,OPER_LOG,BOOLAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;
                                                           }
 
       | expr OP_OR expr                                   { node *father;
-                                                            father = insertTree ("OP_OR",0,OPER_LOG,BOOLAUX,yylineno);
+                                                            father = insertTree ("OP_OR",0,OPER_LOG,BOOLAUX,yylineno,deb);
                                                             concatLeft(father,$1);
                                                             concatRight(father,$3);
                                                             $$ = father;
                                                           }
 
       | OP_SUB expr %prec NEG                             { node *father;
-                                                            father = insertTree ("OP_SUB",0,OPER_AR_UN,INTEGERAUX,yylineno);
+                                                            father = insertTree ("OP_SUB",0,OPER_AR_UN,INTEGERAUX,yylineno,deb);
                                                             concatLeft(father,$2);
                                                             $$ = father;
                                                           }
 
       | OP_NOT expr %prec NEG                             { node *father;
-                                                            father = insertTree ("OP_NOT",0,OPER_LOG_UN,BOOLAUX,yylineno);
+                                                            father = insertTree ("OP_NOT",0,OPER_LOG_UN,BOOLAUX,yylineno,deb);
                                                             concatLeft(father,$2);
                                                             $$ = father;
                                                           }
@@ -354,9 +355,9 @@ expr : ID                                                 { $$ = insertTree ($1-
       | PAR_LEFT expr PAR_RIGHT                           { $$ = $2;}
     ;
 
-literal : integer_literal                                 { $$ = insertTree("int_lit",$1,CONSTANT,INTEGERAUX,yylineno);}
+literal : integer_literal                                 { $$ = insertTree("int_lit",$1,CONSTANT,INTEGERAUX,yylineno,deb);}
 
-      | bool_literal                                      { $$ = insertTree("bool_lit",$1,CONSTANT,BOOLAUX,yylineno);}
+      | bool_literal                                      { $$ = insertTree("bool_lit",$1,CONSTANT,BOOLAUX,yylineno,deb);}
     ;
 
 integer_literal : INT                                     { $$ = $1->value;}
