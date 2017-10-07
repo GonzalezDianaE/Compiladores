@@ -114,7 +114,7 @@ item * findFunction(char n[32]);
 void insertTable(char n[32], int v, int t, int r);
 
 // List
-item * findInList(symbol *head, char n[32],int type);
+item * findInList(symbol *head, char n[32]);
 void insertList(symbol *head, char n[32], int v, int t ,int r);
 void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree);
 symbol * initParamCall();
@@ -194,7 +194,7 @@ item * findVar(char n[32],int type){
   int i = top;
   item *aux = (item *) malloc(sizeof(item));
   while (i>=0){
-    aux = findInList(levels[i],n,type);
+    aux = findInList(levels[i],n);
     if(aux != NULL){
       return aux;
     }
@@ -205,7 +205,7 @@ item * findVar(char n[32],int type){
 
 item * findFunction (char n[32]){
   item *aux = (item *) malloc(sizeof(item));
-  aux = findInList(levels[0],n,10);
+  aux = findInList(levels[0],n);
   if(aux != NULL){
     return aux;
   }
@@ -213,28 +213,17 @@ item * findFunction (char n[32]){
 }
 
 void insertTable(char n[32], int v, int t, int r){
-  printf("insert %s (type %d)\n",n,t);
   insertList(levels[top],n,v,t,r);
 }
 
 /*
 Busca un elemento en la tabla de simbolos
 */
-item * findInList(symbol *head,char n[32],int type){
+item * findInList(symbol *head,char n[32]){
   symbol *aux = head;
   if((aux->next)!=NULL){
     aux=aux->next;
-    int auxiliarType = (aux->content)->type;
-    printf("Searching for %s (type %d)\n",n,type);
-    //while(aux!=NULL && strcmp((aux->content)->name,n)){
-    //while(aux!=NULL && !(strcmp((aux->content)->name,n)==0 && type==auxiliarType)){
-    //while(aux!=NULL && !(strcmp((aux->content)->name,n)==0 && ((auxiliarType==PARAMETER)?(type==PARAMETER||type==VAR||type==ASSIGN):type==FUNCTION))){
-    while(aux!=NULL && !(strcmp((aux->content)->name,n)==0 && ((type==VAR||type==ASSIGN)?(auxiliarType==PARAMETER||auxiliarType==VAR):auxiliarType==FUNCTION))){
-      printf("  compare %s (type %d) con %s (type %d)\n",n,type,(aux->content)->name,auxiliarType);
-      //printf("aux = %d\n",aux!=NULL);
-      //printf("second = %d\n",!(strcmp((aux->content)->name,n)==0 && ((auxiliarType==PARAMETER)?(type==PARAMETER||type==VAR):type==FUNCTION)));
-      //printf("strcmp = %d\n", strcmp((aux->content)->name,n)==0 );
-      //printf("types = %d\n",(auxiliarType==PARAMETER)?(type==PARAMETER||type==VAR):type==FUNCTION);
+    while(aux!=NULL && strcmp((aux->content)->name,n)){
       aux = aux->next;
     }
     if(aux == NULL){
@@ -252,8 +241,8 @@ item * findInList(symbol *head,char n[32],int type){
 Inserta un elemento en la tabla de simbolos
 */
 void insertList(symbol *head,char n[32], int v, int t,int r){
-  if (findInList(head,n,t)){
-    fprintf(stderr, "Error: var %s declared before\n", n);
+  if (findInList(head,n)){
+    fprintf(stderr, "Error: %s declared before\n", n);
     exit(EXIT_FAILURE);
   }else{
     symbol *element;
@@ -280,7 +269,7 @@ void insertList(symbol *head,char n[32], int v, int t,int r){
 
 void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree){
   if (findFunction(n)){
-    fprintf(stderr, "Error: FUNCTION %s declared before\n", n);
+    fprintf(stderr, "Error: %s declared before\n", n);
     exit(EXIT_FAILURE);
   }else{
     symbol *element;
@@ -342,7 +331,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo){
       content = (item *) malloc(sizeof(item));
       item *contentAux = findVar(n,t);
     if (!contentAux){
-        fprintf(stderr, "Error: var %s undeclared  %d \n", n, lineNo);
+        fprintf(stderr, "Error: %s undeclared  %d \n", n, lineNo);
         exit(EXIT_FAILURE);
     }else{
       strcpy(content->name,contentAux->name);
