@@ -83,9 +83,9 @@ bool deb;
 program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel();} prog
 ;
 
-prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
+prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {printf("%s\n","Chequeo Sintactico/Semantico correcto");checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
 
-      | PROGRAM BEGINN method_decls END                                 {checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
+      | PROGRAM BEGINN method_decls END                                 {printf("%s\n","Chequeo Sintactico/Semantico correcto");checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
 
       | PROGRAM BEGINN var_decls SEMICOLON END                          {printf("%s\n","Compilacion exitosa");}
 
