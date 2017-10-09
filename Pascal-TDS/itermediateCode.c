@@ -48,29 +48,51 @@ int temps = 0;
 ListThreeDir generList (node *head) {
 	ListThreeDir head;
 	int type = head->content->type;
+	ListThreeDir aux;
+	ListThreeDir aux2;
 	if (type==OPER_AR){
 		char name[32] = head->content->name;
-		if (strcmp((name,"OP_ADD")==0)){
-			head = (ListThreeDir *) malloc(sizeof(ListThreeDir)); 
-			ListThreeDir aux;
-			ListThreeDir aux2;
-			//ESTA CONDICION DEBERIA SER UNA FUNCION POR QUE ME VOY A CANSAR DE USARLA
-			if (head->left->content->type == VAR || head->left->content->type == PARAMETER || head->left->content->type == CONSTANT){
+		head = (ListThreeDir *) malloc(sizeof(ListThreeDir)); 
+		//SI NO ES CONSTANTE VARIABLE O PARAMETRO SE DEBEN SACAR SUS HIJOS, CASO CONTRARIO SOLAMENTE SE PONE EN OPER 1 LA CONSTANTE VARIABLE O PARAMETRO
+		//IGUAL PARA OPER2
+		if (head->left->content->type != VAR || head->left->content->type != PARAMETER || head->left->content->type != CONSTANT){
 				aux = ListThreeDir generList (head->left);
 				head->operation->oper1 = aux->oper->result;
-			}
-			else {
+				if (head->left->content->type != VAR || head->left->content->type != PARAMETER || head->left->content->type != CONSTANT){
+					aux2 = ListThreeDir generList (head->right);
+					head->operation->oper1 = aux->oper->result;
+					concatList(aux,aux2);
+					concatList(aux2,head);
+					head->operation->oper2 = aux2->oper->result;
+				}
+				else{
 
+					concatList(aux,head);
+					head->operation->oper2 = head->right->content;
+				}
+		}
+		else{
+			head->operation->oper2 = head->left->content;
+			if (head->left->content->type != VAR || head->left->content->type != PARAMETER || head->left->content->type != CONSTANT){
+				aux2 = ListThreeDir generList (head->right);
+				concatList(aux2,head);
+				head->operation->oper2 = aux2->oper->result;
 			}
-			aux = ListThreeDir generList (head->left);
-			aux2 = ListThreeDir generList (head->right);
-			concatList(aux,aux2);
-			concatList(aux2,head);
-			head->operation->oper1 = aux->oper->result;
-			head->operation->oper2 = aux->oper->result;
-			return aux;
+			else{
+				head->operation->oper2 = head->right->content;
+				}
+		}
+		//ESTO PODRIA SER FUNCION!! SINO UN MONTON DE IF
+		if (strcmp((name,"OP_ADD")==0)){
+			//falta crear el simbol result!!
+			item result = (item *) malloc(sizeof(item));
+			result->name = "resultAdd";
+			result->value = 0;
+			result->type = VAR; //??
+			head->operation->instr = IC_ADD;
+			return aux;//retorna aux xq apunta al primero de la lista
 		}  
-
+		//aca continua preguntado por todas las operaciones aritmeticas
 	}
 }
 
