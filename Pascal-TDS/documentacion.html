@@ -11,8 +11,11 @@
 		<p align="center">
 		Lenguaje: Pascal-TDS - 2017 - Taller de Dise&ntilde;o de Software (Cod. 3306)
 
+		<font size=6 face="palatino" color=055c91>
+		<p> <em> Primera etapa: Analizador sint&aacute;ctico y l&eacute;xico. </font> <br> </em> </p>
+
 		<font size=4 face="palatino" color=1e3bcc>
-		<p> <u> Organizacion del grupo: </font> <br> </u> </p>
+		<p> <u> Organizaci&oacute;n del grupo: </font> <br> </u> </p>
 
 		<font size=3 face="roman" color=000000>
 		<p align="justify"> 
@@ -47,14 +50,68 @@
 		<p align="justify"> 
 		- Implementaci&oacute;n de una funci&oacute;n error que permitir&aacute; especificar correctamente el error en casos de: 
 
-			-Un caracter extra&ntilde;o.
-			-Un entero mayor a 32 bits.
-			-Un comentario largo no cerrado.
+			<p align="justify"> 
+			* Un caracter extra&ntilde;o. </p>
 
-		<p> El resto de los errores ser&aacute;n notificados mediante yyerrror(). 
+			<p align="justify"> 
+			* Un entero mayor a 32 bits. </p>
+
+			<p align="justify"> 
+			* Un comentario largo no cerrado. </p>
+
+		<p> El resto de los errores ser&aacute;n notificados mediante yyerror(). 
 
 		<p align="justify"> 
 		- Implementaci&oacute;n correcta de comentarios largos mediante condiciones de entrada de Flex.
+
+
+		<font size=4 face="palatino" color=1c0751>
+		<p>****************************************************************************************************************************************************************************************</p>
+
+		<font size=6 face="palatino" color=055c91>
+		<p> <em> Segunda etapa: Analizador sem&aacute;ntico. </font> <br> </em> </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Organizaci&oacute;n del grupo: </font> <br> </u> </p>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- Para comenzar, se defini&oacute; la representaci&oacute;n de la tabla de s&iacute;mbolos y el &aacute;rbol sem&aacute;ntico mediante estructuras. Luego, Gonz&aacute;lez y Etcharren realizaron la carga del &aacute;rbol mientras que Boselli, modific&oacute; las funciones ya creadas en la etapa anterior para poder reutilizarlas. A partir de all&iacute; se comenz&oacute; con una primera instancia de chequeo de tipos, continuada por Gonz&aacute;lez y optimizada por Etcharren. Boselli mejor&oacute; el script de ejecuci&oacute;n tal como era solicitado en t&eacute;rminos del proyecto y para finalizar, en conjunto se solucionaron los bugs de carga y chequeos donde tambi&eacute;n Gonz&aacute;lez realiz&oacute; los casos de pruebas necesarios para el testing.</p>
+
+		<font size=4 face="palatino" color=1c0751>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Decisiones de Dise&ntilde;o: </p> </u>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- La principal decisi&oacute;n de dise&ntilde;o fue crear un tipo <em>"item"</em>, el cual contiene: nombre, valor, tipo, tipo de retorno (en caso de ser una funci&oacute;n), funci&oacute;n y par&aacute;metros actuales de la misma. Seg&uacute;n el tipo de item (VAR, CONSTANT, OPER_AR, OPER_LOG..) se almacenar&aacute;n los datos necesarios en la estructura. Esto simplificar&aacute; el armado del &aacute;rbol ya que todo nodo tendr&aacute; la misma estructura que cada elemento de la tabla de s&iacute;mbolos, especificando el tipo de nodo a trav&eacute;s del campo type. </p>
+
+		<p align="justify"> 
+		- M&aacute;ximo 20 anidamientos de bloque en la tabla de s&iacute;mbolos. </p>
+
+		<p align="justify"> 
+		- Se manejar&aacute; todo con punteros para no generar copias.</p>
+
+		<p align="justify"> 
+		- No se podr&aacute;n declarar funciones con el mismo nombre aunque tengan distinta cantidad de par&aacute;metros, se tom&oacute; esta decisi&oacute;n ya que se analizaron posibles complicaciones a futuro. Tampoco se permitir&aacute; definir variables con el mismo nombre que una funci&oacute;n.</p>
+
+		<p align="justify"> 
+		- Los par&aacute;metros podr&aacute;n ser ocultos dentro de una funci&oacute;n declarando una variable con el mismo nombre, esta decisi&oacute;n se debe a una cuesti&oacute;n de estructura, ya que necesitaremos guardar la lista de sus par&aacute;metros con sus tipos. Por lo cual, en un primer momento se crear&aacute; el nivel correspondiente a los par&aacute;metros y luego se guardar&aacute; en el nodo correspondiente a la funci&oacute;n en el &aacute;rbol. La otra alternativa, no permitir ocultarlo, no nos pareci&oacute; adecuada.</p>
+
+		<p align="justify"> 
+		- Para funciones cuyo retorno es de tipo entero o booleano, se chequear&aacute; que al menos contenga un <em>return</em>. Consideramos que lo ideal hubiese sido realizar un chequeo exhaustivo por las ramas del &aacute;rbol, controlando en cada rama de ejecuci&oacute;n la existencia de un return. Por la complejidad que esto significaba se tom&oacute; la decisi&oacute;n de realizarlo de una manera quiz&aacute;s menos elegante, la cual se podr&aacute; ver en la implementaci&oacute;n.</p>
+
+		<font size=4 face="palatino" color=1c0751>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Algunos problemas: </p> </u>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- No se pueden definir funciones recursivas. Para que esto funcione se deber&aacute; en primer lugar, insertar en la tabla de s&iacute;mbolos el nombre de la funci&oacute;n con su tipo de retorno y p&aacute;rametros correspondientes. Luego, una vez recorrido el cuerpo, agregar el &aacute;rbol que lo representa a dicha funci&oacute;n. 
 
 
 	</body>
