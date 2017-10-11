@@ -2,23 +2,27 @@ Lenguaje: PASCAL-TDS - 2017 - Taller de Diseño de Software (Cod. 3306) -
 
 Autores
 
-Boselli Elisa, Etcharren Leandro, Gonzalez Diana.
+	Boselli Elisa, Etcharren Leandro, Gonzalez Diana.
 
 Repositorio Git: https://github.com/elisaboselli/Compiladores
 
 Datos Sistema
 
-Sistema operativo: Mac OS (SIERRA), Linux.
+	Sistema operativo: Mac OS (SIERRA), Linux.
 
-Compilador utilizado: gcc, version 4.2.1. de 64 bits (Si se complica con 32 pueden surgir problemas con los rangos de enteros)
+	Compilador utilizado: gcc, version 4.2.1. de 64 bits (Si se complica con 32 pueden surgir problemas con los rangos de enteros)
 
-Herramientas: byson y flex.
+	Herramientas: bison y flex.
 
-Comando de compilacion
+Comando de compilación y Ejecución
 
-sh script
-Comando de ejecucion
+	./pascal-tds <pathArchivoAEvaluar> [-d] 
 
-./a.out < cadenaDeLenguajeAEvaluar
+	Siendo:
+		- pascal-tds el script que compila los archivos flex y bison.
+		- primer parametro (obligatiorio) el path al archivo de extension .ptds a evaluar.
+		- segundo parametro (optiativo) el flag '-d' que muestra un debug de lo que se va evaluando.
 
-Siendo la cadenaDeLenguajeAEvaluar un archivo de texto con las declaraciones y expresiones a evaluar. Como ejemplo se anexan varios archivos .txt para que puedan ser ejecutados (prueba.txt,prueba-if.txt,etc)
+	Nota: los parámetros deben pasarse en el orden mencionado.
+
+	Como ejemplos se anexan  archivos .ptds para que puedan ser ejecutados (dentro de los directorios Pruebas y Pruebas-Semanticas).

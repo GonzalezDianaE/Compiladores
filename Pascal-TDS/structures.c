@@ -1,10 +1,7 @@
-////EN BUSQUEDAS DE VARIABLES Y FUNCIONES FALTA DIFERENCIAR
-///FALTA CHEQUEAR QUE POR LLAMADA A FUNCION QUE AL MENOS RETORNE ALGO
 
 /*
-Libreria que contiene los tipos y funciones necesarias para generar la tabla
-de simbolos y el arbol sintactico de la gramatica para el PreProyecto. Ademas contiene
-la semantica de las funciones suma producto y parentesis
+  Libreria que contiene los tipos y funciones necesarias para generar la tabla
+  de símbolos y el árbol sintáctico de la grámatica para el proyecto.
 */
 #include <stdlib.h>
 #include <string.h>
@@ -12,8 +9,10 @@ la semantica de las funciones suma producto y parentesis
 #include <stdbool.h>
 
 
-/*constantes para definir tipo de valor en los items de lista
-y tablas (si son variables ,constantes o operaciones)*/
+/* 
+  Constantes para definir tipo de valor en los items de lista
+  y tablas (variables, constantes, operaciones, etc.).
+*/
 #define VAR 0
 #define CONSTANT 1
 #define OPER_AR 2
@@ -42,7 +41,7 @@ y tablas (si son variables ,constantes o operaciones)*/
 
 
 
-////////DECLARACION DE TIPOS
+/* DECLARACIÓN DE TIPOS */
 
 typedef struct tree node;
 typedef struct itemsFunc itemFunc;
@@ -51,28 +50,29 @@ typedef struct symbolTable symbol;
 typedef struct paramsCalls paramsCall;
 typedef struct parameters parameter;
 
-
+/* Define una lista de parametros para utilizar en la llamada de la función.
+  param: Árbol que representa el parametro como una expresión.
+  next: Siguiente parametro.
+*/
 typedef struct paramsCalls{
   node *param;
   struct paramsCalls *next;
 } paramsCall;
 
-/*
-Define un item adicional para las funciones del arbol o tabla de simbolos
-ret: tipo de retorno de la funcion
-value: lista de parametros de la funcion
-type: arbol de sentencias de la funcion
+/* Define un item adicional para las funciones del árbol o tabla de símbolos.
+  ret: Tipo de retorno de la función.
+  value: Lista de parámetros de la función.
+  type: Árbol de sentencias de la función.
 */
 typedef struct itemsFunc{
   symbol *params;
   node *tree;
 } itemFunc;
 
-/*
-Define un item del arbol o tabla de simbolos
-name: Si es una variable define su nombe, en caso de ser una operacion define el tipo de operacion (*,+,())
-value: valor de la constante o variable
-type: tipo de item (operacion, variable o constante)
+/* Define un item del árbol o tabla de símbolos.
+  name: Si es una variable define su nombre, en caso de ser una operacion define el tipo de operacion (*,+,(,etc.).
+  value: Valor de la constante o variable.
+  type: Tipo de item (operacion, variable, constante, etc.).
 */
 typedef struct items{
   char name[32];
@@ -83,16 +83,20 @@ typedef struct items{
   paramsCall *paramsCall;
 } item;
 
-/*
- Tabla de simbolos del lenguaje implementada mediante una linked list de items
+/* Tabla de símbolos del lenguaje.
+  content: Item que representa el símbolo.
+  next: Siguiente elemento.
 */
 typedef struct symbolTable{
   item *content;
   struct symbolTable *next;
 } symbol;
 
-/*
-Arbol de evaluacion del lenguaje.
+/* Árbol de evaluación del lenguaje.
+  content: Nodo del árbol (tipo item).
+  middle: Árbol hijo medio (para el caso del if).
+  left: Árbol hijo izquierdo.
+  rigth: Árbol hijo derecho.
 */
 typedef struct tree{
   item *content;
@@ -103,7 +107,9 @@ typedef struct tree{
 } node;
 
 
-// Table
+/* DECLARACIÓN DE FUNCIONES */
+
+// Tabla de símbolos
 int isEmpty();
 int isFull();
 void openLevel();
@@ -113,41 +119,46 @@ item * findVar(char n[32],int type,bool debug);
 item * findFunction(char n[32],bool debug);
 void insertTable(char n[32], int v, int t, int r, bool debug);
 
-// List
+// Listas
 item * findInList(symbol *head, char n[32],bool debug);
 void insertList(symbol *head, char n[32], int v, int t ,int r, bool debug);
 void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool debug);
 symbol * initParamCall();
 void addParamCall(paramsCall *l, node *p, bool debug);
 
-// Tree
+// Árbol de evaluación
 node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug);
 node * insertVoidNode(int lineNo);
 void concatLeft (node *father, node *son);
 void concatRight (node *father, node *son);
 void concatMiddle (node *father, node *son);
 
-//Checkeo de tipos
-int evalExpr (node *head);
-int checkOpRel(node *head);
-int checkOpAritBin(node *head);
-int checkOpAritUn(node *head);
-int checkOpLogBin(node *head);
-int checkOpLogUn(node *head);
-int checkOpEqual(node *head);
-int checkOpRel(node *head);
-void checkTree (node *head, int functionRet, bool debug);
-void checkParams (node *head);
+// Checkeo de tipos
 void checks (symbol *head, bool debug);
+void checkParams (node *head);
+void checkTree (node *head, int functionRet, bool debug);
+int evalExpr (node *head);
+int checkOpAritUn(node *head);
+int checkOpLogUn(node *head);
+int checkOpAritBin(node *head);
+int checkOpLogBin(node *head);
+int checkOpRel(node *head);
+int checkOpEqual(node *head);
 
-//////VARIABLES GLOBALES/////
 
+/* VARIABLES GLOBALES */
+
+/* Arreglo que simula una pila para manejar los niveles de la tabla. */
 int MAXSIZE = 20;
 symbol *levels[20];
 int top = -1;
 
 
-///////IMPLEMENTACION DE FUNCIONES/////////
+/* IMPLEMENTACION DE FUNCIONES */
+
+/* TABLA DE SÍMBOLOS*/
+
+/* Controla si la pila de niveles esta vacía. */
 int isEmpty() {
   if(top == -1)
     return 1;
@@ -155,6 +166,7 @@ int isEmpty() {
     return 0;
 }
 
+/* Controla si la pila de niveles esta llena. */
 int isFull() {
   if(top == MAXSIZE)
     return 1;
@@ -162,6 +174,8 @@ int isFull() {
     return 0;
 }
 
+/* Abre un nuevo nivel en la pila. Para ello, controla que no este llena y
+   genera el elemento ficticio que será el primer elemento de la lista. */
 void openLevel(){
   if(!isFull()){
     top = top + 1;
@@ -173,6 +187,8 @@ void openLevel(){
   }
 }
 
+/* Cierra el último nivel de la pila. Para ello, controla que no este llena y
+   genera el elemento ficticio que será el primer elemento de la lista. */
 void closeLevel(){
   if(!isEmpty()){
     top = top - 1;
@@ -181,6 +197,8 @@ void closeLevel(){
   }
 }
 
+/* Recupera el tipo de la última variable guardada. Esto se utiliza para 
+   registrar varias variables del mismo tipo separadas por comas. */
 int typeLastVar(){
   symbol *aux = levels[top];
   if ((aux->next)!=NULL){
@@ -190,6 +208,10 @@ int typeLastVar(){
   return (aux->content)->ret;
 }
 
+/* Busca una variable en la tabla de símbolos. Para ello, comienza por el
+   último nivel abierto y si no encuentra ocurrecia de la misma, retrocede
+   a los niveles más antiguos. Ante la primera ocurrencia, devuelve el item
+   correspondiente. */
 item * findVar(char n[32],int type,bool debug){
   int i = top;
   item *aux = (item *) malloc(sizeof(item));
@@ -206,6 +228,9 @@ item * findVar(char n[32],int type,bool debug){
   return NULL;
 }
 
+/* Busca una variable en la tabla de símbolos, unicamente en el nivel base (el
+   más antiguo de todos), ya que las funciones no pueden estar anidadas. Ante 
+   la primera ocurrencia, devuelve el item correspondiente.*/
 item * findFunction (char n[32], bool debug){
   item *aux = (item *) malloc(sizeof(item));
   if(debug){
@@ -218,6 +243,8 @@ item * findFunction (char n[32], bool debug){
   return NULL;
 }
 
+/* Inserta una variable en la tabla de símbolos, en el nivel correspondiente.
+   Para ello, llama a insertList con el nivel en donde se insertará.*/
 void insertTable(char n[32], int v, int t, int r,bool debug){
   if(debug){
     printf("Inserting variable %s ... \n",n);
@@ -225,9 +252,10 @@ void insertTable(char n[32], int v, int t, int r,bool debug){
   insertList(levels[top],n,v,t,r,debug);
 }
 
-/*
-Busca un elemento en la tabla de simbolos
-*/
+/* LISTAS */
+
+/* Busca un elemento en la tabla de simbolos, en un nivel particular (compara 
+   solo por nombre). */
 item * findInList(symbol *head,char n[32],bool debug){
   symbol *aux = head;
   if((aux->next)!=NULL){
@@ -253,9 +281,8 @@ item * findInList(symbol *head,char n[32],bool debug){
   return  NULL;
 }
 
-/*
-Inserta un elemento en la tabla de simbolos
-*/
+/* Inserta un elemento en la tabla de símbolos. Para ello, primero busca 
+   una ocurrencia previa de lo que se quiere insertar. */
 void insertList(symbol *head,char n[32], int v, int t,int r, bool debug){
   if(debug){
     printf("  Looking for previous occurrence ... \n");
@@ -286,6 +313,8 @@ void insertList(symbol *head,char n[32], int v, int t,int r, bool debug){
   }
 }
 
+/* Inserta una funcion en la tabla de símbolos. Para ello, primero busca 
+   una ocurrencia previa de la que se quiere insertar. */
 void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool debug){
   if (debug){
     printf("Inserting function %s ...\n",n);
@@ -322,12 +351,36 @@ void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool
   }
 }
 
-/*
-Crea un elemento de tipo arbol con sus hijos NULL,
-si el elemento es de tipo Var busca sus datos en la tabla de Simbolos
-*/
+/* Inicializa la lista de parametros utilizados en la llamada 
+   a una función. */
+symbol * initParamCall(){
+  symbol *head = (symbol *) malloc(sizeof(symbol));
+  head->next = NULL;
+  return head;
+}
+
+/* Agrega una nueva expresión que representa un parameto a la lista 
+   de parametros utlizados en la llamada a una función. */
+void addParamCall(paramsCall *head,node *p, bool debug){
+  paramsCall *element = (paramsCall *) malloc(sizeof(paramsCall));
+  element->param = p;
+  element->next = NULL;
+  if(head->next==NULL){
+      head->next = element;
+    } else {
+      paramsCall *aux = head->next;
+      while(aux->next != NULL){
+        aux = aux->next;
+      }
+      aux->next = element;
+    }
+}
+
+/* ÁRBOL DE EVALUACIÓN */
+
+/* Crea un elemento de tipo árbol con sus hijos en NULL. Si el elemento 
+es de tipo Var busca sus datos en la tabla de símbolos. */
 node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
-  //printf("Begin insertTree\n");
   if(debug){
     printf("Inserting in tree %s ",n);
   }
@@ -345,8 +398,6 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
       strcpy(content->name,contentAux->name);
       content->value = v;
       content->type = ASSIGN;
-      //printf("ret %d\n", contentAux->ret);
-      //printf("r %d\n", r);
       if (contentAux->ret==r){
         content->ret = contentAux->ret;
       }else{
@@ -391,6 +442,9 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
   return element;
 }
 
+/* Inserta un nodo "vacío" en el árbol. Utilizado para bloques 
+  vacíos, solo con declaraciones de variables y puntos y comas 
+  huérfanos. */
 node * insertVoidNode(int lineNo){
   node *element;
   element = (node *) malloc(sizeof(node));
@@ -402,48 +456,48 @@ node * insertVoidNode(int lineNo){
   return element;
 }
 
-/*
-agrega el arbol son como hijo izquierdo del arbol father
-*/
+/* Agrega el árbol parametro 'son' como hijo izquierdo del 
+   árbol parametro 'father'. */
 void concatLeft (node *father, node *son){
   father->left=son;
 }
 
-/*
-agrega el arbol son como hijo derecho del arbol father
-*/
+/* Agrega el árbol parametro 'son' como hijo derecho del 
+   árbol parametro 'father'. */
 void concatRight (node *father, node *son){
   father->right=son;
 }
 
-/*
-agrega el arbol son como hijo del medio del arbol father
-*/
+/* Agrega el árbol parametro 'son' como hijo medio del 
+   árbol parametro 'father'. */
 void concatMiddle (node *father, node *son){
   father->middle=son;
 }
 
-symbol * initParamCall(){
-  symbol *head = (symbol *) malloc(sizeof(symbol));
-  head->next = NULL;
-  return head;
-}
+/* CHEQUEO DE TIPOS */
 
-void addParamCall(paramsCall *head,node *p, bool debug){
-  paramsCall *element = (paramsCall *) malloc(sizeof(paramsCall));
-  element->param = p;
-  element->next = NULL;
-  if(head->next==NULL){
-      head->next = element;
-    } else {
-      paramsCall *aux = head->next;
-      while(aux->next != NULL){
-        aux = aux->next;
+/* Recorre los niveles el nivel base de la tabla de símbolos en busca de funciones 
+   y por cada una invoica a checkTree con el árbol correspondiente. */
+void checks (symbol *head, bool debug){
+  if(debug){
+    printf("Checking ...\n");
+  }
+  symbol *aux = head;
+  int r;
+  while((aux->next)!=NULL){
+    aux=aux->next;
+    if (aux->content->type==FUNCTION){
+      if(debug){
+        printf("Checking function %s ...\n",aux->content->name);
       }
-      aux->next = element;
+      checkTree(aux->content->function->tree, aux->content->ret, debug);
     }
+  }
 }
 
+/* Controla los parametros formales y actuales, entre la declaración de 
+   la función guardada en la tabla de simbolos, y la lista de párametros 
+   que se utilizara en su invocación. Chequea cantidad, tipos y orden. */
 void checkParams (node *head){
   paramsCall *pc= head->content->paramsCall;
   symbol *pl= head->content->function->params;
@@ -477,27 +531,9 @@ void checkParams (node *head){
   }
 }
 
-void checks (symbol *head, bool debug){
-  if(debug){
-    printf("Checking ...\n");
-  }
-  symbol *aux = head;
-  int r;
-  while((aux->next)!=NULL){
-    aux=aux->next;
-    if (aux->content->type==FUNCTION){
-      if(debug){
-        printf("Checking function %s ...\n",aux->content->name);
-      }
-      checkTree(aux->content->function->tree, aux->content->ret, debug);
-    }
-  }
-}
-
-
+/* Realiza un chequeo de tipos sobre la función pasada como parámetro 
+   en base al árbol que la representa. */
 void checkTree (node *head, int functionRet, bool debug){
-/*constantes para definir tipo de valor en los items de lista
-y tablas (si son variables ,constantes o operaciones)*/
   int ret;
   bool hasRet = false;
   if ((head->content)->type == FUNCTION){
@@ -596,6 +632,9 @@ y tablas (si son variables ,constantes o operaciones)*/
   }
 } 
 
+/* Evalua una expresión (en forma de árbol), llamando a la función 
+   correspondiente basandose en su tipo (operadores aritméticos, lógicos, 
+   llamadas a funciones, variables, etc.). */
 int evalExpr (node *head){
   int t1 = head->content->type;
   if (t1 == CONSTANT || t1 == VAR || t1 == PARAMETER){
@@ -626,6 +665,31 @@ int evalExpr (node *head){
   return VOIDAUX;
 }
 
+/* Controla que el operador de una operación aritmética unaria sea de tipo entero. */
+int checkOpAritUn(node *head){
+    int left = evalExpr(head->left);
+    if(left == BOOLAUX){
+      return BOOLAUX;
+    }
+    else {
+        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
+}
+
+/* Controla que el operador de una operación lógica unaria sea de tipo booleano. */
+int checkOpLogUn(node *head){
+    int left = evalExpr(head->left);
+    if(left == BOOLAUX){
+      return BOOLAUX;
+    }
+    else {
+        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
+}
+
+/* Controla que los operadores de una operación aritmética binaria sean de tipo entero. */
 int checkOpAritBin(node *head){
     int left = evalExpr(head->left);
     int right = evalExpr(head->right);
@@ -638,6 +702,7 @@ int checkOpAritBin(node *head){
     }
 }
 
+/* Controla que los operadores de una operación lógica binaria sean de tipo booleano. */
 int checkOpLogBin(node *head){
     int left = evalExpr(head->left);
     int right = evalExpr(head->right);
@@ -650,40 +715,7 @@ int checkOpLogBin(node *head){
     }
 }
 
-int checkOpLogUn(node *head){
-    int left = evalExpr(head->left);
-    if(left == BOOLAUX){
-      return BOOLAUX;
-    }
-    else {
-        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
-        exit(EXIT_FAILURE);
-    }
-}
-
-int checkOpAritUn(node *head){
-    int left = evalExpr(head->left);
-    if(left == BOOLAUX){
-      return BOOLAUX;
-    }
-    else {
-        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
-        exit(EXIT_FAILURE);
-    }
-}
-
-int checkOpEqual(node *head){
-    int left = evalExpr(head->left);
-    int right = evalExpr(head->right);
-    if(left == right){
-      return BOOLAUX;
-    }
-    else {
-        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
-        exit(EXIT_FAILURE);
-    }
-}
-
+/* Controla que los operadoradores de una operación relacional sean de tipo entero. */
 int checkOpRel(node *head){
     int left = evalExpr(head->left);
     int right = evalExpr(head->right);
@@ -696,3 +728,15 @@ int checkOpRel(node *head){
     }
 }
 
+
+int checkOpEqual(node *head){
+    int left = evalExpr(head->left);
+    int right = evalExpr(head->right);
+    if(left == right){
+      return BOOLAUX;
+    }
+    else {
+        fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);
+        exit(EXIT_FAILURE);
+    }
+}
