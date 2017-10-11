@@ -178,15 +178,89 @@ void generateEqual(node *tree){
 	}
 	insertOperation(operation);
 }
-//1-metodo opArit
 
-//1-metodo opAritUn
+//1-metodo opArit
+void generateOpArit(node *tree){
+	char name[32] = tree->content->name;
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	generateInterCode(tree->right);
+	operation->oper2 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	//Comienza chequeos sobre tipo de operacion
+	if (strcmp((name,"OP_ADD")==0)){
+		operation->intr = IC_ADD;
+		result->name = "resultADD";
+	}
+	if (strcmp((name,"OP_SUB")==0)){
+		operation->intr = IC_SUB;
+		result->name = "resultSUB";
+	}
+	if (strcmp((name,"OP_PROD")==0)){
+		operation->intr = IC_PLUS;
+		result->name = "resultPLUS";
+	}
+	if (strcmp((name,"OP_DIV")==0)){
+		operation->intr = IC_DIV;
+		result->name = "resultDIV";
+	}
+	if (strcmp((name,"OP_MOD")==0)){
+		operation->intr = IC_MOD;
+		result->name = "resultMOD";
+	}
+}
+
+//1-metodo opAritUnario TIENE UNICAMENTE LA OPERACION IC_NEG EN YACC OP_SUB
+void generateOpAritUn(node *tree){
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	operation->intr = IC_NEG;
+	result->name = "resultNEG";
+}
 
 //1-metodo opLog
+void generateOpLog(node *tree){
+	char name[32] = tree->content->name;
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	generateInterCode(tree->right);
+	operation->oper2 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	//Comienza chequeos sobre tipo de operacion
+	if (strcmp((name,"OP_AND")==0)){
+		operation->intr = IC_AND;
+		result->name = "resultAND";
+	}
+	if (strcmp((name,"OP_OR")==0)){
+		operation->intr = IC_OR;
+		result->name = "resultOR";
+	}
+}
 
-//1-metodo opLogUn
+//1-metodo opLog unario TIENE UNICAMENTE LA OPERACION IC_NOT EN YACC OP_NOT
+void generateOpLogUn(node *tree){
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	operation->intr = IC_NOT;
+	result->name = "resultNOT";
+}
 
 //1-metodo opRel
+void generateOpRel(node *tree){}
 
 string generateLabel(){
 	string ret = "Label"+labels;
