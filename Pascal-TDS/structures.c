@@ -618,6 +618,7 @@ void checkTree (node *head, int functionRet, bool debug){
         printf("  Evaluating expression ... \n");
     }
     ret = evalExpr (head->left);
+    head->conetnt->ret = ret;
     if (functionRet!=ret){
         fprintf(stderr, "Error: Error en de tipo expresion return, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
@@ -733,6 +734,7 @@ int checkOpEqual(node *head){
     int left = evalExpr(head->left);
     int right = evalExpr(head->right);
     if(left == right){
+      head->content->ret = left; //para despues generar el codigo intermedio saber lo q compara
       return BOOLAUX;
     }
     else {
