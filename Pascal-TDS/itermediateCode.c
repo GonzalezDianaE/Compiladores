@@ -52,8 +52,6 @@ ListThreeDir head;
 //3-metodo general de generacion de listas, aca tmb se debe tener en cuenta los casos a ignorar para la recursion
 //generateInterCode (ListThreeDir node);
 
-//-generate temp ?????
-
 //3-metodo load Variable, Parametro, constante
 
 //3-metodo assign
@@ -70,20 +68,47 @@ ListThreeDir head;
 
 //1-metodo opRel
 
-//2-generatelabel ??
+string generateLabel(){
+	string ret = "Label"+labels;
+	labels++;
+	return ret;
+}
+
+string generateTemp(){
+	string tmp = "Tmp"+temps;
+	temps++;
+	return tmp;
+}
 
 //2-metodo function call
+void generateFunctionCall(ListThreeDir node){
+
+}
 
 //2-metodo if
+void generateIf(ListThreeDir node){
+
+}
 
 //2-metodo if else
+void generateIfElse(ListThreeDir node){
+
+}
 
 //2-metodo while
+void generateWhile(ListThreeDir node){
+
+}
 
 //2-metodo return void -- con posibilidades de cambio
+void generateReturnVoid(ListThreeDir node){
+
+}
 
 //2-metodo return con expresion -- con posibilidades de cambio
+void generateReturnExp(ListThreeDir node){
 
+}
 
 
 ListThreeDir generList (node *head) {
