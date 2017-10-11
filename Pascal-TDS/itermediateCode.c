@@ -27,6 +27,7 @@
 #define IC_RETVOID 20
 #define IC_PPARAM 21
 #define IC_CALL 22
+#define IC_LOAD 23
 
 
 
@@ -38,11 +39,51 @@ typedef struct OpThreeDir{
 }OpThreeDir;
 
 typedef struct ListThreeDir{
-	codIntermedio *operation;
+	OpThreeDir *operation;
 	struct ListThreeDir *;
 }ListThreeDir;
 int labels = 0;
 int temps = 0;
+
+ListThreeDir head;
+
+//3-inicializacion elemento ficticio
+
+//3-metodo general de generacion de listas, aca tmb se debe tener en cuenta los casos a ignorar para la recursion
+//generateInterCode (ListThreeDir node);
+
+//-generate temp ?????
+
+//3-metodo load Variable, Parametro, constante
+
+//3-metodo assign
+
+//3-metodo opEqqual
+
+//1-metodo opArit
+
+//1-metodo opAritUnario
+
+//1-metodo opLog
+
+//1-metodo opLog unario
+
+//1-metodo opRel
+
+//2-generatelabel ??
+
+//2-metodo function call
+
+//2-metodo if
+
+//2-metodo if else
+
+//2-metodo while
+
+//2-metodo return void -- con posibilidades de cambio
+
+//2-metodo return con expresion -- con posibilidades de cambio
+
 
 
 ListThreeDir generList (node *head) {
@@ -66,7 +107,6 @@ ListThreeDir generList (node *head) {
 					head->operation->oper2 = aux2->oper->result;
 				}
 				else{
-
 					concatList(aux,head);
 					head->operation->oper2 = head->right->content;
 				}
