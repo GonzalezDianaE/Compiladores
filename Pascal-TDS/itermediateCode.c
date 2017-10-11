@@ -56,7 +56,7 @@ void initListThreeDir (ListThreeDir *head){
 	last = head;
 }
 //3-metodo general de generacion de listas, aca tmb se debe tener en cuenta los casos a ignorar para la recursion
-generateInterCode (node *tree){
+void generateInterCode (node *tree){
 	if node->content = NULL{
 		switch (node->content->type){
 			case VAR:
@@ -151,12 +151,35 @@ void insertOperation (OpThreeDir *operation){
 }
 
 	
-//-generate temp ?????
-
 //3-metodo load Variable, Parametro, constante
+void generateAssing (node *tree){
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	operation->oper1 = node->content;
+	result->name = "LOAD";
+	result->value = node->content->value;
+	result->type = VAR;
+	result->ret = node->content->ret;
+	operation->intr = IC_LOAD;
+	operation->result = result;
+	insertOperation(operation);
 
+}
 //3-metodo assign
+void generateAssing (node *tree){
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	/*deberia guardar la variable ???
+	generateInterCode(tree->right);
+	operation->result = last->result;
+	*/
+	operation->intr = IC_EQUALLOG;
+	operation->result = result;
 
+	insertOperation(operation);
+}
 //3-metodo opEqqual
 void generateEqual(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
@@ -176,6 +199,7 @@ void generateEqual(node *tree){
 		result->name = "resultEqualLog";
 
 	}
+	operation->result = result;
 	insertOperation(operation);
 }
 //1-metodo opArit
