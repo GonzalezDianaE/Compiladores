@@ -40,18 +40,117 @@ typedef struct OpThreeDir{
 
 typedef struct ListThreeDir{
 	OpThreeDir *operation;
-	struct ListThreeDir *;
+	struct ListThreeDir *next;
 }ListThreeDir;
 int labels = 0;
 int temps = 0;
 
-ListThreeDir head;
+ListThreeDir *head;
+ListThreeDir *last;
+
 
 //3-inicializacion elemento ficticio
-
+void initListThreeDir (ListThreeDir *head){
+	head =(symbol *) malloc(sizeof(symbol));
+	head->next = NULL;
+	last = head;
+}
 //3-metodo general de generacion de listas, aca tmb se debe tener en cuenta los casos a ignorar para la recursion
-//generateInterCode (ListThreeDir node);
+generateInterCode (node *tree){
+	if node->content = NULL{
+		switch (node->content->type){
+			case VAR:
+				generateLoad(node);
+			break;
 
+			case CONSTANT :
+				generateLoad(node);
+			break;
+
+			case OPER_AR :
+				generateOperAr(node);
+			break;
+
+			case OPER_LOG :
+				generateOperLog(node);
+			break;
+
+			case OPER_REL :
+				generateOperRel(node);
+			break;
+
+			case FUNCTION:
+			//??
+			break;
+
+			case FUNCTION_CALL_NP :
+				generateCallFunction(node);
+			break;
+
+			case FUNCTION_CALL_P :
+				generateCallFunction(node);				
+			break;
+
+			case PARAMETER :
+				generateLoad(node);
+			break;
+
+			case IFAUX :
+				generateIf(node);
+			break;
+
+			case IF_ELSE :
+				generateIfElse(node);
+			break;
+
+			case ASSIGN :
+				generateAssing(node);
+			break;
+
+			case WHILEAUX :
+				generateWhile(node);
+			break;
+
+			case RETURNAUX :
+				generateReturnExp(node);
+			break;
+
+			case RETURN_EXPR :
+				generateReturnVoid(node);
+			break;
+
+			case STATEMENTS :
+				generateInterCode(node->left);
+				generateInterCode(node->right);
+			break;
+
+			case BLOCK :
+				generateInterCode(node->left);
+			break;
+
+			case OPER_AR_UN :
+				generateOperArUn(node);
+			break;
+
+			case OPER_LOG_UN :
+				generateOperLogUn(node);
+			break;
+
+			case OPER_EQUAL :
+				generateEqual(node)
+			break;
+		}
+	}
+}
+
+void insertOperation (OpThreeDir *operation){
+	last->next = (symbol *) malloc(sizeof(symbol));
+	last = last->next;
+	last->next = NULL;
+	last->operation = operation;
+}
+
+	
 //-generate temp ?????
 
 //3-metodo load Variable, Parametro, constante
@@ -59,14 +158,33 @@ ListThreeDir head;
 //3-metodo assign
 
 //3-metodo opEqqual
+void generateEqual(node *tree){
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	generateInterCode(tree->right);
+	operation->oper2 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	if(tree->content->ret = INTEGERAUX){
+		operation->intr = IC_EQUALAR;
+		result->name = "resultEqualAr";
+	}
+	else{
+		operation->intr = IC_EQUALLOG;
+		result->name = "resultEqualLog";
 
+	}
+	insertOperation(operation);
+}
 //1-metodo opArit
 
-//1-metodo opAritUnario
+//1-metodo opAritUn
 
 //1-metodo opLog
 
-//1-metodo opLog unario
+//1-metodo opLogUn
 
 //1-metodo opRel
 
@@ -85,12 +203,12 @@ ListThreeDir head;
 //2-metodo return con expresion -- con posibilidades de cambio
 
 
-
+/*
 ListThreeDir generList (node *head) {
-	ListThreeDir head;
+	ListThreeDir *head;
 	int type = head->content->type;
-	ListThreeDir aux;
-	ListThreeDir aux2;
+	ListThreeDir *aux;
+	ListThreeDir *aux2;
 	if (type==OPER_AR){
 		char name[32] = head->content->name;
 		head = (ListThreeDir *) malloc(sizeof(ListThreeDir)); 
@@ -125,7 +243,7 @@ ListThreeDir generList (node *head) {
 		//ESTO PODRIA SER FUNCION!! SINO UN MONTON DE IF
 		if (strcmp((name,"OP_ADD")==0)){
 			//falta crear el simbol result!!
-			item result = (item *) malloc(sizeof(item));
+			item *result = (item *) malloc(sizeof(item));
 			result->name = "resultAdd";
 			result->value = 0;
 			result->type = VAR; //??
@@ -134,6 +252,6 @@ ListThreeDir generList (node *head) {
 		}  
 		//aca continua preguntado por todas las operaciones aritmeticas
 	}
-}
+}*/
 
 
