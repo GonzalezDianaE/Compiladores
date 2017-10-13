@@ -202,15 +202,108 @@ void generateEqual(node *tree){
 	operation->result = result;
 	insertOperation(operation);
 }
-//1-metodo opArit
 
-//1-metodo opAritUn
+//1-metodo opArit
+void generateOpArit(node *tree){
+	char name[32] = tree->content->name;
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	generateInterCode(tree->right);
+	operation->oper2 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	//Comienza chequeos sobre tipo de operacion
+	if (strcmp((name,"OP_ADD")==0)){
+		operation->intr = IC_ADD;
+		result->name = "resultADD";
+	}
+	if (strcmp((name,"OP_SUB")==0)){
+		operation->intr = IC_SUB;
+		result->name = "resultSUB";
+	}
+	if (strcmp((name,"OP_PROD")==0)){
+		operation->intr = IC_PLUS;
+		result->name = "resultPLUS";
+	}
+	if (strcmp((name,"OP_DIV")==0)){
+		operation->intr = IC_DIV;
+		result->name = "resultDIV";
+	}
+	if (strcmp((name,"OP_MOD")==0)){
+		operation->intr = IC_MOD;
+		result->name = "resultMOD";
+	}
+}
+
+//1-metodo opAritUnario TIENE UNICAMENTE LA OPERACION IC_NEG EN YACC OP_SUB
+void generateOpAritUn(node *tree){
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	operation->intr = IC_NEG;
+	result->name = "resultNEG";
+}
 
 //1-metodo opLog
+void generateOpLog(node *tree){
+	char name[32] = tree->content->name;
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	generateInterCode(tree->right);
+	operation->oper2 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	//Comienza chequeos sobre tipo de operacion
+	if (strcmp((name,"OP_AND")==0)){
+		operation->intr = IC_AND;
+		result->name = "resultAND";
+	}
+	if (strcmp((name,"OP_OR")==0)){
+		operation->intr = IC_OR;
+		result->name = "resultOR";
+	}
+}
 
-//1-metodo opLogUn
+//1-metodo opLog unario TIENE UNICAMENTE LA OPERACION IC_NOT EN YACC OP_NOT
+void generateOpLogUn(node *tree){
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	operation->intr = IC_NOT;
+	result->name = "resultNOT";
+}
 
 //1-metodo opRel
+void generateOpRel(node *tree){
+	char name[32] = tree->content->name;
+	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	item *result = (item *) malloc(sizeof(item));
+	generateInterCode(tree->left);
+	operation->oper1 = last->result;
+	generateInterCode(tree->right);
+	operation->oper2 = last->result;
+	result->value = 0;
+	result->type = VAR;
+	//Comienza chequeos sobre tipo de operacion
+	if (strcmp((name,"OP_MINOR")==0)){
+		operation->intr = IC_MINOR;
+		result->name = "resultMINOR";
+	}
+	if (strcmp((name,"OP_MAJOR")==0)){
+		operation->intr = IC_MAJOR;
+		result->name = "resultMAJOR";
+	}
+}
 
 string generateLabel(){
 	string ret = "Label"+labels;
@@ -253,56 +346,3 @@ void generateReturnVoid(ListThreeDir node){
 void generateReturnExp(ListThreeDir node){
 
 }
-
-/*
-ListThreeDir generList (node *head) {
-	ListThreeDir *head;
-	int type = head->content->type;
-	ListThreeDir *aux;
-	ListThreeDir *aux2;
-	if (type==OPER_AR){
-		char name[32] = head->content->name;
-		head = (ListThreeDir *) malloc(sizeof(ListThreeDir)); 
-		//SI NO ES CONSTANTE VARIABLE O PARAMETRO SE DEBEN SACAR SUS HIJOS, CASO CONTRARIO SOLAMENTE SE PONE EN OPER 1 LA CONSTANTE VARIABLE O PARAMETRO
-		//IGUAL PARA OPER2
-		if (head->left->content->type != VAR || head->left->content->type != PARAMETER || head->left->content->type != CONSTANT){
-				aux = ListThreeDir generList (head->left);
-				head->operation->oper1 = aux->oper->result;
-				if (head->left->content->type != VAR || head->left->content->type != PARAMETER || head->left->content->type != CONSTANT){
-					aux2 = ListThreeDir generList (head->right);
-					head->operation->oper1 = aux->oper->result;
-					concatList(aux,aux2);
-					concatList(aux2,head);
-					head->operation->oper2 = aux2->oper->result;
-				}
-				else{
-					concatList(aux,head);
-					head->operation->oper2 = head->right->content;
-				}
-		}
-		else{
-			head->operation->oper2 = head->left->content;
-			if (head->left->content->type != VAR || head->left->content->type != PARAMETER || head->left->content->type != CONSTANT){
-				aux2 = ListThreeDir generList (head->right);
-				concatList(aux2,head);
-				head->operation->oper2 = aux2->oper->result;
-			}
-			else{
-				head->operation->oper2 = head->right->content;
-				}
-		}
-		//ESTO PODRIA SER FUNCION!! SINO UN MONTON DE IF
-		if (strcmp((name,"OP_ADD")==0)){
-			//falta crear el simbol result!!
-			item *result = (item *) malloc(sizeof(item));
-			result->name = "resultAdd";
-			result->value = 0;
-			result->type = VAR; //??
-			head->operation->instr = IC_ADD;
-			return aux;//retorna aux xq apunta al primero de la lista
-		}  
-		//aca continua preguntado por todas las operaciones aritmeticas
-	}
-}*/
-
-
