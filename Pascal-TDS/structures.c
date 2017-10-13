@@ -669,8 +669,8 @@ int evalExpr (node *head){
 /* Controla que el operador de una operación aritmética unaria sea de tipo entero. */
 int checkOpAritUn(node *head){
     int left = evalExpr(head->left);
-    if(left == BOOLAUX){
-      return BOOLAUX;
+    if(left == INTEGERAUX){
+      return INTEGERAUX;
     }
     else {
         fprintf(stderr, "Error: Error en tipos de expresion en linea %d\n" ,head->lineNo);

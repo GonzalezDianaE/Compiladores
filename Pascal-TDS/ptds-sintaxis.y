@@ -227,7 +227,7 @@ statements : statement                                                  { $$=$1;
     ;
 
 method_call : ID PAR_LEFT params_call PAR_RIGHT                         { item *func = findFunction($1->value,deb);
-                                                                          paramsCall pc = *($3);
+                                                                          paramsCall *pc = ($3);
                                                                           if (func == NULL){
                                                                             fprintf(stderr, "Error: no encontro funcion\n");
                                                                             exit(EXIT_FAILURE);
@@ -235,7 +235,7 @@ method_call : ID PAR_LEFT params_call PAR_RIGHT                         { item *
                                                                           node *call;
                                                                           call=insertTree($1->value,0,FUNCTION_CALL_P,func->ret,yylineno,deb);
                                                                           call->content->function= func->function;
-                                                                          call->content->paramsCall = &pc;
+                                                                          call->content->paramsCall = pc;
                                                                           $$=call;
                                                                         }
 
