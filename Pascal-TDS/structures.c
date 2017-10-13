@@ -389,6 +389,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
     if(debug){
       printf("(assign) ...\n");
     }
+    //medio al pedo ahora
     if (!findVar(n,t,debug)){ //chequeo de variable declarada
       fprintf(stderr, "Error: var %s undeclared.  %d \n", n, lineNo);
       exit(EXIT_FAILURE);
@@ -398,12 +399,6 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
       strcpy(content->name,contentAux->name);
       content->value = v;
       content->type = ASSIGN;
-      if (contentAux->ret==r){
-        content->ret = contentAux->ret;
-      }else{
-        fprintf(stderr, "Error: Error en tipos de assignacion %d\n" ,lineNo);
-        exit(EXIT_FAILURE);
-      }
     }
   }
   if (t == VAR){
@@ -418,7 +413,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
     }else{
       strcpy(content->name,contentAux->name);
       content->value =contentAux->value;
-      content->type = VAR;
+      content->type = contentAux->type;
       content->ret = contentAux->ret;
     }
   }else{
@@ -591,7 +586,8 @@ void checkTree (node *head, int functionRet, bool debug){
         printf("  Evaluating expression ... \n");
     }
     ret = evalExpr (head->left);
-    if ((head->content)->ret != ret){
+    int retaux = evalExpr (head->right);
+    if (retaux != ret){
         fprintf(stderr, "Error: Error de tipos asignacion en asignacion, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE); 
     }
@@ -618,7 +614,7 @@ void checkTree (node *head, int functionRet, bool debug){
         printf("  Evaluating expression ... \n");
     }
     ret = evalExpr (head->left);
-    head->conetnt->ret = ret;
+    head->content->ret = ret;
     if (functionRet!=ret){
         fprintf(stderr, "Error: Error en de tipo expresion return, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);

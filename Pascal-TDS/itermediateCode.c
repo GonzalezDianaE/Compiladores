@@ -171,13 +171,10 @@ void generateAssing (node *tree){
 	item *result = (item *) malloc(sizeof(item));
 	generateInterCode(tree->left);
 	operation->oper1 = last->result;
-	/*deberia guardar la variable ???
 	generateInterCode(tree->right);
 	operation->result = last->result;
-	*/
-	operation->intr = IC_EQUALLOG;
+	operation->intr = IC_ASSING;
 	operation->result = result;
-
 	insertOperation(operation);
 }
 //3-metodo opEqqual

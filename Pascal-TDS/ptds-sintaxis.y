@@ -174,8 +174,10 @@ type : INTEGER                                                          { $$ = I
       | BOOL                                                            { $$ = BOOLAUX;}
     ;
 
-statement : ID OP_ASS expr SEMICOLON                                    { node *call = insertTree($1->value,0,ASSIGN,($3->content)->ret,yylineno,deb);
+statement : ID OP_ASS expr SEMICOLON                                    { node *var = insertTree ($1->value,0,VAR,0,yylineno,deb);
+                                                                          node *call = insertTree($1->value,0,ASSIGN,($3->content)->ret,yylineno,deb);
                                                                           concatLeft (call,$3);
+                                                                          concatRight (call,var);
                                                                           $$=call;
                                                                         }
 
