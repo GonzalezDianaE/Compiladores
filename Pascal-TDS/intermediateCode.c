@@ -47,15 +47,32 @@ int temps = 0;
 
 ListThreeDir *head;
 ListThreeDir *last;
+std::ofstream file;
+string fileName = "CTD.txt";
 
+/* Genera un nuevo nombre para label distinto a todos los anteriores. */
+string generateLabel(){
+	string ret = "Label"+labels;
+	labels++;
+	return ret;
+}
 
-//3-inicializacion elemento ficticio
+/* Genera un nuevo nombre para temporal distinto a todos los anteriores. */
+string generateTemp(){
+	string tmp = "Tmp"+temps;
+	temps++;
+	return tmp;
+}
+
+/* Inicialización de la lista de instrucciones con elemento ficticio.*/
 void initListThreeDir (ListThreeDir *head){
+	file.open(fileName.c_str());
 	head =(symbol *) malloc(sizeof(symbol));
 	head->next = NULL;
 	last = head;
 }
-//3-metodo general de generacion de listas, aca tmb se debe tener en cuenta los casos a ignorar para la recursion
+
+/* Método general para la generación de la lista de instrucciones.*/
 void generateInterCode (node *tree){
 	if node->content = NULL{
 		switch (node->content->type){
@@ -84,11 +101,11 @@ void generateInterCode (node *tree){
 			break;
 
 			case FUNCTION_CALL_NP :
-				generateCallFunction(node);
+				generateFunctionCall(node);
 			break;
 
 			case FUNCTION_CALL_P :
-				generateCallFunction(node);				
+				generateFunctionCall(node);				
 			break;
 
 			case PARAMETER :
@@ -143,16 +160,128 @@ void generateInterCode (node *tree){
 	}
 }
 
+/* Inserta la operación pasada como parámetro en la lista de instrucciones. */
 void insertOperation (OpThreeDir *operation){
+	saveOperation(operation);
 	last->next = (symbol *) malloc(sizeof(symbol));
 	last = last->next;
 	last->next = NULL;
 	last->operation = operation;
 }
 
+/* Registra la operación pasada como parámetro en un archivo de tipo txt.*/
+void saveOperation (OpThreeDir *operation){
+	string instr;
+	switch (operation->instr){
+		case 0 : {
+			file << "ADD       ";
+			break;
+		}
+		case 1 : {
+			file << "SUB       ";
+			break;
+		}
+		case 2 : {
+			file << "PLUS      ";
+			break;
+		}
+		case 3 : {
+			file << "DIV       ";
+			break;
+		}
+		case 4 : {
+			file << "MOD       ";
+			break;
+		}
+		case 5 : {
+			file << "AND       ";
+			break;
+		}
+		case 6 : {
+			file << "OR        ";
+			break;
+		}
+		case 7 : {
+			file << "NOT       ";
+			break;
+		}
+		case 8 : {
+			file << "EQAR      ";
+			break;
+		}
+		case 9 : {
+			file << "EQLOG     ";
+			break;
+		}
+		case 10 : {
+			file << "NEG       ";
+			break;
+		}
+		case 11 : {
+			file << "MINNOR    ";
+			break;
+		}
+		case 12 : {
+			file << "MAJOR     ";
+			break;
+		}
+		case 13 : {
+			file << "ASSIGN    ";
+			break;
+		}
+		case 14 : {
+			file << "IF        ";
+			break;
+		}
+		case 15 : {
+			file << "WHILE     ";
+			break;
+		}
+		case 16 : {
+			file << "LABEL     ";
+			break;
+		}
+		case 17 : {
+			file << "JUMP      ";
+			break;
+		}
+		case 18 : {
+			file << "RETINT    ";
+			break;
+		}
+		case 19 : {
+			file << "RETBOOL   ";
+			break;
+		}
+		case 20 : {
+			file << "RETVOID   ";
+			break;
+		}
+		case 21 : {
+			file << "PPARAM    ";
+			break;
+		}
+		case 22 : {
+			file << "CALL      ";
+			break;
+		}
+		case 23 : {
+			file << "LOAD      ";
+			break;
+		}
+	}
+	file << operation->oper1->name << "			";
+	file << operation->oper2->name << "			";
+	file << operation->result->name << "\n";
+}
+
+/* Cierra el archivo en el que se registraron las instrucciones.*/
+void closeFile(){
+	file.close();
+}
 	
-//3-metodo load Variable, Parametro, constante
-void generateAssing (node *tree){
+/* Genera las lineas de codigo intermedio correspondientes a la carga de variables, constantes, parametros, etc. */
+void generateLoad (node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
 	operation->oper1 = node->content;
@@ -165,7 +294,8 @@ void generateAssing (node *tree){
 	insertOperation(operation);
 
 }
-//3-metodo assign
+
+/* Genera las lineas de codigo intermedio correspondientes a una asignación. */
 void generateAssing (node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
@@ -177,7 +307,8 @@ void generateAssing (node *tree){
 	operation->result = result;
 	insertOperation(operation);
 }
-//3-metodo opEqqual
+
+/* Genera las lineas de codigo intermedio correspondientes a una comparación por igual (aritmética o lógica). */
 void generateEqual(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
@@ -200,7 +331,7 @@ void generateEqual(node *tree){
 	insertOperation(operation);
 }
 
-//1-metodo opArit
+/* Genera las lineas de codigo intermedio correspondientes a una operación aritmética binaria. */
 void generateOpArit(node *tree){
 	char name[32] = tree->content->name;
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
@@ -234,7 +365,7 @@ void generateOpArit(node *tree){
 	}
 }
 
-//1-metodo opAritUnario TIENE UNICAMENTE LA OPERACION IC_NEG EN YACC OP_SUB
+/* Genera las lineas de codigo intermedio correspondientes a una operación aritmética unaria. */
 void generateOpAritUn(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
@@ -246,7 +377,7 @@ void generateOpAritUn(node *tree){
 	result->name = "resultNEG";
 }
 
-//1-metodo opLog
+/* Genera las lineas de codigo intermedio correspondientes a una operación lógica binaria. */
 void generateOpLog(node *tree){
 	char name[32] = tree->content->name;
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
@@ -268,7 +399,7 @@ void generateOpLog(node *tree){
 	}
 }
 
-//1-metodo opLog unario TIENE UNICAMENTE LA OPERACION IC_NOT EN YACC OP_NOT
+/* Genera las lineas de codigo intermedio correspondientes a una operación lógica unaria. */
 void generateOpLogUn(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
@@ -280,7 +411,7 @@ void generateOpLogUn(node *tree){
 	result->name = "resultNOT";
 }
 
-//1-metodo opRel
+/* Genera las lineas de codigo intermedio correspondientes a una comparación por mayor o menor (int). */
 void generateOpRel(node *tree){
 	char name[32] = tree->content->name;
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
@@ -302,44 +433,167 @@ void generateOpRel(node *tree){
 	}
 }
 
-string generateLabel(){
-	string ret = "Label"+labels;
-	labels++;
-	return ret;
+/* Genera las lineas de codigo intermedio correspondientes a una llamada a función. */
+void generateFunctionCall(node *tree){
+	// Load params (if it has)
+	if(tree->content->type==FUNCTION_CALL_P){
+		paramsCall *currentParam = tree->content->paramsCall;
+		if(currentParam->next!=NULL){
+			currentParam = currentParam->next;
+			while (currentParam!=NULL){
+				generateInterCode(currentParam->param);
+				OpThreeDir *loadParam = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+				loadParam.instr = IC_LOAD;
+				loadParam.result = last->operation->result;
+				insertOperation(loadParam);
+				currentParam = currentParam->next;
+			}
+		}
+	}
+	// Load function call
+	OpThreeDir *functionCall = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	functionCall.instr = IC_CALL;
+	functionCall.result = tree->content->name;
+	insertOperation(functionCall);
 }
 
-string generateTemp(){
-	string tmp = "Tmp"+temps;
-	temps++;
-	return tmp;
+/* Genera las lineas de codigo intermedio correspondientes a un if-then. */
+void generateIf(node *tree){
+	// Labels
+	string strLabelEnd = generateLabel();
+	item *labelEnd = (item *) malloc(sizeof(item));
+	labelEnd.name = strLabelEnd;
+
+	// Main instruction
+	OpThreeDir *mainOperation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	mainOperation.instr = IC_IF;
+	mainOperation.oper2 = labelEnd;
+
+	// Condition
+	generateInterCode(tree->left);
+	mainOperation.result = last->operation->result;
+
+	// Insert if instruction
+	insertOperation(mainOperation);
+
+	// Then
+	generateInterCode(tree->middle);
+
+	// Label End
+	OpThreeDir *instrLabelEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	instrLabelEnd.instr = IC_LABEL;
+	instrLabelEnd.result = labelEnd;
+	insertOperation(instrLabelEnd);
 }
 
-//2-metodo function call
-void generateFunctionCall(ListThreeDir node){
+/* Genera las lineas de codigo intermedio correspondientes a un if-then-else. */
+void generateIfElse(node *tree){
+	// Labels
+	string strLabelElse = generateLabel();
+	item *labelElse = (item *) malloc(sizeof(item));
+	labelElse.name = strLabelElse;
+	string strLabelEnd = generateLabel();
+	item *labelEnd = (item *) malloc(sizeof(item));
+	labelEnd.name = strLabelEnd;
 
+	// Main instruction
+	OpThreeDir *mainOperation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	mainOperation.instr = IC_IF;
+	mainOperation.oper1 = labelElse;
+	mainOperation.oper2 = labelEnd;
+
+	// Condition
+	generateInterCode(tree->left);
+	mainOperation.result = last->operation->result;
+
+	// Insert if instruction
+	insertOperation(mainOperation);
+
+	// Then
+	generateInterCode(tree->middle);
+
+	// Jump
+	OpThreeDir *jumpToEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	jumpToEnd.instr = IC_JUMP;
+	jumpToEnd.result = labelEnd;
+	insertOperation(jumpToEnd);
+
+	// Label Else
+	OpThreeDir *instrLabelElse = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	instrLabelElse.instr = IC_LABEL;
+	instrLabelElse.result = labelElse;
+	insertOperation(instrLabelElse);
+
+	// Else
+	generateInterCode(tree->rigth);
+
+	// Label End
+	OpThreeDir *instrLabelEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	instrLabelEnd.instr = IC_LABEL;
+	instrLabelEnd.result = labelEnd;
+	insertOperation(instrLabelEnd);
 }
 
-//2-metodo if
-void generateIf(ListThreeDir node){
+/* Genera las lineas de codigo intermedio correspondientes a un ciclo while. */
+void generateWhile(node *tree){
+	// Labels
+	string strLabelWhile = generateLabel();
+	item *labelWhile = (item *) malloc(sizeof(item));
+	labelWhile.name = strLabelWhile;
+	string strLabelEnd = generateLabel();
+	item *labelEnd = (item *) malloc(sizeof(item));
+	labelEnd.name = strLabelEnd;
 
+	// Main instruction
+	OpThreeDir *mainOperation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	mainOperation.instr = IC_WHILE;
+	mainOperation.oper1 = labelEnd;
+
+	// Label While
+	OpThreeDir *instrLabelWhile = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	instrLabelWhile.instr = IC_LABEL;
+	instrLabelWhile.result = labelWhile;
+	insertOperation(instrLabelWhile);
+
+	// Condition
+	generateInterCode(tree->left);
+	mainOperation.result = last->operation->result;	
+
+	// Insert while instruction
+	insertOperation(mainOperation);
+
+	// Block
+	generateInterCode(tree->rigth);
+
+	// Jump
+	OpThreeDir *jumpToCond = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	jumpToCond.instr = IC_JUMP;
+	jumpToCond.result = labelWhile;
+	insertOperation(jumpToCond);
+
+	// Label End
+	OpThreeDir *instrLabelEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	instrLabelEnd.instr = IC_LABEL;
+	instrLabelEnd.result = labelEnd;
+	insertOperation(instrLabelEnd);
 }
 
-//2-metodo if else
-void generateIfElse(ListThreeDir node){
-
+/* Genera las lineas de codigo intermedio correspondientes a un return void. */
+void generateReturnVoid(node *tree){
+	OpThreeDir *returnVoid = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	returnVoid.instr = IC_RETVOID;
+	//returnVoid.result = label??;
+	insertOperation(returnVoid);
 }
 
-//2-metodo while
-void generateWhile(ListThreeDir node){
-
-}
-
-//2-metodo return void -- con posibilidades de cambio
-void generateReturnVoid(ListThreeDir node){
-
-}
-
-//2-metodo return con expresion -- con posibilidades de cambio
-void generateReturnExp(ListThreeDir node){
-
+/* Genera las lineas de codigo intermedio correspondientes a un return de una expresión (int o bool). */
+void generateReturnExp(node *tree){
+	OpThreeDir *returnNotVoid = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	if(tree->content->ret==5){
+		returnNotVoid.instr = IC_RETINT;
+	} else {
+		returnNotVoid.instr = IC_RETBOOL;
+	}
+	// returnNotVoid.result = label???;
+	insertOperation(returnNotVoid);
 }
