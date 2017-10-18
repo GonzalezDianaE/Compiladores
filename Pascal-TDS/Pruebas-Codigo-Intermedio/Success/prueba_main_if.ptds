@@ -1,0 +1,15 @@
+ program
+  begin
+    integer  main()
+      begin
+        integer x,z,w;
+        bool y;
+        w = 2 + (4*2); {10}
+        x = 5;
+        z = x * 10; {50}
+        if (w<z) then {tiene que retornar w}
+          begin
+            return w;
+          end
+      end
+  end

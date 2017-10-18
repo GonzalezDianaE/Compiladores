@@ -1,0 +1,8 @@
+program
+  begin
+  {decremento de una variable}
+    integer dec (integer y)
+      begin
+        return y - 1;
+      end
+  end

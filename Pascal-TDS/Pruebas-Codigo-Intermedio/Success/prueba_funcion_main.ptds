@@ -1,0 +1,16 @@
+program
+  begin
+  {suma de dos numeros de una variable}
+    integer sum (integer y, integer x)
+      begin
+        return y + x;
+      end
+    integer  main()
+      begin
+        integer x,y,z;
+        x = 2;
+        y = 3;
+        z = sum (x,y);
+        return z;
+      end
+  end

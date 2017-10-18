@@ -1,0 +1,20 @@
+ program
+  begin
+    integer  main()
+      begin
+        integer x,z,w;
+        bool y;
+        w = 3 + (5*2); {13}
+        x = 2;
+        z = x * 10; {20}
+        y = (w>z); {false}
+        if (y) then
+          begin
+            return w;
+          end
+        else
+          begin
+            return z;
+          end
+      end
+  end
