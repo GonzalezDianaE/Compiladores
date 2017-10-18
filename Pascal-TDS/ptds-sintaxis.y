@@ -16,6 +16,8 @@ void yyerror(const char *s);
 int yyparse();
 int returnCount = 0;
 bool deb;
+ListThreeDir *head;
+ListThreeDir *last;
 %}
 
 
@@ -80,7 +82,10 @@ bool deb;
 
 
 %%
-program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel();} prog
+program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel(); head =(ListThreeDir *) malloc(sizeof(ListThreeDir));
+  printf("head = NULL %d\n", head == NULL );
+  head->next = NULL;
+  last = head; printf("last = NULL %d\n", last == NULL );} prog {showOperation(head);}
 ;
 
 prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {printf("%s\n","Chequeo Sintáctico/Semántico correcto");checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
@@ -91,8 +96,8 @@ prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {printf(
                                                                           symbol *aux = levels[0];
                                                                           while (aux->next!=NULL){
                                                                             aux=aux->next;
-                                                                            initListThreeDir ();
-                                                                            generateInterCode(aux->content->function->tree);
+                                                                            generateInterCode(aux->content->function->tree,last);
+                                                                            //showOperation(head);
                                                                           }
                                                                         }
 
