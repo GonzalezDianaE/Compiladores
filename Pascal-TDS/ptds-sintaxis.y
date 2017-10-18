@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "types.c"
-#include "structures.c"
+#include "intermediateCode.c"
 extern int yylineno;
 extern bool debug;
 
@@ -85,7 +85,16 @@ program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel();} prog
 
 prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {printf("%s\n","Chequeo Sintáctico/Semántico correcto");checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
 
-      | PROGRAM BEGINN method_decls END                                 {printf("%s\n","Chequeo Sintáctico/Semántico correcto");checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
+      | PROGRAM BEGINN method_decls END                                 {printf("%s\n","Chequeo Sintáctico/Semántico correcto");
+                                                                          checks(levels[0],deb);
+                                                                          printf("%s\n","Compilacion exitosa");
+                                                                          symbol *aux = levels[0];
+                                                                          while (aux->next!=NULL){
+                                                                            aux=aux->next;
+                                                                            initListThreeDir ();
+                                                                            generateInterCode(aux->content->function->tree);
+                                                                          }
+                                                                        }
 
       | PROGRAM BEGINN var_decls SEMICOLON END                          {printf("%s\n","Compilacion exitosa");}
 
