@@ -1,0 +1,16 @@
+program
+  begin
+  {suma de dos numeros de una variable}
+    void asig (integer y, integer x)
+      begin
+        x = y;
+      end
+    integer  main()
+      begin
+        integer x,y,z;
+        x = 2;
+        y = 3;
+        asig (x,y);
+        return y;
+      end
+  end

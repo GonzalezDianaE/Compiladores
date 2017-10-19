@@ -16,8 +16,6 @@ void yyerror(const char *s);
 int yyparse();
 int returnCount = 0;
 bool deb;
-ListThreeDir *head;
-ListThreeDir *last;
 %}
 
 
@@ -82,10 +80,7 @@ ListThreeDir *last;
 
 
 %%
-program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel(); head =(ListThreeDir *) malloc(sizeof(ListThreeDir));
-  printf("head = NULL %d\n", head == NULL );
-  head->next = NULL;
-  last = head; printf("last = NULL %d\n", last == NULL );} prog {showOperation(head);}
+program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel();} prog
 ;
 
 prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {printf("%s\n","Chequeo Sintáctico/Semántico correcto");checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
@@ -94,11 +89,13 @@ prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {printf(
                                                                           checks(levels[0],deb);
                                                                           printf("%s\n","Compilacion exitosa");
                                                                           symbol *aux = levels[0];
+                                                                          initListThreeDir();
                                                                           while (aux->next!=NULL){
                                                                             aux=aux->next;
-                                                                            generateInterCode(aux->content->function->tree,last);
-                                                                            //showOperation(head);
+                                                                            generate(aux->content);
+                                                                            //generateInterCode(aux->content->function->tree);
                                                                           }
+                                                                          showOperation();
                                                                         }
 
       | PROGRAM BEGINN var_decls SEMICOLON END                          {printf("%s\n","Compilacion exitosa");}

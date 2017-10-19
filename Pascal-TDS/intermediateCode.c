@@ -28,6 +28,8 @@
 #define IC_PPARAM 21
 #define IC_CALL 22
 #define IC_LOAD 23
+#define IC_BEGIN_FUNCTION 24
+#define IC_END_FUNCTION 25
 
 
 
@@ -42,37 +44,40 @@ typedef struct ListThreeDir{
 	OpThreeDir *operation;
 	struct ListThreeDir *next;
 }ListThreeDir;
+
+
 int labels = 0;
 int temps = 0;
 char label[32];
 char tmp[32];
 
-//ListThreeDir *head;
-//ListThreeDir *last;
+ListThreeDir *head;
+ListThreeDir *last;
 //std::ofstream file;
 //string fileName = "CTD.txt";
 
 char *generateLabel();
 char *generateTemp();
-void initListThreeDir(ListThreeDir *head, ListThreeDir *last);
-void generateInterCode (node *tree, ListThreeDir *last);
-void showOperation (ListThreeDir *head);
+void initListThreeDir();
+void generate(item *function);
+void generateInterCode (node *tree);
+void showOperation ();
 void showOperation2 (OpThreeDir *operation);
-void insertOperation (OpThreeDir *operation, ListThreeDir *last);
-void generateLoad (node *tree, ListThreeDir *last);
-void generateAssing (node *tree, ListThreeDir *last);
-void generateEqual(node *tree, ListThreeDir *last);
-void generateOpArit(node *tree, ListThreeDir *last);
-void generateOpAritUn(node *tree, ListThreeDir *last);
-void generateOpLog(node *tree, ListThreeDir *last);
-void generateOpLogUn(node *tree, ListThreeDir *last);
-void generateOpRel(node *tree, ListThreeDir *last);
-void generateFunctionCall(node *tree, ListThreeDir *last);
-void generateIf(node *tree, ListThreeDir *last);
-void generateIfElse(node *tree, ListThreeDir *last);
-void generateWhile(node *tree, ListThreeDir *last);
-void generateReturnVoid(node *tree, ListThreeDir *last);
-void generateReturnExp(node *tree, ListThreeDir *last);
+void insertOperation (OpThreeDir *operation);
+void generateLoad (node *tree);
+void generateAssing (node *tree);
+void generateEqual(node *tree);
+void generateOpArit(node *tree);
+void generateOpAritUn(node *tree);
+void generateOpLog(node *tree);
+void generateOpLogUn(node *tree);
+void generateOpRel(node *tree);
+void generateFunctionCall(node *tree);
+void generateIf(node *tree);
+void generateIfElse(node *tree);
+void generateWhile(node *tree);
+void generateReturnVoid(node *tree);
+void generateReturnExp(node *tree);
 
 /* Genera un nuevo nombre para label distinto a todos los anteriores. */
 char *generateLabel(){
@@ -95,37 +100,55 @@ char *generateTemp(){
 }
 
 /* Inicialización de la lista de instrucciones con elemento ficticio.*/
-void initListThreeDir (ListThreeDir *head, ListThreeDir *last){
+void initListThreeDir (){
 	//file.open(fileName.c_str());
 	head =(ListThreeDir *) malloc(sizeof(ListThreeDir));
 	head->next = NULL;
 	last = head;
+}
+
+//recibe la funcion
+void generate(item *func){
+	OpThreeDir *beginFunction = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	beginFunction->instr = IC_BEGIN_FUNCTION;
+	item *funcionName = (item *) malloc(sizeof(item));
+	strcpy(funcionName->name, func->name);
+	beginFunction->result = funcionName;
+	insertOperation(beginFunction);
+	//printf("BEGIN DE LA FUNCION %s\n", funcionName->name );
+
+	generateInterCode(func->function->tree);
+	OpThreeDir *endFunction = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	endFunction->instr = IC_END_FUNCTION;
+	strcpy(funcionName->name, func->name);
+	endFunction->result = funcionName;
+	insertOperation(endFunction);
+	//printf("END DE LA FUNCION %s\n", funcionName->name );
+}
 
 /* Método general para la generación de la lista de instrucciones.*/
-void generateInterCode (node *tree, ListThreeDir *last){
+void generateInterCode (node *tree){
 	if (tree->content != NULL){
-		printf("%d\n", tree->content->type );
+		//printf("contenido %d\n", tree->content->type );
 		switch (tree->content->type){
 			case VAR:
-				printf("%s\n", "variable");
-				generateLoad(tree,last);
+				generateLoad(tree);
 			break;
 
 			case CONSTANT :
-				printf("%s\n", "constante");
-				generateLoad(tree,last);
+				generateLoad(tree);
 			break;
 
 			case OPER_AR :
-				generateOpArit(tree,last);
+				generateOpArit(tree);
 			break;
 
 			case OPER_LOG :
-				generateOpLog(tree,last);
+				generateOpLog(tree);
 			break;
 
 			case OPER_REL :
-				generateOpRel(tree,last);
+				generateOpRel(tree);
 			break;
 
 			case FUNCTION:
@@ -133,83 +156,86 @@ void generateInterCode (node *tree, ListThreeDir *last){
 			break;
 
 			case FUNCTION_CALL_NP :
-				generateFunctionCall(tree,last);
+				generateFunctionCall(tree);
 			break;
 
 			case FUNCTION_CALL_P :
-				generateFunctionCall(tree,last);				
+				//printf("function call p\n");
+				generateFunctionCall(tree);				
 			break;
 
 			case PARAMETER :
-				generateLoad(tree,last);
+				generateLoad(tree);
 			break;
 
 			case IFAUX :
-				generateIf(tree,last);
+				generateIf(tree);
 			break;
 
 			case IF_ELSE :
-				generateIfElse(tree,last);
+				generateIfElse(tree);
 			break;
 
 			case ASSIGN :
-				printf("%s\n", "assign" );
-				generateAssing(tree,last);
+				generateAssing(tree);
 			break;
 
 			case WHILEAUX :
-				generateWhile(tree,last);
+				generateWhile(tree);
 			break;
 
 			case RETURNAUX :
-				generateReturnExp(tree,last);
+				generateReturnVoid(tree);
 			break;
 
 			case RETURN_EXPR :
-				generateReturnVoid(tree,last);
+				generateReturnExp(tree);
 			break;
 
 			case STATEMENTS :
-				generateInterCode(tree->left,last);
-				generateInterCode(tree->right,last);
+				generateInterCode(tree->left);
+				generateInterCode(tree->right);
 			break;
 
 			case BLOCK :
-				generateInterCode(tree->left,last);
+				//printf("%s\n", "bloque" );
+				generateInterCode(tree->left);
 			break;
 
 			case OPER_AR_UN :
-				generateOpAritUn(tree,last);
+				generateOpAritUn(tree);
 			break;
 
 			case OPER_LOG_UN :
-				generateOpLogUn(tree,last);
+				generateOpLogUn(tree);
 			break;
 
 			case OPER_EQUAL :
-				generateEqual(tree,last);
+				generateEqual(tree);
 			break;
 		}
 	}
 }
 
 /* Inserta la operación pasada como parámetro en la lista de instrucciones. */
-void insertOperation (OpThreeDir *operation, ListThreeDir *last){
-	showOperation2(operation);
-	printf("%s\n", "insert" );
+void insertOperation (OpThreeDir *operation){
+	//printf("antes de imprimir\n");
+	//showOperation2(operation);
 	ListThreeDir *aux = (ListThreeDir *) malloc(sizeof(ListThreeDir));
-	printf("last = NULL %d\n", last == NULL );
+	/*if (last == NULL){
+		printf("%s\n", "last es null");
+	} */
 	last->next = aux;
-	printf("%s\n", "malloc" );
+	//printf("%s\n", "malloc" );
 	last = last->next;
-	printf("%s\n", "last" );
+	//printf("%s\n", "last" );
 	last->next = NULL;
-	printf("%s\n", "null" );
+	//printf("%s\n", "null" );
 	last->operation = operation;
-	printf("%s\n", "fin" );
+	//printf("%s\n", "fin insert" );
 }
 
-void showOperation (ListThreeDir *head){
+void showOperation (){
 	ListThreeDir *aux = head;
 	if(aux->next!=NULL){
 		aux = aux->next;
@@ -398,6 +424,21 @@ void showOperation (ListThreeDir *head){
 					}
 					break;
 				}
+				case 24 : {
+					printf("\n");
+					printf( "BEGIN FUNCTION      ");
+					printf("%s 		",operation->oper1->name);
+					printf("%s 		",operation->oper2->name);
+					printf("%s\n",operation->result->name);
+					break;
+				}
+				case 25 : {
+					printf( "END FUNCTION      ");
+					printf("%s 		",operation->oper1->name);
+					printf("%s 		",operation->oper2->name);
+					printf("%s\n",operation->result->name);
+					break;
+				}
 			}
 			aux = aux->next;
 		}
@@ -405,6 +446,7 @@ void showOperation (ListThreeDir *head){
 }
 
 void showOperation2 (OpThreeDir *operation){
+	printf("instruccion %d\n", operation->instr);
 	switch (operation->instr){
 		case 0 : {
 			printf("ADD       ");
@@ -588,12 +630,26 @@ void showOperation2 (OpThreeDir *operation){
 			}
 			break;
 	}
+	case 24 : {
+			printf( "BEGIN FUNCTION      \n");
+			//printf("%s 		",operation->oper1->name);
+			//printf("%s 		",operation->oper2->name);
+			//printf("%s\n",operation->result->name);
+			break;
+		}
+	case 25 : {
+			printf( "END FUNCTION      \n");
+			//printf("%s 		",operation->oper1->name);
+			//printf("%s 		",operation->oper2->name);
+			//printf("%s\n",operation->result->name);
+			break;
+		}
 	}
 }
 	
 /* Genera las lineas de codigo intermedio correspondientes a la carga de variables, constantes, parametros, etc. */
-void generateLoad (node *tree, ListThreeDir *last){
-	printf("%s\n", "generateLoad" );
+void generateLoad (node *tree){
+	//printf("generate load\n");
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
 	operation->oper1 = tree->content;
@@ -603,35 +659,32 @@ void generateLoad (node *tree, ListThreeDir *last){
 	result->ret = tree->content->ret;
 	operation->instr = IC_LOAD;
 	operation->result = result;
-	insertOperation(operation,last);
-
+	insertOperation(operation);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a una asignación. */
-void generateAssing (node *tree, ListThreeDir *last){
-	printf("%s\n", "GA" );
+void generateAssing (node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	// Variable
-	printf("%s\n", tree->right->content->name);
+	//printf("%s\n", tree->right->content->name);
 	item *variable = (item *) malloc(sizeof(item));
 	strcpy(variable->name,tree->right->content->name);
-	printf("%s\n",variable->name);
+	//printf("%s\n",variable->name);
 	operation->oper1 = variable;
 	//Expresion
-	generateInterCode(tree->left,last);
-	printf("%s\n", "algo" );
+	generateInterCode(tree->left);
 	operation->result = last->operation->result;
 	operation->instr = IC_ASSING;
-	insertOperation(operation,last);
+	insertOperation(operation);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a una comparación por igual (aritmética o lógica). */
-void generateEqual(node *tree, ListThreeDir *last){
+void generateEqual(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
-	generateInterCode(tree->right,last);
+	generateInterCode(tree->right);
 	operation->oper2 = last->operation->result;
 	result->value = 0;
 	result->type = VAR;
@@ -644,18 +697,18 @@ void generateEqual(node *tree, ListThreeDir *last){
 		strcpy(result->name,generateTemp());
 	}
 	operation->result = result;
-	insertOperation(operation,last);
+	insertOperation(operation);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a una operación aritmética binaria. */
-void generateOpArit(node *tree, ListThreeDir *last){
+void generateOpArit(node *tree){
 	char name[32];
 	strcpy(name,tree->content->name);
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
-	generateInterCode(tree->right,last);
+	generateInterCode(tree->right);
 	operation->oper2 = last->operation->result;
 	result->value = 0;
 	result->type = VAR;
@@ -681,33 +734,33 @@ void generateOpArit(node *tree, ListThreeDir *last){
 		strcpy(result->name,generateTemp());
 	}
 	operation->result=result;
-	insertOperation(operation,last);
+	insertOperation(operation);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a una operación aritmética unaria. */
-void generateOpAritUn(node *tree, ListThreeDir *last){
+void generateOpAritUn(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
 	result->value = 0;
 	result->type = VAR;
 	operation->instr = IC_NEG;
 	strcpy(result->name,generateTemp());
 	operation->result=result;
-	insertOperation(operation,last);
+	insertOperation(operation);
 
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a una operación lógica binaria. */
-void generateOpLog(node *tree, ListThreeDir *last){
+void generateOpLog(node *tree){
 	char name[32];
 	strcpy(name,tree->content->name);
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
-	generateInterCode(tree->right,last);
+	generateInterCode(tree->right);
 	operation->oper2 = last->operation->result;
 	result->value = 0;
 	result->type = VAR;
@@ -721,32 +774,32 @@ void generateOpLog(node *tree, ListThreeDir *last){
 		strcpy(result->name,generateTemp());
 	}
 	operation->result=result;
-	insertOperation(operation,last);
+	insertOperation(operation);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a una operación lógica unaria. */
-void generateOpLogUn(node *tree, ListThreeDir *last){
+void generateOpLogUn(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
 	result->value = 0;
 	result->type = VAR;
 	operation->instr = IC_NOT;
 	strcpy(result->name,generateTemp());
 	operation->result=result;
-	insertOperation(operation,last);
+	insertOperation(operation);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a una comparación por mayor o menor (int). */
-void generateOpRel(node *tree, ListThreeDir *last){
+void generateOpRel(node *tree){
 	char name[32];
 	strcpy(name,tree->content->name);
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
-	generateInterCode(tree->right,last);
+	generateInterCode(tree->right);
 	operation->oper2 = last->operation->result;
 	result->value = 0;
 	result->type = VAR;
@@ -760,35 +813,41 @@ void generateOpRel(node *tree, ListThreeDir *last){
 		strcpy(result->name,generateTemp());
 	}
 	operation->result=result;
-	insertOperation(operation,last);
+	insertOperation(operation);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a una llamada a función. */
-void generateFunctionCall(node *tree, ListThreeDir *last){
+void generateFunctionCall(node *tree){
 	// Load params (if it has)
 	if(tree->content->type==FUNCTION_CALL_P){
 		paramsCall *currentParam = tree->content->paramsCall;
 		if(currentParam->next!=NULL){
 			currentParam = currentParam->next;
 			while (currentParam!=NULL){
-				generateInterCode(currentParam->param,last);
+				generateInterCode(currentParam->param);
 				OpThreeDir *loadParam = (OpThreeDir *) malloc(sizeof(OpThreeDir));
-				loadParam->instr = IC_LOAD;
+				loadParam->instr = IC_PPARAM;
 				loadParam->result = last->operation->result;
-				insertOperation(loadParam,last);
+				//printf("hdlhdkld %s\n ", loadParam->result->name);
+				insertOperation(loadParam);
 				currentParam = currentParam->next;
 			}
 		}
 	}
 	// Load function call
+	//printf("salio del ciclo de parametros\n");
 	OpThreeDir *functionCall = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	functionCall->instr = IC_CALL;
-	strcpy(functionCall->result->name, tree->content->name);
-	insertOperation(functionCall,last);
+	//printf("function name %s\n", tree->content->name);
+	item *functionName = (item *) malloc(sizeof(item));
+	strcpy(functionName->name, tree->content->name);
+	functionCall->result = functionName;
+	//printf("function name %s\n", functionCall->result->name );
+	insertOperation(functionCall);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a un if-then. */
-void generateIf(node *tree, ListThreeDir *last){
+void generateIf(node *tree){
 	// Labels
 	item *labelEnd = (item *) malloc(sizeof(item));
 	strcpy(labelEnd->name,generateLabel());
@@ -799,24 +858,28 @@ void generateIf(node *tree, ListThreeDir *last){
 	mainOperation->oper2 = labelEnd;
 
 	// Condition
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	mainOperation->result = last->operation->result;
 
 	// Insert if instruction
-	insertOperation(mainOperation,last);
+	insertOperation(mainOperation);
 
 	// Then
-	generateInterCode(tree->middle,last);
+	printf("%s\n", "then" );
+	if(tree->right == NULL){
+		printf("ES NULL\n");
+	}
+	generateInterCode(tree->right);
 
 	// Label End
 	OpThreeDir *instrLabelEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelEnd->instr = IC_LABEL;
 	instrLabelEnd->result = labelEnd;
-	insertOperation(instrLabelEnd,last);
+	insertOperation(instrLabelEnd);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a un if-then-else. */
-void generateIfElse(node *tree, ListThreeDir *last){
+void generateIfElse(node *tree){
 	// Labels
 	item *labelElse = (item *) malloc(sizeof(item));
 	strcpy(labelElse->name,generateLabel());
@@ -831,39 +894,39 @@ void generateIfElse(node *tree, ListThreeDir *last){
 	mainOperation->oper2 = labelEnd;
 
 	// Condition
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	mainOperation->result = last->operation->result;
 
 	// Insert if instruction
-	insertOperation(mainOperation,last);
+	insertOperation(mainOperation);
 
 	// Then
-	generateInterCode(tree->middle,last);
+	generateInterCode(tree->middle);
 
 	// Jump
 	OpThreeDir *jumpToEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	jumpToEnd->instr = IC_JUMP;
 	jumpToEnd->result = labelEnd;
-	insertOperation(jumpToEnd,last);
+	insertOperation(jumpToEnd);
 
 	// Label Else
 	OpThreeDir *instrLabelElse = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelElse->instr = IC_LABEL;
 	instrLabelElse->result = labelElse;
-	insertOperation(instrLabelElse,last);
+	insertOperation(instrLabelElse);
 
 	// Else
-	generateInterCode(tree->right,last);
+	generateInterCode(tree->right);
 
 	// Label End
 	OpThreeDir *instrLabelEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelEnd->instr = IC_LABEL;
 	instrLabelEnd->result = labelEnd;
-	insertOperation(instrLabelEnd,last);
+	insertOperation(instrLabelEnd);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a un ciclo while. */
-void generateWhile(node *tree, ListThreeDir *last){
+void generateWhile(node *tree){
 	// Labels
 	item *labelWhile = (item *) malloc(sizeof(item));
 	strcpy(labelWhile->name,generateLabel());
@@ -879,47 +942,48 @@ void generateWhile(node *tree, ListThreeDir *last){
 	OpThreeDir *instrLabelWhile = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelWhile->instr = IC_LABEL;
 	instrLabelWhile->result = labelWhile;
-	insertOperation(instrLabelWhile,last);
+	insertOperation(instrLabelWhile);
 
 	// Condition
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	mainOperation->result = last->operation->result;	
 
 	// Insert while instruction
-	insertOperation(mainOperation,last);
+	insertOperation(mainOperation);
 
 	// Block
-	generateInterCode(tree->right,last);
+	generateInterCode(tree->right);
 
 	// Jump
 	OpThreeDir *jumpToCond = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	jumpToCond->instr = IC_JUMP;
 	jumpToCond->result = labelWhile;
-	insertOperation(jumpToCond,last);
+	insertOperation(jumpToCond);
 
 	// Label End
 	OpThreeDir *instrLabelEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelEnd->instr = IC_LABEL;
 	instrLabelEnd->result = labelEnd;
-	insertOperation(instrLabelEnd,last);
+	insertOperation(instrLabelEnd);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a un return void. */
-void generateReturnVoid(node *tree, ListThreeDir *last){
+void generateReturnVoid(node *tree){
 	OpThreeDir *returnVoid = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	returnVoid->instr = IC_RETVOID;
-	insertOperation(returnVoid,last);
+	insertOperation(returnVoid);
 }
 
 /* Genera las lineas de codigo intermedio correspondientes a un return de una expresión (int o bool). */
-void generateReturnExp(node *tree, ListThreeDir *last){
+void generateReturnExp(node *tree){
 	OpThreeDir *returnNotVoid = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	if(tree->content->ret==5){
 		returnNotVoid->instr = IC_RETINT;
 	} else {
 		returnNotVoid->instr = IC_RETBOOL;
 	}
-	generateInterCode(tree->left,last);
+	generateInterCode(tree->left);
 	returnNotVoid->result = last->operation->result;
-	insertOperation(returnNotVoid,last);
+	insertOperation(returnNotVoid);
 }
+
