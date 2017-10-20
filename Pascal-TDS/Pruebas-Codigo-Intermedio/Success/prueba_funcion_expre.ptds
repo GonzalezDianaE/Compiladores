@@ -1,0 +1,32 @@
+program
+  begin
+    bool mayor (integer y, integer x)
+      begin
+        if (y > x) then
+          begin
+            return true;
+          end
+        else
+          begin
+            return false;
+          end
+      end
+    integer  main()
+      begin
+        integer x,z,w;
+        bool y;
+        w = (5 + (2*2)) / 3; {3}
+        x = 10;
+        z = w * 10;
+        {Se pasara como parametro a la funcion una expresion}
+        y = mayor(x+10,z); {false}
+        if (y) then
+          begin
+            return x;
+          end
+        else
+          begin
+            return z;
+          end
+      end
+  end

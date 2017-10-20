@@ -1,0 +1,26 @@
+program 
+	begin
+	{funcion que calcula la x ^ n , x elevado a la n }
+    integer potencia (integer x, integer n)
+      begin
+        integer i,r;
+        i = 1;
+        r = x;
+        while (i<n)
+        	begin
+        		r = r*x;
+        		i = i+1;
+        	end
+        return r;
+      end
+    integer main ()
+    	begin
+    		integer x,y;
+    		integer p1,p2;
+    		x = 2;
+    		y = 3; 
+    		p1 = potencia(x,3);
+    		p2 = potencia(y,2);
+    		return p1; {8}
+    	end
+	end
