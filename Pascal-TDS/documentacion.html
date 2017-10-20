@@ -114,5 +114,48 @@
 		- No se pueden definir funciones recursivas. Para que esto funcione se deber&aacute; en primer lugar, insertar en la tabla de s&iacute;mbolos el nombre de la funci&oacute;n con su tipo de retorno y p&aacute;rametros correspondientes. Luego, una vez recorrido el cuerpo, agregar el &aacute;rbol que lo representa a dicha funci&oacute;n. 
 
 
+		<font size=4 face="palatino" color=1c0751>
+		<p>****************************************************************************************************************************************************************************************</p>
+
+		<font size=6 face="palatino" color=055c91>
+		<p> <em> Tercera etapa: Generador c&oacute;digo intermedio. </font> <br> </em> </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Organizaci&oacute;n del grupo: </font> <br> </u> </p>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- Antes de comenzar esta etapa, se corrigieron algunos errores correspondientes a la etapa anterior y tambi&eacute;n se agregaron algunas pruebas adicionales m&aacute;s completas. Se realizaron modificaciones en yacc, necesarias para la nueva etapa. En la operaci&oacute;n asignaci&oacute;n se agregar&aacute; como hijo derecho la variable a asignar, tambi&eacute;n chequeos de tipos en checkTree, entre otros.  </p>
+
+		<p align="justify"> 
+		- Para esta etapa se defini&oacute; una idea inicial sobre la lista de operaciones a mostrar, lo cual puede observarse en el archivo <em> "CodIntermedio.xls" </em>. Una vez en claro el funcionamiento de nuestras instrucciones, se cre&oacute; una librer&iacute;a <em> "intermediateCode.c" </em> la cual contiene la implementaci&oacute;n de las operaciones necesarias. </p>
+
+		<p align="justify"> 
+		- Se procede a la divisi&oacute;n de las tareas: Etcharren a cargo de la inicializaci&oacute;n de las estructuras necesarias, los m&eacute;todos <em> generateIntercode, initListTreeDir, insertOperation, showOperation.</em> Gonz&aacute;lez a cargo de la implementaci&oacute;n de las instrucciones de los operadores aritm&eacute;ticos y l&oacute;gicos <em>(generateOpLog, generateOpArit..).</em> Boselli a cargo de la implementaci&oacute;n de las condiciones, ciclos y llamadas a funciones <em>(generateFunctionCall, generateIf, generateWhile..)</em> para las cuales se utilizaron los labels o temporales donde fueron necesarios. </p>
+
+		<p align="justify"> 
+		- Una vez terminadas las tareas, en conjunto se realizaron los chequeos necesarios para verificar el correcto funcionamiento de los m&eacute;todos implementados, finalmente se procede a la etapa de pruebas. </p>
+
+
+		<font size=4 face="palatino" color=1c0751>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Decisiones de Dise&ntilde;o: </p> </u>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- Crear una librer&iacute;a <em>"intermediateCode.c"</em> donde se definieron los tipos a utilizar, como se puede observar, cada operaci&oacute;n tendr&aacute; una instrucci&oacute;n (tipo enumerado), los respectivos operadores y el resultado (punteros del tipo item definidos y utilizados en "structures.c") </p>
+
+		<p align="justify"> 
+		- Se utilizaron <em> Labels y Temporales,</em> para los indicadores de salto y resultados de operaciones respectivamente. Se decidi&oacute; en la instrucci&oacute;n asignaci&oacute;n no utilizar temporales para las variables a asignar. </p>
+
+		<p align="justify"> 
+		- En el caso de las funciones, se definieron dos labels nuevos: IC_BEGIN_FUNCTION, IC_END_FUNCTION los cuales indican el comienzo y fin de una funci&oacute;n. Se utilizar&aacute; una nueva funci&oacute;n general <em>generate(item *func)</em> la cual crear&aacute; los labels cuando sean necesarios. </p>
+
+		<p align="justify"> 
+		- Para mostrar la lista de operaciones completa, se pens&oacute; en utilizar variables globales en yacc pero debido a algunas complicaciones, se utilizaron variables est&aacute;ticas en intermediateCode. As&iacute; finalmente, se recorrer&aacute; el nivel correspondiente mostrando de manera completa todas las funciones e instrucciones correspondientes a cada programa. </p>
+
+
 	</body>
 </html>
