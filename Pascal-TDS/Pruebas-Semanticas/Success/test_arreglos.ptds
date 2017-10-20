@@ -1,0 +1,30 @@
+program
+  begin
+    {Se pretende definir los arreglos integer num[5] y bool B[4]
+      num: array[1..5] of integer;
+      b: array[1..4] of boolean;
+      para simularlo, se deberan crear 5 variables del tipo integer y 4 de tipo
+      boolean, las cuales almacenaran el contenido de los "arreglos" }
+
+    integer arreglos(integer b, integer c)
+      begin
+        integer n1,n2,n3,n4,n5; { num[5] }
+        bool b1,b2,b3,b4;   { bool[4] }
+        integer y;
+        y = 4;
+        n1 = b;
+        n2 = y + 3; 
+        n3 = y + n1; 
+        b1 = (b<c);
+        b2 = (b>y);
+        b4 = (c==0);
+        return n3;
+      end
+
+    integer main()
+      begin
+        integer result;
+        result = arreglos(2,3);
+        return result;
+      end
+  end

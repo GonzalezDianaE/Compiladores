@@ -19,8 +19,9 @@ program
           begin
               if (true) then            
               begin
-                 integer z;
+                 integer z,x;
                  bool y;
+                 x = 3;
                  if (true) then            
                  begin
                     z=5;

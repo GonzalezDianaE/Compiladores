@@ -1,0 +1,24 @@
+program
+  begin
+    { retorna el factorial de v}
+    integer factorial (integer v)
+    begin
+      integer limit,c,fact;
+      limit = 15;
+      if ( v > limit) then
+        begin 
+          return (-1);
+        end
+      else 
+        begin 
+          c = 0;
+          fact = 1;
+          while (c<v)
+            begin
+              c = c+1;
+              fact = fact*c;
+            end
+          return fact;
+        end
+    end
+  end

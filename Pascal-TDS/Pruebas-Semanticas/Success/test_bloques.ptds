@@ -1,0 +1,27 @@
+program
+  begin
+  {decremento de una variable}
+    integer dec (integer y)
+      begin
+        return y - 1;
+      end
+    integer  main()
+      begin
+        integer x;
+        bool break; {se utilizara un flag booleano para forzar salir del ciclo}
+        x=20;
+        break = true;
+        while ((x>1) && break) 
+          begin
+            if (x>10) then
+              begin
+                break = false; {fuerza fin del ciclo}
+              end
+            else 
+              begin
+                x = dec(x);
+              end 
+          end
+        return x; {deberia retornar 10}
+      end
+  end
