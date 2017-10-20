@@ -89,11 +89,10 @@ prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {printf(
                                                                           checks(levels[0],deb);
                                                                           printf("%s\n","Compilacion exitosa");
                                                                           symbol *aux = levels[0];
-                                                                          initListThreeDir();
+                                                                          initListThreeDir(deb);
                                                                           while (aux->next!=NULL){
                                                                             aux=aux->next;
                                                                             generate(aux->content);
-                                                                            //generateInterCode(aux->content->function->tree);
                                                                           }
                                                                           showOperation();
                                                                         }
