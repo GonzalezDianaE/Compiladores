@@ -1,9 +1,7 @@
 #include "structures.c"
 #include <stdlib.h>
-//#include <string.h>
-//#include <stdio.h>
-//#include <stdbool.h>
 
+/* Constantes para definir tipo de las instrucciones de codgo intermedio. */
 #define IC_ADD 0
 #define IC_SUB 1
 #define IC_PLUS 2
@@ -31,8 +29,16 @@
 #define IC_BEGIN_FUNCTION 24
 #define IC_END_FUNCTION 25
 
+/* DECLARACIÓN DE TIPOS */
 
-
+/* Define una instrucción de código intermedio.
+	instr: Tipo de instrucción.
+	oper1: Primer operando.
+	oper2: Segundo operando.
+	result: Resultado de la operación.
+	En algunos casos, no es necesario que los operandos y resultado esten 
+	completos (pueden ser null).
+*/
 typedef struct OpThreeDir{
 	int instr;
 	item *oper1;
@@ -40,25 +46,34 @@ typedef struct OpThreeDir{
 	item *result;
 }OpThreeDir;
 
+/* Define una lista de instrucciones de código intermedio.
+  operation: Instrucción de código intermedio.
+  next: Siguiente instrucción.
+*/
 typedef struct ListThreeDir{
 	OpThreeDir *operation;
 	struct ListThreeDir *next;
 }ListThreeDir;
 
+/* Punteros a la cabeza de la lista y al último elemento de ella, respectivamente. */
+static ListThreeDir *head;
+static ListThreeDir *last;
 
+/* Contadores y variables para generar los nombres de labels y temporales. */
 int labels = 0;
-int temps = 0;
 char label[32];
+int temps = 0;
 char tmp[32];
 
-ListThreeDir *head;
-ListThreeDir *last;
-//std::ofstream file;
-//string fileName = "CTD.txt";
+/* Utilizada para indicar si la compilacion se ejecuto en modo debug.*/
+bool debug;
+
+/* DECLARACIÓN DE FUNCIONES */
 
 char *generateLabel();
 char *generateTemp();
-void initListThreeDir();
+void initListThreeDir(bool deb);
+ListThreeDir *getIntermediateCode();
 void generate(item *function);
 void generateInterCode (node *tree);
 void showOperation ();
@@ -78,6 +93,8 @@ void generateIfElse(node *tree);
 void generateWhile(node *tree);
 void generateReturnVoid(node *tree);
 void generateReturnExp(node *tree);
+
+/* IMPLEMENTACION DE FUNCIONES */
 
 /* Genera un nuevo nombre para label distinto a todos los anteriores. */
 char *generateLabel(){
@@ -100,36 +117,47 @@ char *generateTemp(){
 }
 
 /* Inicialización de la lista de instrucciones con elemento ficticio.*/
-void initListThreeDir (){
-	//file.open(fileName.c_str());
+void initListThreeDir(bool deb){
 	head =(ListThreeDir *) malloc(sizeof(ListThreeDir));
 	head->next = NULL;
 	last = head;
+	debug = deb;
 }
 
-//recibe la funcion
+ListThreeDir *getIntermediateCode(){
+	return head;
+}
+
+/* Método principal, invocado desde yacc para cada función cargada en la tabla de símbolos. 
+	Se encarga de generar los labels de inicio y fin de la función, y el código intermedio 
+	correspondiente a la misma (utilizando los métodos correspondientees).
+*/
 void generate(item *func){
-	OpThreeDir *beginFunction = (OpThreeDir *) malloc(sizeof(OpThreeDir));
-	beginFunction->instr = IC_BEGIN_FUNCTION;
 	item *funcionName = (item *) malloc(sizeof(item));
 	strcpy(funcionName->name, func->name);
+
+	OpThreeDir *beginFunction = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	beginFunction->instr = IC_BEGIN_FUNCTION;
 	beginFunction->result = funcionName;
 	insertOperation(beginFunction);
-	//printf("BEGIN DE LA FUNCION %s\n", funcionName->name );
 
 	generateInterCode(func->function->tree);
+
 	OpThreeDir *endFunction = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	endFunction->instr = IC_END_FUNCTION;
-	strcpy(funcionName->name, func->name);
 	endFunction->result = funcionName;
 	insertOperation(endFunction);
-	//printf("END DE LA FUNCION %s\n", funcionName->name );
 }
 
-/* Método general para la generación de la lista de instrucciones.*/
+/* Método general para la generación de la lista de instrucciones.
+	Mediante un case sobre el tipo del nodo corriente, invoca al método
+	correspondiente para generar su código intermedio.
+*/
 void generateInterCode (node *tree){
 	if (tree->content != NULL){
-		//printf("contenido %d\n", tree->content->type );
+		if(debug){
+			printf("Contenido de tipo %d (remitirse a structures.c)\n", tree->content->type );
+		}
 		switch (tree->content->type){
 			case VAR:
 				generateLoad(tree);
@@ -151,16 +179,11 @@ void generateInterCode (node *tree){
 				generateOpRel(tree);
 			break;
 
-			case FUNCTION:
-				printf("funcion \n");
-			break;
-
 			case FUNCTION_CALL_NP :
 				generateFunctionCall(tree);
 			break;
 
 			case FUNCTION_CALL_P :
-				//printf("function call p\n");
 				generateFunctionCall(tree);				
 			break;
 
@@ -198,7 +221,6 @@ void generateInterCode (node *tree){
 			break;
 
 			case BLOCK :
-				//printf("%s\n", "bloque" );
 				generateInterCode(tree->left);
 			break;
 
@@ -219,22 +241,14 @@ void generateInterCode (node *tree){
 
 /* Inserta la operación pasada como parámetro en la lista de instrucciones. */
 void insertOperation (OpThreeDir *operation){
-	//printf("antes de imprimir\n");
-	//showOperation2(operation);
 	ListThreeDir *aux = (ListThreeDir *) malloc(sizeof(ListThreeDir));
-	/*if (last == NULL){
-		printf("%s\n", "last es null");
-	} */
 	last->next = aux;
-	//printf("%s\n", "malloc" );
 	last = last->next;
-	//printf("%s\n", "last" );
 	last->next = NULL;
-	//printf("%s\n", "null" );
 	last->operation = operation;
-	//printf("%s\n", "fin insert" );
 }
 
+/* Imprime por consola una representación textual de la lista de instrucciones generada. */
 void showOperation (){
 	ListThreeDir *aux = head;
 	if(aux->next!=NULL){
@@ -242,169 +256,169 @@ void showOperation (){
 		while(aux!=NULL){
 			OpThreeDir *operation = aux->operation;
 			switch (operation->instr) {
-				case 0 : {
-					printf("ADD       ");
+				case IC_ADD : {
+					printf("ADD               ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 1 : {
-					printf( "SUB       ");
+				case IC_SUB : {
+					printf( "SUB               ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 2 : {
-					printf("PLUS      ");
+				case IC_PLUS : {
+					printf("PLUS              ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 3 : {
-					printf( "DIV       ");
+				case IC_DIV : {
+					printf( "DIV               ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 4 : {
-					printf( "MOD       ");
+				case IC_MOD : {
+					printf( "MOD               ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 5 : {
-					printf( "AND       ");
+				case IC_AND : {
+					printf( "AND               ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 6 : {
-					printf( "OR        ");
+				case IC_OR : {
+					printf( "OR                ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 7 : {
-					printf( "NOT       ");
+				case IC_NOT : {
+					printf( "NOT               ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 8 : {
-					printf( "EQAR      ");
+				case IC_EQUALAR : {
+					printf( "EQAR              ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 9 : {
-					printf( "EQLOG     ");
+				case IC_EQUALLOG : {
+					printf( "EQLOG             ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 10 : {
-					printf( "NEG       ");
+				case IC_NEG : {
+					printf( "NEG               ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 11 : {
-					printf( "MINNOR    ");
+				case IC_MINOR : {
+					printf( "MINNOR            ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 12 : {
-					printf( "MAJOR     ");
+				case IC_MAJOR : {
+					printf( "MAJOR             ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 13 : {
-					printf( "ASSIGN    ");
+				case IC_ASSING : {
+					printf( "ASSIGN            ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 14 : {
-					printf( "IF        ");
+				case IC_IF : {
+					printf( "IF                ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 15 : {
-					printf( "WHILE     ");
+				case IC_WHILE : {
+					printf( "WHILE             ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 16 : {
-					printf( "LABEL     ");
+				case IC_LABEL : {
+					printf( "LABEL             ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 17 : {
-					printf( "JUMP      ");
+				case IC_JUMP : {
+					printf( "JUMP              ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 18 : {
-					printf( "RETINT    ");
+				case IC_RETINT : {
+					printf( "RETINT            ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 19 : {
-					printf( "RETBOOL   ");
+				case IC_RETBOOL : {
+					printf( "RETBOOL           ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 20 : {
-					printf( "RETVOID   ");
+				case IC_RETVOID : {
+					printf( "RETVOID           ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 21 : {
-					printf( "PPARAM    ");
+				case IC_PPARAM : {
+					printf( "PPARAM            ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 22 : {
-					printf( "CALL      ");
+				case IC_CALL : {
+					printf( "CALL              ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 23 : {
-					printf( "LOAD      ");
+				case IC_LOAD : {
+					printf( "LOAD              ");
 					if (operation->oper1->type == VAR || operation->oper1->type == PARAMETER){
 						printf("%s 		        ",operation->oper1->name);
 						printf("%s 		",operation->oper2->name);
@@ -424,15 +438,15 @@ void showOperation (){
 					}
 					break;
 				}
-				case 24 : {
+				case IC_BEGIN_FUNCTION : {
 					printf("\n");
-					printf( "BEGIN FUNCTION      ");
+					printf( "BEGIN FUNCTION    ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
 					printf("%s\n",operation->result->name);
 					break;
 				}
-				case 25 : {
+				case IC_END_FUNCTION : {
 					printf( "END FUNCTION      ");
 					printf("%s 		",operation->oper1->name);
 					printf("%s 		",operation->oper2->name);
@@ -445,211 +459,9 @@ void showOperation (){
 	}
 }
 
-void showOperation2 (OpThreeDir *operation){
-	printf("instruccion %d\n", operation->instr);
-	switch (operation->instr){
-		case 0 : {
-			printf("ADD       ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 1 : {
-			printf( "SUB       ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 2 : {
-			printf("PLUS      ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 3 : {
-			printf( "DIV       ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 4 : {
-			printf( "MOD       ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 5 : {
-			printf( "AND       ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 6 : {
-			printf( "OR        ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 7 : {
-			printf( "NOT       ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 8 : {
-			printf( "EQAR      ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 9 : {
-			printf( "EQLOG     ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 10 : {
-			printf( "NEG       ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 11 : {
-			printf( "MINNOR    ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 12 : {
-			printf( "MAJOR     ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 13 : {
-			printf( "ASSIGN    ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 14 : {
-			printf( "IF        ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 15 : {
-			printf( "WHILE     ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 16 : {
-			printf( "LABEL     ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 17 : {
-			printf( "JUMP      ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 18 : {
-			printf( "RETINT    ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 19 : {
-			printf( "RETBOOL   ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 20 : {
-			printf( "RETVOID   ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 21 : {
-			printf( "PPARAM    ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 22 : {
-			printf( "CALL      ");
-			printf("%s 		",operation->oper1->name);
-			printf("%s 		",operation->oper2->name);
-			printf("%s\n",operation->result->name);
-			break;
-		}
-		case 23 : {
-			printf( "LOAD      ");
-			if (operation->oper1->type == VAR || operation->oper1->type == PARAMETER){
-				printf("%s 		        ",operation->oper1->name);
-				printf("%s 		",operation->oper2->name);
-				printf("%s\n",operation->result->name);
-			}
-			else{
-				if(operation->oper1->ret == INTEGERAUX){
-					printf("%d 		        ",operation->oper1->value);
-					printf("%s 		",operation->oper2->name);
-					printf("%s\n",operation->result->name);
-				}
-				else{
-					printf("%s 		        ",operation->oper1->value? "true":"false");
-					printf("%s 		",operation->oper2->name);
-					printf("%s\n",operation->result->name);
-				}
-			}
-			break;
-	}
-	case 24 : {
-			printf( "BEGIN FUNCTION      \n");
-			//printf("%s 		",operation->oper1->name);
-			//printf("%s 		",operation->oper2->name);
-			//printf("%s\n",operation->result->name);
-			break;
-		}
-	case 25 : {
-			printf( "END FUNCTION      \n");
-			//printf("%s 		",operation->oper1->name);
-			//printf("%s 		",operation->oper2->name);
-			//printf("%s\n",operation->result->name);
-			break;
-		}
-	}
-}
-	
-/* Genera las lineas de codigo intermedio correspondientes a la carga de variables, constantes, parametros, etc. */
+
+/* Genera las lineas de código intermedio correspondientes a la carga de variables, constantes, parametros, etc. */
 void generateLoad (node *tree){
-	//printf("generate load\n");
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
 	operation->oper1 = tree->content;
@@ -662,30 +474,34 @@ void generateLoad (node *tree){
 	insertOperation(operation);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a una asignación. */
+/* Genera las lineas de código intermedio correspondientes a una asignación. */
 void generateAssing (node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	operation->instr = IC_ASSING;
+
 	// Variable
-	//printf("%s\n", tree->right->content->name);
 	item *variable = (item *) malloc(sizeof(item));
 	strcpy(variable->name,tree->right->content->name);
-	//printf("%s\n",variable->name);
 	operation->oper1 = variable;
+
 	//Expresion
 	generateInterCode(tree->left);
 	operation->result = last->operation->result;
-	operation->instr = IC_ASSING;
+
 	insertOperation(operation);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a una comparación por igual (aritmética o lógica). */
+/* Genera las lineas de código intermedio correspondientes a una comparación por igual (aritmética o lógica). */
 void generateEqual(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
+
 	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
+
 	generateInterCode(tree->right);
 	operation->oper2 = last->operation->result;
+
 	result->value = 0;
 	result->type = VAR;
 	if(tree->content->ret == INTEGERAUX){
@@ -697,22 +513,27 @@ void generateEqual(node *tree){
 		strcpy(result->name,generateTemp());
 	}
 	operation->result = result;
+
 	insertOperation(operation);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a una operación aritmética binaria. */
+/* Genera las lineas de código intermedio correspondientes a una operación aritmética binaria. */
 void generateOpArit(node *tree){
 	char name[32];
 	strcpy(name,tree->content->name);
+
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
+
 	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
+
 	generateInterCode(tree->right);
 	operation->oper2 = last->operation->result;
+
 	result->value = 0;
 	result->type = VAR;
-	//Comienza chequeos sobre tipo de operacion
+
 	if (strcmp(name,"OP_ADD")==0){
 		operation->instr = IC_ADD;
 		strcpy(result->name,generateTemp());
@@ -734,37 +555,45 @@ void generateOpArit(node *tree){
 		strcpy(result->name,generateTemp());
 	}
 	operation->result=result;
+
 	insertOperation(operation);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a una operación aritmética unaria. */
+/* Genera las lineas de código intermedio correspondientes a una operación aritmética unaria. */
 void generateOpAritUn(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	operation->instr = IC_NEG;
 	item *result = (item *) malloc(sizeof(item));
+
 	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
+
 	result->value = 0;
 	result->type = VAR;
-	operation->instr = IC_NEG;
 	strcpy(result->name,generateTemp());
 	operation->result=result;
+
 	insertOperation(operation);
 
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a una operación lógica binaria. */
+/* Genera las lineas de código intermedio correspondientes a una operación lógica binaria. */
 void generateOpLog(node *tree){
 	char name[32];
 	strcpy(name,tree->content->name);
+
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
+
 	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
+
 	generateInterCode(tree->right);
 	operation->oper2 = last->operation->result;
+
 	result->value = 0;
 	result->type = VAR;
-	//Comienza chequeos sobre tipo de operacion
+
 	if (strcmp(name,"OP_AND")==0){
 		operation->instr = IC_AND;
 		strcpy(result->name,generateTemp());
@@ -774,36 +603,43 @@ void generateOpLog(node *tree){
 		strcpy(result->name,generateTemp());
 	}
 	operation->result=result;
+
 	insertOperation(operation);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a una operación lógica unaria. */
+/* Genera las lineas de código intermedio correspondientes a una operación lógica unaria. */
 void generateOpLogUn(node *tree){
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+	operation->instr = IC_NOT;
 	item *result = (item *) malloc(sizeof(item));
+
 	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
+
 	result->value = 0;
 	result->type = VAR;
-	operation->instr = IC_NOT;
 	strcpy(result->name,generateTemp());
 	operation->result=result;
+
 	insertOperation(operation);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a una comparación por mayor o menor (int). */
+/* Genera las lineas de código intermedio correspondientes a una comparación por mayor o menor (int). */
 void generateOpRel(node *tree){
 	char name[32];
 	strcpy(name,tree->content->name);
 	OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	item *result = (item *) malloc(sizeof(item));
+
 	generateInterCode(tree->left);
 	operation->oper1 = last->operation->result;
+
 	generateInterCode(tree->right);
 	operation->oper2 = last->operation->result;
+
 	result->value = 0;
 	result->type = VAR;
-	//Comienza chequeos sobre tipo de operacion
+
 	if (strcmp(name,"OP_MINOR")==0){
 		operation->instr = IC_MINOR;
 		strcpy(result->name,generateTemp());
@@ -813,40 +649,43 @@ void generateOpRel(node *tree){
 		strcpy(result->name,generateTemp());
 	}
 	operation->result=result;
+
 	insertOperation(operation);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a una llamada a función. */
+/* Genera las lineas de código intermedio correspondientes a una llamada a función. */
 void generateFunctionCall(node *tree){
 	// Load params (if it has)
 	if(tree->content->type==FUNCTION_CALL_P){
 		paramsCall *currentParam = tree->content->paramsCall;
+
 		if(currentParam->next!=NULL){
 			currentParam = currentParam->next;
+
 			while (currentParam!=NULL){
 				generateInterCode(currentParam->param);
+
 				OpThreeDir *loadParam = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 				loadParam->instr = IC_PPARAM;
 				loadParam->result = last->operation->result;
-				//printf("hdlhdkld %s\n ", loadParam->result->name);
 				insertOperation(loadParam);
+
 				currentParam = currentParam->next;
 			}
 		}
 	}
 	// Load function call
-	//printf("salio del ciclo de parametros\n");
 	OpThreeDir *functionCall = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	functionCall->instr = IC_CALL;
-	//printf("function name %s\n", tree->content->name);
+
 	item *functionName = (item *) malloc(sizeof(item));
 	strcpy(functionName->name, tree->content->name);
 	functionCall->result = functionName;
-	//printf("function name %s\n", functionCall->result->name );
+
 	insertOperation(functionCall);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a un if-then. */
+/* Genera las lineas de código intermedio correspondientes a un if-then. */
 void generateIf(node *tree){
 	// Labels
 	item *labelEnd = (item *) malloc(sizeof(item));
@@ -865,10 +704,6 @@ void generateIf(node *tree){
 	insertOperation(mainOperation);
 
 	// Then
-	printf("%s\n", "then" );
-	if(tree->right == NULL){
-		printf("ES NULL\n");
-	}
 	generateInterCode(tree->right);
 
 	// Label End
@@ -878,7 +713,7 @@ void generateIf(node *tree){
 	insertOperation(instrLabelEnd);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a un if-then-else. */
+/* Genera las lineas de código intermedio correspondientes a un if-then-else. */
 void generateIfElse(node *tree){
 	// Labels
 	item *labelElse = (item *) malloc(sizeof(item));
@@ -925,7 +760,7 @@ void generateIfElse(node *tree){
 	insertOperation(instrLabelEnd);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a un ciclo while. */
+/* Genera las lineas de código intermedio correspondientes a un ciclo while. */
 void generateWhile(node *tree){
 	// Labels
 	item *labelWhile = (item *) malloc(sizeof(item));
@@ -967,23 +802,29 @@ void generateWhile(node *tree){
 	insertOperation(instrLabelEnd);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a un return void. */
+/* Genera las lineas de código intermedio correspondientes a un return void. */
 void generateReturnVoid(node *tree){
 	OpThreeDir *returnVoid = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	returnVoid->instr = IC_RETVOID;
 	insertOperation(returnVoid);
 }
 
-/* Genera las lineas de codigo intermedio correspondientes a un return de una expresión (int o bool). */
+/* Genera las lineas de código intermedio correspondientes a un return de una expresión (int o bool). */
 void generateReturnExp(node *tree){
 	OpThreeDir *returnNotVoid = (OpThreeDir *) malloc(sizeof(OpThreeDir));
-	if(tree->content->ret==5){
+	if(tree->content->ret==INTEGERAUX){
 		returnNotVoid->instr = IC_RETINT;
 	} else {
 		returnNotVoid->instr = IC_RETBOOL;
 	}
-	generateInterCode(tree->left);
-	returnNotVoid->result = last->operation->result;
+	if(tree->left->content->type==VAR){
+		item *variable = (item *) malloc(sizeof(item));
+		strcpy(variable->name,tree->left->content->name);
+		returnNotVoid->result = variable;
+	} else {
+		generateInterCode(tree->left);
+		returnNotVoid->result = last->operation->result;
+	}
 	insertOperation(returnNotVoid);
 }
 
