@@ -6,28 +6,28 @@ program
       end
     integer inc (integer z)
       begin
-        return y + 1;
+        return z + 1;
       end
     void  main()
       begin
-        integer y;
+        integer y,x;
         y=9;
         if (y == 0) then
           begin
             if (y<0) then
               begin
-                return 0;
+               x = 1;
               end
           end
         else
           begin
             if (y>10) then
               begin
-                return dec (y);
+                x = dec(y);
               end
             else
               begin
-                return inc (y);
+                x = inc(y);
               end
           end
       end

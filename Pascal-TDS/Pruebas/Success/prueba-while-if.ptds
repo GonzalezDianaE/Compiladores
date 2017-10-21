@@ -12,7 +12,7 @@ program
           begin
             if (x==20) then
               begin
-                return x;
+                return;
               end
             x = inc(x);
           end

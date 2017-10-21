@@ -1,16 +1,16 @@
 program
     begin
-        integer inc (integer x)
+        integer inc1 (integer x)
             begin
                 return x + 1;
             end
-    integer inc (integer x)
+    integer inc2 (integer x)
         begin
             return (x+1);
         end
     bool isZero (integer x, integer y)
         begin
-            return (x+y);
+            return ((x+y)==0);
         end
     {integer inc (integer x, integer y)
         begin
@@ -18,7 +18,7 @@ program
         end}
     void  main()
         begin
-            integer y;
+            integer x,y;
             y=4;
             if (y == 1) then
                 {ddd
@@ -26,12 +26,13 @@ program
 
                 }
                 begin{dadsdas}
-                    return 1;
                     {}
+                    x = y;
                 end
             else
                 begin
-                    return inc (y);
+                    x = inc1(y);
+                    x = inc2(y);
                 end
         end
 end
