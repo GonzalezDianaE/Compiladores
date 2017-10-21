@@ -14,7 +14,22 @@ Datos Sistema
 
 	Herramientas: bison y flex.
 
-Comando de compilación y Ejecución
+Comandos Incluidos:
+	./generate-compiler 
+		Compila el codigo fuente del compilador (flez, yacc y c). 
+		No lleva parametros. Genera el ejecutable "pascaltds".
+
+
+	./ptds-compiler <pathArchivoAEvaluar> [-d] 
+		Utiliza el compilador pascaltds para compilar el archivo pasado como parámetro.
+		El primer parámetro (obligatiorio) es el path al archivo de extension .ptds a evaluar.
+		El segundo parámetro (optiativo) es el flag '-d' que muestra un debug de lo que se va evaluando.
+
+	./ptds-run-test
+		Ejecuta todos los test creados hasta el momento (en los directorios Pruebas, Pruebas-Semanticas y Pruebas-Codigo-Intermedio).
+
+
+(DEPRECATED) Comando de compilación y Ejecución
 
 	./pascal-tds <pathArchivoAEvaluar> [-d] 
 
@@ -25,4 +40,4 @@ Comando de compilación y Ejecución
 
 	Nota: los parámetros deben pasarse en el orden mencionado.
 
-	Como ejemplos se anexan  archivos .ptds para que puedan ser ejecutados (dentro de los directorios Pruebas y Pruebas-Semanticas).
+	Como ejemplos se anexan  archivos .ptds para que puedan ser ejecutados (dentro de los directorios Pruebas, Pruebas-Semanticas y Pruebas-Codigo-Intermedio).
