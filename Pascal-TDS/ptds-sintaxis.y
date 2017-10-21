@@ -80,15 +80,19 @@ bool deb;
 
 
 %%
-program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel();} prog
+program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel();} prog {printf("%s\n","Compilacion exitosa");}
 ;
 
-prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {printf("%s\n","Chequeo Sintáctico/Semántico correcto");checks(levels[0],deb);printf("%s\n","Compilacion exitosa");}
-
-      | PROGRAM BEGINN method_decls END                                 {printf("%s\n","Chequeo Sintáctico/Semántico correcto");
+prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              { if(deb){
+                                                                            printf("%s\n","Chequeo Sintáctico/Semántico correcto");
+                                                                          }
                                                                           checks(levels[0],deb);
-                                                                          printf("%s\n","Compilacion exitosa");
-                                                                          symbol *aux = levels[0];
+                                                                        }
+
+      | PROGRAM BEGINN method_decls END                                 { if(deb){
+                                                                            printf("%s\n","Chequeo Sintáctico/Semántico correcto");
+                                                                          }
+                                                                          checks(levels[0],deb);                                                                          symbol *aux = levels[0];
                                                                           initListThreeDir(deb);
                                                                           while (aux->next!=NULL){
                                                                             aux=aux->next;
@@ -97,9 +101,9 @@ prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              {printf(
                                                                           showOperation();
                                                                         }
 
-      | PROGRAM BEGINN var_decls SEMICOLON END                          {printf("%s\n","Compilacion exitosa");}
+      | PROGRAM BEGINN var_decls SEMICOLON END                          {}
 
-      | PROGRAM BEGINN END                                              {printf("%s\n","Compilacion exitosa");}
+      | PROGRAM BEGINN END                                              {}
     ;
 
 var_decl : type ID                                                      { insertTable ($2->value,0,VAR,$1,deb);}
