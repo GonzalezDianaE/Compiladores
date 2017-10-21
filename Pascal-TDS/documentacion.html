@@ -131,7 +131,7 @@
 		- Para esta etapa se defini&oacute; una idea inicial sobre la lista de operaciones a mostrar, lo cual puede observarse en el archivo <em> "CodIntermedio.xls" </em>. Una vez en claro el funcionamiento de nuestras instrucciones, se cre&oacute; una librer&iacute;a <em> "intermediateCode.c" </em> la cual contiene la implementaci&oacute;n de las operaciones necesarias. </p>
 
 		<p align="justify"> 
-		- Se procede a la divisi&oacute;n de las tareas: Etcharren a cargo de la inicializaci&oacute;n de las estructuras necesarias, los m&eacute;todos <em> generateIntercode, initListTreeDir, insertOperation, showOperation.</em> Gonz&aacute;lez a cargo de la implementaci&oacute;n de las instrucciones de los operadores aritm&eacute;ticos y l&oacute;gicos <em>(generateOpLog, generateOpArit..).</em> Boselli a cargo de la implementaci&oacute;n de las condiciones, ciclos y llamadas a funciones <em>(generateFunctionCall, generateIf, generateWhile..)</em> para las cuales se utilizaron los labels o temporales donde fueron necesarios. </p>
+		- Se procede a la divisi&oacute;n de las tareas: Etcharren a cargo de la inicializaci&oacute;n de las estructuras necesarias, los m&eacute;todos <em> generateIntercode, initListTreeDir, insertOperation, showOperation.</em> Gonz&aacute;lez a cargo de la implementaci&oacute;n de las instrucciones de los operadores aritm&eacute;ticos y l&oacute;gicos <em>(generateOpLog, generateOpArit..).</em> Boselli a cargo de la implementaci&oacute;n de las condiciones, ciclos y llamadas a funciones <em>(generateFunctionCall, generateIf, generateWhile..)</em> para las cuales se utilizaron los labels y temporales donde fueron necesarios. </p>
 
 		<p align="justify"> 
 		- Una vez terminadas las tareas, en conjunto se realizaron los chequeos necesarios para verificar el correcto funcionamiento de los m&eacute;todos implementados, finalmente se procede a la etapa de pruebas. </p>
@@ -154,7 +154,7 @@
 		- En el caso de las funciones, se definieron dos labels nuevos: IC_BEGIN_FUNCTION, IC_END_FUNCTION los cuales indican el comienzo y fin de una funci&oacute;n. Se utilizar&aacute; una nueva funci&oacute;n general <em>generate(item *func)</em> la cual crear&aacute; los labels cuando sean necesarios. </p>
 
 		<p align="justify"> 
-		- Para mostrar la lista de operaciones completa, se pens&oacute; en utilizar variables globales en yacc pero debido a algunas complicaciones, se utilizaron variables est&aacute;ticas en intermediateCode. As&iacute; finalmente, se recorrer&aacute; el nivel correspondiente mostrando de manera completa todas las funciones e instrucciones correspondientes a cada programa. </p>
+		- Para mostrar la lista de operaciones completa, se pens&oacute; en utilizar variables globales en yacc pero debido a complicaciones con el pasaje de par&oacute;metros, se utilizaron variables est&aacute;ticas en intermediateCode. As&iacute; finalmente, se recorrer&aacute; el nivel correspondiente mostrando de manera completa todas las funciones e instrucciones correspondientes a cada programa. </p>
 
 
 	</body>
