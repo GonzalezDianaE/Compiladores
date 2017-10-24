@@ -32,7 +32,7 @@
 /* DECLARACIÓN DE TIPOS */
 
 
-int sizeStack;
+int stackSize;
 /* Define una instrucción de código intermedio.
     instr: Tipo de instrucción.
     oper1: Primer operando.
@@ -42,7 +42,7 @@ int sizeStack;
     completos (pueden ser null).
 */
 typedef struct OpThreeDir{
-    int sizeStack;
+    int stackSize;
     int instr;
     item *oper1;
     item *oper2;
@@ -96,6 +96,7 @@ void generateIfElse(node *tree);
 void generateWhile(node *tree);
 void generateReturnVoid(node *tree);
 void generateReturnExp(node *tree);
+item *setVar(node *tree);
 
 /* IMPLEMENTACION DE FUNCIONES */
 
@@ -116,7 +117,7 @@ char *generateTemp(){
     strcpy(tmp,"Temp ");
     strcat (tmp, c);
     temps++;
-    sizeStack++;
+    stackSize++;
     return tmp;
 }
 
@@ -132,6 +133,7 @@ ListThreeDir *getIntermediateCode(){
     return head;
 }
 
+
 /* Método principal, invocado desde yacc para cada función cargada en la tabla de símbolos. 
     Se encarga de generar los labels de inicio y fin de la función, y el código intermedio 
     correspondiente a la misma (utilizando los métodos correspondientees).
@@ -141,8 +143,8 @@ void generate(item *func){
     strcpy(funcionName->name, func->name);
 
     OpThreeDir *beginFunction = (OpThreeDir *) malloc(sizeof(OpThreeDir));
-    beginFunction->sizeStack = func->function->sizeStack;
-    sizeStack = func->function->sizeStack;
+    beginFunction->stackSize = func->function->stackSize;
+    stackSize = func->function->stackSize;
     beginFunction->instr = IC_BEGIN_FUNCTION;
     beginFunction->result = funcionName;
     insertOperation(beginFunction);
@@ -152,7 +154,7 @@ void generate(item *func){
     OpThreeDir *endFunction = (OpThreeDir *) malloc(sizeof(OpThreeDir));
     endFunction->instr = IC_END_FUNCTION;
     endFunction->result = funcionName;
-    beginFunction->sizeStack = sizeStack;
+    beginFunction->stackSize = stackSize;
     insertOperation(endFunction);
 }
 
@@ -168,10 +170,6 @@ void generateInterCode (node *tree){
         switch (tree->content->type){
             case VAR:
                //hace funcion separada
-                item *variable = (item *) malloc(sizeof(item));
-                strcpy(variable->name,tree->left->content->name);
-                variable->offSet = sizeStack;
-                returnNotVoid->result = variable;
             break;
 
             case CONSTANT :
@@ -360,7 +358,7 @@ void showOperation (){
                 }
                 case IC_ASSING : {
                     printf( "ASSIGN            ");
-                    printf("%s      ",operation->oper1->name);
+                    printf("%s           ",operation->oper1->name);
                     printf("%s      ",operation->oper2->name);
                     printf("%s\n",operation->result->name);
                     break;
@@ -437,7 +435,7 @@ void showOperation (){
                     }
                     else{
                         if(operation->oper1->ret == INTEGERAUX){
-                            printf("%d              ",operation->oper1->value);
+                            printf("%d           ",operation->oper1->value);
                             printf("%s      ",operation->oper2->name);
                             printf("%s\n",operation->result->name);
                         }
@@ -477,11 +475,11 @@ void generateLoad (node *tree){
     item *result = (item *) malloc(sizeof(item));
     operation->oper1 = tree->content;
     strcpy(result->name,generateTemp());
-    result->offSet = sizeStack;
+    result->offSet = stackSize;
     result->value = tree->content->value;
     result->type = VAR;
     result->ret = tree->content->ret;
-    result->offSet = sizeStack;
+    result->offSet = stackSize;
     operation->instr = IC_LOAD;
     operation->result = result;
     insertOperation(operation);
@@ -498,23 +496,38 @@ void generateAssing (node *tree){
     operation->oper1 = variable;
 
     //Expresion
-    generateInterCode(tree->left);
-    operation->result = last->operation->result;
+    /*generateInterCode(tree->left);
+    operation->result = last->operation->result;*/
+    operation->result=setVar(tree->left);
 
     insertOperation(operation);
+}
+
+item *setVar(node *tree){
+    if (tree->content!=NULL){
+        int type = tree->content->type;
+        if (type==VAR || type==PARAMETER){
+            return tree->content;
+        }
+        else{
+            generateInterCode(tree);
+            return last->operation->result;
+        }
+    }
+    return NULL;
 }
 
 /* Genera las lineas de código intermedio correspondientes a una comparación por igual (aritmética o lógica). */
 void generateEqual(node *tree){
     OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
     item *result = (item *) malloc(sizeof(item));
-
-    generateInterCode(tree->left);
+    /*generateInterCode(tree->left);
     operation->oper1 = last->operation->result;
 
     generateInterCode(tree->right);
-    operation->oper2 = last->operation->result;
-
+    operation->oper2 = last->operation->result;*/
+    operation->oper1=setVar(tree->left);
+    operation->oper2=setVar(tree->right);
     result->value = 0;
     result->type = VAR;
 
@@ -526,7 +539,7 @@ void generateEqual(node *tree){
         operation->instr = IC_EQUALLOG;
         strcpy(result->name,generateTemp());
     }
-    result->offSet = sizeStack;
+    result->offSet = stackSize;
     operation->result = result;
 
     insertOperation(operation);
@@ -540,12 +553,13 @@ void generateOpArit(node *tree){
     OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
     item *result = (item *) malloc(sizeof(item));
 
-    generateInterCode(tree->left);
+    /*generateInterCode(tree->left);
     operation->oper1 = last->operation->result;
 
     generateInterCode(tree->right);
-    operation->oper2 = last->operation->result;
-
+    operation->oper2 = last->operation->result;*/
+    operation->oper1=setVar(tree->left);
+    operation->oper2=setVar(tree->right);
     result->value = 0;
     result->type = VAR;
 
@@ -569,7 +583,7 @@ void generateOpArit(node *tree){
         operation->instr = IC_MOD;
         strcpy(result->name,generateTemp());
     }
-    result->offSet = sizeStack;
+    result->offSet = stackSize;
     operation->result=result;
 
     insertOperation(operation);
@@ -580,14 +594,13 @@ void generateOpAritUn(node *tree){
     OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
     operation->instr = IC_NEG;
     item *result = (item *) malloc(sizeof(item));
-
-    generateInterCode(tree->left);
-    operation->oper1 = last->operation->result;
-
+    /*generateInterCode(tree->left);
+    operation->oper1 = last->operation->result;*/
+    operation->oper1=setVar(tree->left);
     result->value = 0;
     result->type = VAR;
     strcpy(result->name,generateTemp());
-    result->offSet = sizeStack;
+    result->offSet = stackSize;
     operation->result=result;
 
     insertOperation(operation);
@@ -602,11 +615,13 @@ void generateOpLog(node *tree){
     OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
     item *result = (item *) malloc(sizeof(item));
 
-    generateInterCode(tree->left);
+    /*generateInterCode(tree->left);
     operation->oper1 = last->operation->result;
 
     generateInterCode(tree->right);
-    operation->oper2 = last->operation->result;
+    operation->oper2 = last->operation->result;*/
+    operation->oper1=setVar(tree->left);
+    operation->oper2=setVar(tree->right);
 
     result->value = 0;
     result->type = VAR;
@@ -619,7 +634,7 @@ void generateOpLog(node *tree){
         operation->instr = IC_OR;
         strcpy(result->name,generateTemp());
     }
-    result->offSet = sizeStack;
+    result->offSet = stackSize;
     operation->result=result;
 
     insertOperation(operation);
@@ -631,13 +646,14 @@ void generateOpLogUn(node *tree){
     operation->instr = IC_NOT;
     item *result = (item *) malloc(sizeof(item));
 
-    generateInterCode(tree->left);
-    operation->oper1 = last->operation->result;
+    /*generateInterCode(tree->left);
+    operation->oper1 = last->operation->result;*/
+    operation->oper1=setVar(tree->left);
 
     result->value = 0;
     result->type = VAR;
     strcpy(result->name,generateTemp());
-    result->offSet = sizeStack;
+    result->offSet = stackSize;
     operation->result=result;
 
     insertOperation(operation);
@@ -650,11 +666,14 @@ void generateOpRel(node *tree){
     OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
     item *result = (item *) malloc(sizeof(item));
 
-    generateInterCode(tree->left);
+    /*generateInterCode(tree->left);
     operation->oper1 = last->operation->result;
 
     generateInterCode(tree->right);
-    operation->oper2 = last->operation->result;
+    operation->oper2 = last->operation->result;*/
+    operation->oper1=setVar(tree->left);
+    operation->oper2=setVar(tree->right);
+
 
     result->value = 0;
     result->type = VAR;
@@ -667,7 +686,7 @@ void generateOpRel(node *tree){
         operation->instr = IC_MAJOR;
         strcpy(result->name,generateTemp());
     }
-    result->offSet = sizeStack;
+    result->offSet = stackSize;
     operation->result=result;
 
     insertOperation(operation);
@@ -683,11 +702,12 @@ void generateFunctionCall(node *tree){
             currentParam = currentParam->next;
 
             while (currentParam!=NULL){
-                generateInterCode(currentParam->param);
+                //generateInterCode(currentParam->param);
 
                 OpThreeDir *loadParam = (OpThreeDir *) malloc(sizeof(OpThreeDir));
                 loadParam->instr = IC_PPARAM;
-                loadParam->result = last->operation->result;
+                //loadParam->result = last->operation->result;
+                loadParam->result=setVar(currentParam->param);
                 insertOperation(loadParam);
 
                 currentParam = currentParam->next;
@@ -717,8 +737,9 @@ void generateIf(node *tree){
     mainOperation->oper2 = labelEnd;
 
     // Condition
-    generateInterCode(tree->left);
-    mainOperation->result = last->operation->result;
+    /*generateInterCode(tree->left);
+    mainOperation->result = last->operation->result;*/
+    mainOperation->result = setVar(tree->left);
 
     // Insert if instruction
     insertOperation(mainOperation);
@@ -749,8 +770,9 @@ void generateIfElse(node *tree){
     mainOperation->oper2 = labelEnd;
 
     // Condition
-    generateInterCode(tree->left);
-    mainOperation->result = last->operation->result;
+    /*generateInterCode(tree->left);
+    mainOperation->result = last->operation->result;*/
+    mainOperation->result = setVar(tree->left);
 
     // Insert if instruction
     insertOperation(mainOperation);
@@ -800,8 +822,9 @@ void generateWhile(node *tree){
     insertOperation(instrLabelWhile);
 
     // Condition
-    generateInterCode(tree->left);
-    mainOperation->result = last->operation->result;    
+    /*generateInterCode(tree->left);
+    mainOperation->result = last->operation->result;*/
+    mainOperation->result = setVar(tree->left);    
 
     // Insert while instruction
     insertOperation(mainOperation);
@@ -837,15 +860,16 @@ void generateReturnExp(node *tree){
     } else {
         returnNotVoid->instr = IC_RETBOOL;
     }
-    if(tree->left->content->type==VAR){
+    /*if(tree->left->content->type==VAR){
         item *variable = (item *) malloc(sizeof(item));
         strcpy(variable->name,tree->left->content->name);
-        variable->offSet = sizeStack;
+        variable->offSet = stackSize;
         returnNotVoid->result = variable;
     } else {
         generateInterCode(tree->left);
         returnNotVoid->result = last->operation->result;
-    }
+    }*/
+    returnNotVoid->result = setVar(tree->left);
     insertOperation(returnNotVoid);
 }
 
