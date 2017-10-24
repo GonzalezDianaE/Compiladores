@@ -67,6 +67,7 @@ typedef struct paramsCalls{
 typedef struct itemsFunc{
   symbol *params;
   node *tree;
+  int stackSize;
 } itemFunc;
 
 /* Define un item del árbol o tabla de símbolos.
@@ -79,6 +80,7 @@ typedef struct items{
   int value;
   int type;
   int ret;
+  int offSet;
   itemFunc *function;
   paramsCall *paramsCall;
 } item;
