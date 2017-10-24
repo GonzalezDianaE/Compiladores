@@ -119,11 +119,11 @@ void closeLevel();
 int typeLastVar();
 item * findVar(char n[32],int type,bool debug);
 item * findFunction(char n[32],bool debug);
-void insertTable(char n[32], int v, int t, int r, bool debug);
+void insertTable(char n[32], int v, int t, int r, bool debug, bool var, int offSet);
 
 // Listas
 item * findInList(symbol *head, char n[32],bool debug);
-void insertList(symbol *head, char n[32], int v, int t ,int r, bool debug);
+void insertList(symbol *head, char n[32], int v, int t ,int r, bool debug, bool var, int offSet);
 void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool debug);
 symbol * initParamCall();
 void addParamCall(paramsCall *l, node *p, bool debug);
@@ -247,11 +247,11 @@ item * findFunction (char n[32], bool debug){
 
 /* Inserta una variable en la tabla de símbolos, en el nivel correspondiente.
    Para ello, llama a insertList con el nivel en donde se insertará.*/
-void insertTable(char n[32], int v, int t, int r,bool debug){
+void insertTable(char n[32], int v, int t, int r,bool debug, bool var, int offSet){
   if(debug){
     printf("Inserting variable %s ... \n",n);
   }
-  insertList(levels[top],n,v,t,r,debug);
+  insertList(levels[top],n,v,t,r,debug,var,offSet);
 }
 
 /* LISTAS */
@@ -285,7 +285,7 @@ item * findInList(symbol *head,char n[32],bool debug){
 
 /* Inserta un elemento en la tabla de símbolos. Para ello, primero busca 
    una ocurrencia previa de lo que se quiere insertar. */
-void insertList(symbol *head,char n[32], int v, int t,int r, bool debug){
+void insertList(symbol *head,char n[32], int v, int t,int r, bool debug, bool var, int offSet){
   if(debug){
     printf("  Looking for previous occurrence ... \n");
   }
@@ -301,6 +301,9 @@ void insertList(symbol *head,char n[32], int v, int t,int r, bool debug){
     content->value = v;
     content->type = t;
     content->ret = r;
+    if(var){
+      content->offSet = offSet;
+    }
     element->content = content;
     element->next = NULL;
     if(head->next==NULL){

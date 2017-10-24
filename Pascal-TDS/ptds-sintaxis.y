@@ -16,6 +16,7 @@ void yyerror(const char *s);
 int yyparse();
 int returnCount = 0;
 bool deb;
+int functionVariables = 0;
 %}
 
 
@@ -106,9 +107,9 @@ prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              { if(deb
       | PROGRAM BEGINN END                                              {}
     ;
 
-var_decl : type ID                                                      { insertTable ($2->value,0,VAR,$1,deb);}
+var_decl : type ID                                                      { functionVariables++; insertTable ($2->value,0,VAR,$1,deb,true,functionVariables);}
 
-      | var_decl COMMA ID                                               { insertTable ($3->value,0,VAR,typeLastVar(),deb);}
+      | var_decl COMMA ID                                               { functionVariables++; insertTable ($3->value,0,VAR,typeLastVar(),deb,true,functionVariables);}
     ;
 
 var_decls : var_decl                                                    {}
@@ -147,17 +148,17 @@ method_decl :
                                                                         }
      ;
 
-method_decls : method_decl                                              {}
+method_decls : method_decl                                              { functionVariables = 0;}
 
-      | method_decls method_decl                                        {}
+      | method_decls method_decl                                        { functionVariables = 0;}
      ;
 
 param : type ID                                                         { openLevel();
-                                                                          insertTable($2->value,0,PARAMETER,$1,deb);
+                                                                          insertTable($2->value,0,PARAMETER,$1,deb,false,functionVariables);
                                                                           $$ = levels[top];
                                                                         }
 
-      | param COMMA type ID                                             { insertTable($4->value,0,PARAMETER,$3,deb);
+      | param COMMA type ID                                             { insertTable($4->value,0,PARAMETER,$3,deb,false,functionVariables);
                                                                           $$ = $1;
                                                                         }
     ;
