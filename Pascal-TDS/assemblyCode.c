@@ -1,6 +1,8 @@
 #include "intermediateCode.c"
 #include <stdlib.h>
 
+const int REG_SIZE = 4;
+
 void generateAssembly(ListThreeDir *head);
 void generateAdd(OpThreeDir *operation);
 void generateSub(OpThreeDir *operation);
@@ -139,102 +141,108 @@ void generateAssembly(ListThreeDir *head){
 }
 
 void generateAdd(OpThreeDir *operation){
-	
+	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
+		printf("	movl $%d, -%d(%%ebp)\n",((operation->oper1->value) + (operation->oper2->value)),((opertation->result->offSet)*REG_SIZE));
+	} else {
+		printf("	movl -%d(%%ebp),(%%eax)\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	addl -%d(%%ebp),(%%eax)\n",(operation->oper2->offSet)*REG_SIZE);
+		printf("	movl (%%eax), -%d(%%ebp)\n",(opertation->result->offSet)*REG_SIZE);
+	}
 }
 
 void generateSub(OpThreeDir *operation){
-	
+
 }
 
 void generatePlus(OpThreeDir *operation){
-	
+
 }
 
 void generateDiv(OpThreeDir *operation){
-	
+
 }
 
 void generateMod(OpThreeDir *operation){
-	
+
 }
 
 void generateOr(OpThreeDir *operation){
-	
+
 }
 
 void generateNot(OpThreeDir *operation){
-	
+
 }
 
 void generateEqAr(OpThreeDir *operation){
-	
+
 }
 
 void generateEqLog(OpThreeDir *operation){
-	
+
 }
 
 void generateNeg(OpThreeDir *operation){
-	
+
 }
 
 void generateMinnor(OpThreeDir *operation){
-	
+
 }
 
 void generateMajor(OpThreeDir *operation){
-	
+
 }
 
 void generateAssign(OpThreeDir *operation){
-	
+
 }
 
 void generateIf(OpThreeDir *operation){
-	
+
 }
 
 void generateWhile(OpThreeDir *operation){
-	
+
 }
 
 void generateLabel(OpThreeDir *operation){
-	
+
 }
 
 void generateJump(OpThreeDir *operation){
-	
+
 }
 
 void generateRetInt(OpThreeDir *operation){
-	
+
 }
 
 void generateRetBool(OpThreeDir *operation){
-	
+
 }
 
 void generateRetVoid(OpThreeDir *operation){
-	
+
 }
 
 void generatePushParam(OpThreeDir *operation){
-	
+
 }
 
 void generateCallFunc(OpThreeDir *operation){
-	
+
 }
 
 void generateLoad(OpThreeDir *operation){
-	
+
 }
 
 void generateBeginFunc(OpThreeDir *operation){
-	
+
 }
 
 void genrateEndFunc(OpThreeDir *operation){
-	
+
 }
 
