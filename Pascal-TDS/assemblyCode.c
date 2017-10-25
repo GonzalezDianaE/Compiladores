@@ -5,10 +5,13 @@ const int REG_SIZE = 4;
 
 void generateAssembly(ListThreeDir *head);
 void generateAdd(OpThreeDir *operation);
+
+//Diana
 void generateSub(OpThreeDir *operation);
 void generatePlus(OpThreeDir *operation);
 void generateDiv(OpThreeDir *operation);
 void generateMod(OpThreeDir *operation);
+void generateAnd(OpThreeDir *operation);
 void generateOr(OpThreeDir *operation);
 void generateNot(OpThreeDir *operation);
 void generateEqAr(OpThreeDir *operation);
@@ -16,17 +19,21 @@ void generateEqLog(OpThreeDir *operation);
 void generateNeg(OpThreeDir *operation);
 void generateMinnor(OpThreeDir *operation);
 void generateMajor(OpThreeDir *operation);
+
+// Elisa
 void generateAssign(OpThreeDir *operation);
 void generateIf(OpThreeDir *operation);
 void generateWhile(OpThreeDir *operation);
 void generateLabel(OpThreeDir *operation);
 void generateJump(OpThreeDir *operation);
+void generateLoad(OpThreeDir *operation);
+
+// Leo
 void generateRetInt(OpThreeDir *operation);
 void generateRetBool(OpThreeDir *operation);
 void generateRetVoid(OpThreeDir *operation);
 void generatePushParam(OpThreeDir *operation);
 void generateCallFunc(OpThreeDir *operation);
-void generateLoad(OpThreeDir *operation);
 void generateBeginFunc(OpThreeDir *operation);
 void genrateEndFunc(OpThreeDir *operation);
 
@@ -55,6 +62,10 @@ void generateAssembly(ListThreeDir *head){
 
 			case IC_MOD :
 				generateMod(operation);
+			break;
+
+			case IC_AND:
+				generateAnd(operation);
 			break;
 
 			case IC_OR :
@@ -166,6 +177,10 @@ void generateMod(OpThreeDir *operation){
 
 }
 
+void generateAnd(OpThreeDir *operation){
+
+}
+
 void generateOr(OpThreeDir *operation){
 
 }
@@ -214,6 +229,10 @@ void generateJump(OpThreeDir *operation){
 
 }
 
+void generateLoad(OpThreeDir *operation){
+
+}
+
 void generateRetInt(OpThreeDir *operation){
 
 }
@@ -231,10 +250,6 @@ void generatePushParam(OpThreeDir *operation){
 }
 
 void generateCallFunc(OpThreeDir *operation){
-
-}
-
-void generateLoad(OpThreeDir *operation){
 
 }
 
