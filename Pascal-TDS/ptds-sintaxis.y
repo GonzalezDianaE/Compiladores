@@ -124,12 +124,14 @@ method_decl :
                                                                             exit(EXIT_FAILURE);
                                                                           }
                                                                           returnCount = 0;
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6,deb);
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6,deb,functionVariables);
+                                                                          functionVariables = 0;
                                                                           closeLevel();
                                                                         }
 
       | VOID ID PAR_LEFT param PAR_RIGHT block                          { returnCount = 0;
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6,deb);
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6,deb,functionVariables);
+                                                                          functionVariables = 0;
                                                                           closeLevel();
                                                                         }
 
@@ -139,18 +141,20 @@ method_decl :
                                                                           }
                                                                           returnCount = 0;
                                                                           symbol *head = initParamCall();
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, head,$5,deb);
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, head,$5,deb,functionVariables);
+                                                                          functionVariables = 0;
                                                                         }
 
       | VOID ID PAR_LEFT PAR_RIGHT block                                { returnCount = 0;
                                                                           symbol *head = initParamCall();
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, head,$5,deb);
+                                                                          insertFunction($2->value, 0, FUNCTION, $1, head,$5,deb,functionVariables);
+                                                                          functionVariables = 0;
                                                                         }
      ;
 
-method_decls : method_decl                                              { functionVariables = 0;}
+method_decls : method_decl                                              {}
 
-      | method_decls method_decl                                        { functionVariables = 0;}
+      | method_decls method_decl                                        {}
      ;
 
 param : type ID                                                         { openLevel();

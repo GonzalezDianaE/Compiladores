@@ -28,6 +28,7 @@
 #define IC_LOAD 23
 #define IC_BEGIN_FUNCTION 24
 #define IC_END_FUNCTION 25
+#define IC_LOAD_P 26
 
 /* DECLARACIÓN DE TIPOS */
 
@@ -97,6 +98,8 @@ void generateWhile(node *tree);
 void generateReturnVoid(node *tree);
 void generateReturnExp(node *tree);
 item *setVar(node *tree);
+void loadParameters(itemFunc *func);
+
 
 /* IMPLEMENTACION DE FUNCIONES */
 
@@ -148,6 +151,7 @@ void generate(item *func){
     beginFunction->instr = IC_BEGIN_FUNCTION;
     beginFunction->result = funcionName;
     insertOperation(beginFunction);
+    loadParameters(func->function);
 
     generateInterCode(func->function->tree);
 
@@ -457,6 +461,13 @@ void showOperation (){
                 }
                 case IC_END_FUNCTION : {
                     printf( "END FUNCTION      ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_LOAD_P : {
+                    printf( "IC_LOAD_P      ");
                     printf("%s      ",operation->oper1->name);
                     printf("%s      ",operation->oper2->name);
                     printf("%s\n",operation->result->name);
@@ -873,3 +884,73 @@ void generateReturnExp(node *tree){
     insertOperation(returnNotVoid);
 }
 
+
+void loadParameters(itemFunc *func){
+	symbol *pf= func->params;
+	int i = 0;
+	if(pf!=NULL){
+		pf = pf->next;
+		while (pf!=NULL){
+			i++;
+			OpThreeDir *load = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+			load->instr = IC_LOAD_P;
+			item *registro = (item *) malloc(sizeof(item));
+			switch(i){
+        case 1:
+        	strcpy(registro->name,"RDI");
+        	registro->value = i;
+        	registro->type = pf->content->type;
+        	registro->ret = pf->content->ret;
+        break;
+
+        case 2:
+        	strcpy(registro->name,"RSI");
+        	registro->value = i;
+        	registro->type = pf->content->type;
+        	registro->ret = pf->content->ret;
+        break;
+
+        case 3:
+        	strcpy(registro->name,"RDX");
+        	registro->value = i;
+        	registro->type = pf->content->type;
+        	registro->ret = pf->content->ret;
+        break;
+
+        case 4:
+        	strcpy(registro->name,"RCX");
+        	registro->value = i;
+        	registro->type = pf->content->type;
+        	registro->ret = pf->content->ret;
+        break;
+
+        case 5:
+        	strcpy(registro->name,"R8");
+        	registro->value = i;
+        	registro->type = pf->content->type;
+        	registro->ret = pf->content->ret;
+        break;
+
+        case 6:
+        	strcpy(registro->name,"R9");
+        	registro->value = i;
+        	registro->type = pf->content->type;
+        	registro->ret = pf->content->ret;
+        break;
+
+        default:
+        	strcpy(registro->name,"RSP");
+        	registro->value = i;
+        	registro->type = pf->content->type;
+        	registro->ret = pf->content->ret;
+        break;
+			}
+			stackSize++;
+			pf->content->offSet = stackSize;
+			load->oper1 = registro;
+			load->result = pf->content;
+			insertOperation(load);
+			pf= pf->next;
+		}
+	}
+}

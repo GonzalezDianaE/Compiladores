@@ -124,7 +124,7 @@ void insertTable(char n[32], int v, int t, int r, bool debug, bool var, int offS
 // Listas
 item * findInList(symbol *head, char n[32],bool debug);
 void insertList(symbol *head, char n[32], int v, int t ,int r, bool debug, bool var, int offSet);
-void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool debug);
+void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool debug, int functionVariables);
 symbol * initParamCall();
 void addParamCall(paramsCall *l, node *p, bool debug);
 
@@ -320,7 +320,7 @@ void insertList(symbol *head,char n[32], int v, int t,int r, bool debug, bool va
 
 /* Inserta una funcion en la tabla de símbolos. Para ello, primero busca 
    una ocurrencia previa de la que se quiere insertar. */
-void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool debug){
+void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool debug, int functionVariables){
   if (debug){
     printf("Inserting function %s ...\n",n);
   }
@@ -340,6 +340,7 @@ void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool
     content->ret=r;
     contentFunc->params = p;
     contentFunc->tree = tree;
+    contentFunc->stackSize = functionVariables;
     content->function= contentFunc;
     element->content = content;
     element->next = NULL;
