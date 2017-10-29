@@ -786,7 +786,7 @@ void generateIf(node *tree){
   // Main instruction
   OpThreeDir *mainOperation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
   mainOperation->instr = IC_IF;
-  mainOperation->oper2 = labelEnd;
+  mainOperation->oper1 = labelEnd;
 
   // Condition
   /*generateInterCode(tree->left);

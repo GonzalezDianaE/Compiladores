@@ -210,27 +210,29 @@ void generateMajor(OpThreeDir *operation){
 }
 
 void generateAssign(OpThreeDir *operation){
-
+	printf("	movl -%d(%%ebp), -%d(%%ebp)\n", (operation->result->offSet)*REG_SIZE,(operation->oper1->offSet)*REG_SIZE);
 }
 
 void generateIf(OpThreeDir *operation){
-
+	printf("	cmpl $0, -%d(%%ebp)\n", (opertation->result->offset)*REG_SIZE);
+	printf("	je %s\n", opertation->oper1->name);
 }
 
 void generateWhile(OpThreeDir *operation){
-
+	printf("	cmpl $0, -%d(%%ebp)\n", (opertation->result->offset)*REG_SIZE);
+	printf("	je %s\n", opertation->oper1->name);
 }
 
 void generateLabel(OpThreeDir *operation){
-
+	printf("%s:\n",operation->result->name);
 }
 
 void generateJump(OpThreeDir *operation){
-
+	printf("	jmp %s\n", operation->result->name);
 }
 
 void generateLoad(OpThreeDir *operation){
-
+	printf("	movl $%d, -%d(ebp)\n", operation->oper1->value, (operation->result->offset)*REG_SIZE);
 }
 
 void generateRetInt(OpThreeDir *operation){
