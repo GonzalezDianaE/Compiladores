@@ -223,11 +223,8 @@ void generateAnd(OpThreeDir *operation){
 			printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
-		//mueve el valor de la primera variable 
 		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
-		//mueve el valor de la segunda variable
 		printf("	movb $%d, -%d(%%rbp)\n",(operation->oper2->value), ((operation->oper2->offSet)*REG_SIZE));
-		//compara el valor de la segunda variable con la primer variable
 		printf("	cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
 	}
 }
@@ -241,11 +238,8 @@ void generateOr(OpThreeDir *operation){
 			printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
-		//mueve el valor de la primera variable 
 		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
-		//mueve el valor de la segunda variable
 		printf("	movb $%d, -%d(%%rbp)\n",(operation->oper2->value), ((operation->oper2->offSet)*REG_SIZE));
-		//compara el valor de la segunda variable con la primer variable
 		printf("	cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
 	}
 }
@@ -300,13 +294,14 @@ void generateEqLog(OpThreeDir *operation){
 	} else {	
 		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
 		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("	movb -%d(%%rbp), (%al) \n", (operation->oper2->offSet)*REG_SIZE);
-		printf("	andb $1, %al\n");
-		printf("	movzbl %al, %ecx\n");
-		printf("	movb $%d, (%al) \n", (operation->oper1->offSet)*REG_SIZE);
-		printf("	andb $1, %al\n");
-		printf("	movzbl %al, %edx \n");
-		printf("	cmpl %edx, %ecx \n");
+		printf("	movb -%d(%%rbp), %%al \n", (operation->oper2->offSet)*REG_SIZE);
+		printf("	andb $1, %%al\n");
+		printf("	movzbl %%al, %%ecx\n");
+		printf("	movb $%d, %%al \n", (operation->oper1->offSet)*REG_SIZE);
+		printf("	andb $1, %%al\n");
+		printf("	movzbl %%al, %%edx \n");
+		printf("	cmpl %%edx, %%ecx \n");
+	}
 }
 
 /* Genera las lineas de código objeto correspondientes a una operación aritmética negación. */
