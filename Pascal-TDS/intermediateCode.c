@@ -15,7 +15,7 @@
 #define IC_NEG 10
 #define IC_MINOR 11
 #define IC_MAJOR 12
-#define IC_ASSING 13
+#define IC_ASSIGN 13
 #define IC_IF 14
 #define IC_WHILE 15
 #define IC_LABEL 16
@@ -360,7 +360,7 @@ void showOperation (){
                     printf("%s\n",operation->result->name);
                     break;
                 }
-                case IC_ASSING : {
+                case IC_ASSIGN : {
                     printf( "ASSIGN            ");
                     printf("%s           ",operation->oper1->name);
                     printf("%s      ",operation->oper2->name);
@@ -499,7 +499,7 @@ void generateConstant (node *tree){
 /* Genera las lineas de código intermedio correspondientes a una asignación. */
 void generateAssing (node *tree){
   OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
-  operation->instr = IC_ASSING;
+  operation->instr = IC_ASSIGN;
 
   // Variable
   item *variable = (item *) malloc(sizeof(item));

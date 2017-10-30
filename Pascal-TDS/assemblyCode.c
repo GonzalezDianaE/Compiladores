@@ -22,9 +22,9 @@ void generateMajor(OpThreeDir *operation);
 
 // Elisa
 void generateAssign(OpThreeDir *operation);
-void generateIf(OpThreeDir *operation);
-void generateWhile(OpThreeDir *operation);
-void generateLabel(OpThreeDir *operation);
+void generateIfAss(OpThreeDir *operation);
+void generateWhileAss(OpThreeDir *operation);
+void generateLabelAss(OpThreeDir *operation);
 void generateJump(OpThreeDir *operation);
 void generateLoad(OpThreeDir *operation);
 
@@ -35,7 +35,7 @@ void generateRetVoid(OpThreeDir *operation);
 void generatePushParam(OpThreeDir *operation);
 void generateCallFunc(OpThreeDir *operation);
 void generateBeginFunc(OpThreeDir *operation);
-void genrateEndFunc(OpThreeDir *operation);
+void generateEndFunc(OpThreeDir *operation);
 
 
 void generateAssembly(ListThreeDir *head){
@@ -88,7 +88,7 @@ void generateAssembly(ListThreeDir *head){
 				generateNeg(operation);
 			break;
 
-			case IC_MINNOR :
+			case IC_MINOR :
 				generateMinnor(operation);
 			break;
 
@@ -101,15 +101,15 @@ void generateAssembly(ListThreeDir *head){
 			break;
 
 			case IC_IF :
-				generateIf(operation);
+				generateIfAss(operation);
 			break;
 
 			case IC_WHILE :
-				generateWhile(operation);
+				generateWhileAss(operation);
 			break;
 
 			case IC_LABEL :
-				generateLabel(operation);
+				generateLabelAss(operation);
 			break;
 
 			case IC_JUMP :
@@ -189,7 +189,7 @@ void generateDiv(OpThreeDir *operation){
 		printf("	movl $%d, -%d(%%rbp)\n",((operation->oper1->value) / (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
 		printf("	movl -%d(%%rbp),(%%eax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("  cltd \n"); //extiende %eax para guardar el resto de la division (ver bien esto)
+		printf("	cltd \n"); //extiende %eax para guardar el resto de la division (ver bien esto)
 		printf("	idivl -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
 		printf("	movl (%%eax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
 	}
@@ -201,7 +201,7 @@ void generateMod(OpThreeDir *operation){
 		printf("	movl $%d, -%d(%%rbp)\n",((operation->oper1->value) % (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
 		printf("	movl -%d(%%rbp),(%%eax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("  cltd \n"); //extiende %eax para guardar el resto de la division (ver bien esto)
+		printf("	cltd \n"); //extiende %eax para guardar el resto de la division (ver bien esto)
 		printf("	idivl -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
 		//Ver bien esto, porque en realidad la instruccion es una division VER QUE SERIA EL RESULT
 		printf("	movl (%%edx), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
@@ -218,11 +218,11 @@ void generateAnd(OpThreeDir *operation){
 		}
 	} else {
 		//mueve el valor de la primera variable 
-		printf("  movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
+		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
 		//mueve el valor de la segunda variable
 		printf("	movb $%d, -%d(%%rbp)\n",(operation->oper2->value), ((operation->oper2->offSet)*REG_SIZE));
 		//compara el valor de la segunda variable con la primer variable
-		printf("  cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
 	}
 }
 
@@ -236,11 +236,11 @@ void generateOr(OpThreeDir *operation){
 		}
 	} else {
 		//mueve el valor de la primera variable 
-		printf("  movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
+		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
 		//mueve el valor de la segunda variable
 		printf("	movb $%d, -%d(%%rbp)\n",(operation->oper2->value), ((operation->oper2->offSet)*REG_SIZE));
 		//compara el valor de la segunda variable con la primer variable
-		printf("  cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
 	}
 }
 
@@ -254,7 +254,7 @@ void generateNot(OpThreeDir *operation){
 		}
 	} else {
 		//PREGUNTAR POR INSTRUCCIONES QUE APARECEN
-		printf("  movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
+		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
 		//printf("  movzbl -%d(%%rbp), (%%eax)\n",((operation->oper1->offSet)*REG_SIZE));
 	}
 }
@@ -270,8 +270,8 @@ void generateEqAr(OpThreeDir *operation){
 	} else{
 		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
 		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("  movl -%d(%%ebp), (%%eax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("  cmpl -%d(%%ebp), (%%eax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("  	movl -%d(%%ebp), (%%eax)\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("  	cmpl -%d(%%ebp), (%%eax)\n", ((operation->oper2->offSet)*REG_SIZE));
 	}
 }
 
@@ -314,8 +314,8 @@ void generateMinnor(OpThreeDir *operation){
 	} else{
 		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
 		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("  movl -%d(%%ebp), (%%eax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("  cmpl -%d(%%ebp), (%%eax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movl -%d(%%ebp), (%%eax)\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpl -%d(%%ebp), (%%eax)\n", ((operation->oper2->offSet)*REG_SIZE));
 	}
 }
 
@@ -331,8 +331,8 @@ void generateMajor(OpThreeDir *operation){
 	} else{
 		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
 		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("  movl -%d(%%ebp), (%%eax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("  cmpl -%d(%%ebp), (%%eax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movl -%d(%%ebp), (%%eax)\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpl -%d(%%ebp), (%%eax)\n", ((operation->oper2->offSet)*REG_SIZE));
 	}
 }
 
@@ -340,17 +340,17 @@ void generateAssign(OpThreeDir *operation){
 	printf("	movl -%d(%%ebp), -%d(%%ebp)\n", (operation->result->offSet)*REG_SIZE,(operation->oper1->offSet)*REG_SIZE);
 }
 
-void generateIf(OpThreeDir *operation){
+void generateIfAss(OpThreeDir *operation){
 	printf("	cmpl $0, -%d(%%ebp)\n", (operation->result->offSet)*REG_SIZE);
 	printf("	je %s\n", operation->oper1->name);
 }
 
-void generateWhile(OpThreeDir *operation){
+void generateWhileAss(OpThreeDir *operation){
 	printf("	cmpl $0, -%d(%%ebp)\n", (operation->result->offSet)*REG_SIZE);
 	printf("	je %s\n", operation->oper1->name);
 }
 
-void generateLabel(OpThreeDir *operation){
+void generateLabelAss(OpThreeDir *operation){
 	printf("%s:\n",operation->result->name);
 }
 
@@ -386,7 +386,7 @@ void generateBeginFunc(OpThreeDir *operation){
 
 }
 
-void genrateEndFunc(OpThreeDir *operation){
+void generateEndFunc(OpThreeDir *operation){
 
 }
 
