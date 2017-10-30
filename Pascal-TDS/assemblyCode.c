@@ -161,9 +161,9 @@ void generateAdd(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) + (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	addl -%d(%%rbp),(%%rax)\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	addl -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
+		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
 
@@ -172,9 +172,9 @@ void generateSub(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) - (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	imull -%d(%%rbp),(%%rax)\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	subq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
+		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
 
@@ -183,9 +183,9 @@ void generatePlus(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) * (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	subl -%d(%%rbp),(%%rax)\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	imulq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
+		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
 
@@ -194,10 +194,10 @@ void generateDiv(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) / (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	cltd \n"); //extiende %rax para guardar el resto de la division (ver bien esto)
-		printf("	idivl -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
+		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	cqto \n");
+		printf("	idivq -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
+		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
 	}
 }
 
@@ -206,11 +206,11 @@ void generateMod(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) % (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	cltd \n"); //extiende %rax para guardar el resto de la division (ver bien esto)
+		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	cqto \n"); //extiende %rax para guardar el resto de la division (ver bien esto)
 		printf("	idivl -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
 		//Ver bien esto, porque en realidad la instruccion es una division VER QUE SERIA EL RESULT
-		printf("	movq (%%edx), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
+		printf("	movq %%rdx, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
 	}
 }
 
