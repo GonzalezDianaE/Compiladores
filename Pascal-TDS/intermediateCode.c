@@ -502,15 +502,14 @@ void generateAssing (node *tree){
   operation->instr = IC_ASSING;
 
   // Variable
-  item *variable = (item *) malloc(sizeof(item));
-  strcpy(variable->name,tree->right->content->name);
-  operation->oper1 = variable;
-
+  //item *variable = (item *) malloc(sizeof(item));
+  //strcpy(variable->name,tree->right->content->name);
+  //operation->oper1 = variable;
+  operation->oper1 = setVar(tree->right);
   //Expresion
   /*generateInterCode(tree->left);
   operation->result = last->operation->result;*/
   operation->result=setVar(tree->left);
-
   insertOperation(operation);
 }
 

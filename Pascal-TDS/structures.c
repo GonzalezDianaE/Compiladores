@@ -407,7 +407,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
       content->type = ASSIGN;
     }
   }
-  if (t == VAR){
+  if (t == VAR || t == PARAMETER){
       if(debug){
         printf("(variable) ...\n");
       }
@@ -417,10 +417,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
         fprintf(stderr, "Error: %s undeclared  %d \n", n, lineNo);
         exit(EXIT_FAILURE);
     }else{
-      strcpy(content->name,contentAux->name);
-      content->value =contentAux->value;
-      content->type = contentAux->type;
-      content->ret = contentAux->ret;
+      content = contentAux;
     }
   }else{
     if(debug){
