@@ -1,7 +1,8 @@
 #include "intermediateCode.c"
 #include <stdlib.h>
 
-const int REG_SIZE = 4;
+const int REG_SIZE = 8;
+char jumpRet[32];
 
 void generateAssembly(ListThreeDir *head);
 void generateAdd(OpThreeDir *operation);
@@ -36,6 +37,7 @@ void generatePushParam(OpThreeDir *operation);
 void generateCallFunc(OpThreeDir *operation);
 void generateBeginFunc(OpThreeDir *operation);
 void generateEndFunc(OpThreeDir *operation);
+void generateLoadParam(OpThreeDir *operation);
 
 
 void generateAssembly(ListThreeDir *head){
@@ -147,64 +149,68 @@ void generateAssembly(ListThreeDir *head){
 			case IC_END_FUNCTION :
 				generateEndFunc(operation);
 			break;
+
+			case IC_LOAD_P :
+				generateLoadParam(operation);
+			break;
 		}
 	}
 }
 
 void generateAdd(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
-		printf("	movl $%d, -%d(%%ebp)\n",((operation->oper1->value) + (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) + (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movl -%d(%%ebp),(%%eax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	addl -%d(%%ebp),(%%eax)\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movl (%%eax), -%d(%%ebp)\n",(operation->result->offSet)*REG_SIZE);
+		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	addl -%d(%%rbp),(%%rax)\n",(operation->oper2->offSet)*REG_SIZE);
+		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
 
 /* Genera las lineas de código objeto correspondientes a una operación aritmética substracción. */
 void generateSub(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
-		printf("	movl $%d, -%d(%%rbp)\n",((operation->oper1->value) - (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) - (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movl -%d(%%rbp),(%%eax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	imull -%d(%%rbp),(%%eax)\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movl (%%eax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	imull -%d(%%rbp),(%%rax)\n",(operation->oper2->offSet)*REG_SIZE);
+		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
 
 /* Genera las lineas de código objeto correspondientes a una operación aritmética multiplicación. */
 void generatePlus(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
-		printf("	movl $%d, -%d(%%rbp)\n",((operation->oper1->value) * (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) * (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movl -%d(%%rbp),(%%eax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	subl -%d(%%rbp),(%%eax)\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movl (%%eax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	subl -%d(%%rbp),(%%rax)\n",(operation->oper2->offSet)*REG_SIZE);
+		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
 
 /* Genera las lineas de código objeto correspondientes a una operación aritmética divisón. */
 void generateDiv(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
-		printf("	movl $%d, -%d(%%rbp)\n",((operation->oper1->value) / (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) / (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movl -%d(%%rbp),(%%eax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	cltd \n"); //extiende %eax para guardar el resto de la division (ver bien esto)
+		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	cltd \n"); //extiende %rax para guardar el resto de la division (ver bien esto)
 		printf("	idivl -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movl (%%eax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
+		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
 	}
 }
 
 /* Genera las lineas de código objeto correspondientes a una operación aritmética módulo. */
 void generateMod(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
-		printf("	movl $%d, -%d(%%rbp)\n",((operation->oper1->value) % (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) % (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movl -%d(%%rbp),(%%eax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	cltd \n"); //extiende %eax para guardar el resto de la division (ver bien esto)
+		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	cltd \n"); //extiende %rax para guardar el resto de la division (ver bien esto)
 		printf("	idivl -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
 		//Ver bien esto, porque en realidad la instruccion es una division VER QUE SERIA EL RESULT
-		printf("	movl (%%edx), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
+		printf("	movq (%%edx), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
 	}
 }
 
@@ -255,7 +261,7 @@ void generateNot(OpThreeDir *operation){
 	} else {
 		//PREGUNTAR POR INSTRUCCIONES QUE APARECEN
 		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
-		//printf("  movzbl -%d(%%rbp), (%%eax)\n",((operation->oper1->offSet)*REG_SIZE));
+		//printf("  movzbl -%d(%%rbp), (%%rax)\n",((operation->oper1->offSet)*REG_SIZE));
 	}
 }
 
@@ -263,15 +269,15 @@ void generateNot(OpThreeDir *operation){
 void generateEqAr(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		if((operation->oper1->value) == (operation->oper2->value)){ //es true
-			printf("	movl $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
+			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		} else{ 
-				printf("	movl $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
+				printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else{
-		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
-		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("  	movl -%d(%%ebp), (%%eax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("  	cmpl -%d(%%ebp), (%%eax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
+		printf("  	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("  	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
 	}
 }
 
@@ -294,11 +300,11 @@ void generateEqLog(OpThreeDir *operation){
 /* Genera las lineas de código objeto correspondientes a una operación aritmética negación. */
 void generateNeg(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT){	
-		printf("	movl $%d, -%d(%%rbp)\n",(-(operation->oper1->value)),((operation->result->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",(-(operation->oper1->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movl -%d(%%rbp),(%%eax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	negl (%%eax)\n");
-		printf("	movl (%%eax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
+		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	negl (%%rax)\n");
+		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
 	}
 }
 
@@ -307,15 +313,15 @@ void generateNeg(OpThreeDir *operation){
 void generateMinnor(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		if((operation->oper1->value) < (operation->oper2->value)){ //es true
-			printf("	movl $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
+			printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		} else{ 
-				printf("	movl $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
+				printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 	} else{
-		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
-		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("	movl -%d(%%ebp), (%%eax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("	cmpl -%d(%%ebp), (%%eax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
 	}
 }
 
@@ -324,29 +330,29 @@ void generateMinnor(OpThreeDir *operation){
 void generateMajor(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		if((operation->oper1->value) > (operation->oper2->value)){ //es true
-			printf("	movl $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
+			printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		} else{ 
-				printf("	movl $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
+				printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 	} else{
-		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
-		printf("	movl $%d, -%d(%%ebp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("	movl -%d(%%ebp), (%%eax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("	cmpl -%d(%%ebp), (%%eax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
 	}
 }
 
 void generateAssign(OpThreeDir *operation){
-	printf("	movl -%d(%%ebp), -%d(%%ebp)\n", (operation->result->offSet)*REG_SIZE,(operation->oper1->offSet)*REG_SIZE);
-}
+	printf("	movq -%d(%%rbp), %%rax\n", (operation->result->offSet)*REG_SIZE);
+	printf("	movq %%rax, -%d(%%rbp)\n", ((operation->oper1->offSet)*REG_SIZE));}
 
 void generateIfAss(OpThreeDir *operation){
-	printf("	cmpl $0, -%d(%%ebp)\n", (operation->result->offSet)*REG_SIZE);
+	printf("	cmpl $0, -%d(%%rbp)\n", (operation->result->offSet)*REG_SIZE);
 	printf("	je %s\n", operation->oper1->name);
 }
 
 void generateWhileAss(OpThreeDir *operation){
-	printf("	cmpl $0, -%d(%%ebp)\n", (operation->result->offSet)*REG_SIZE);
+	printf("	cmpl $0, -%d(%%rbp)\n", (operation->result->offSet)*REG_SIZE);
 	printf("	je %s\n", operation->oper1->name);
 }
 
@@ -359,34 +365,106 @@ void generateJump(OpThreeDir *operation){
 }
 
 void generateLoad(OpThreeDir *operation){
-	printf("	movl $%d, -%d(ebp)\n", operation->oper1->value, (operation->result->offSet)*REG_SIZE);
+	printf("	movq $%d, -%d(%%rbp)\n", operation->oper1->value, (operation->result->offSet)*REG_SIZE);
 }
 
 void generateRetInt(OpThreeDir *operation){
-
+	printf("	movq -%d(%%rbp),  %%rax\n",(operation->result->offSet)*REG_SIZE);
+	printf("	jmp %s\n",jumpRet);
 }
 
 void generateRetBool(OpThreeDir *operation){
-
+	printf("	movq -%d(%%rbp),  %%rax\n",(operation->result->offSet)*REG_SIZE);
+	printf("	jmp %s\n",jumpRet);
 }
 
 void generateRetVoid(OpThreeDir *operation){
-
+	printf("	jmp %s\n",jumpRet);
 }
 
 void generatePushParam(OpThreeDir *operation){
+	int i = operation->result->value;
+	switch (i){
+    case 1:
+      printf("	movq -%d(%%rbp),  %%rdi\n",(operation->oper1->offSet)*REG_SIZE);
+    break;
+    
+    case 2:
+      printf("	movq -%d(%%rbp),  %%rsi\n",(operation->oper1->offSet)*REG_SIZE);
+    break;
+          
+    case 3:
+      printf("	movq -%d(%%rbp),  %%rdx\n",(operation->oper1->offSet)*REG_SIZE);
+    break;
+          
+    case 4:
+      printf("	movq -%d(%%rbp),  %%rcx\n",(operation->oper1->offSet)*REG_SIZE);
+    break;
 
+    case 5:
+      printf("	movq -%d(%%rbp),  %%r8\n",(operation->oper1->offSet)*REG_SIZE);
+    break;
+
+    case 6:
+      printf("	movq -%d(%%rbp),  %%r9\n",(operation->oper1->offSet)*REG_SIZE);
+    break;
+
+    default:
+      printf("	pushq -%d(%%rbp)\n",(operation->oper1->offSet)*REG_SIZE);
+    break;
+  }
 }
 
 void generateCallFunc(OpThreeDir *operation){
-
+	printf("	call _%s\n",operation->oper1->name);
+	printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 }
 
 void generateBeginFunc(OpThreeDir *operation){
-
+	printf(".globl _%s\n", operation->result->name );
+ 	printf("_%s:\n", operation->result->name);
+ 	printf("enter $%d,$0\n",operation->stackSize*REG_SIZE);
+ 	strcpy(jumpRet,operation->result->name);
+ 	strcat(jumpRet, "fin");
 }
 
 void generateEndFunc(OpThreeDir *operation){
-
+	printf("%s:\n",jumpRet);
+	printf("	leave\n");
+	printf("	retq\n");
 }
 
+void generateLoadParam(OpThreeDir *operation){
+	int i = operation->oper1->value;
+	switch (i){
+    case 1:
+      printf("	movq %%rdi, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+    break;
+    
+    case 2:
+      printf("	movq %%rsi, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+    break;
+          
+    case 3:
+      printf("	movq %%rdx,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+    break;
+          
+    case 4:
+      printf("	movq %%rcx,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+    break;
+
+    case 5:
+      printf("	movq %%r8,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+    break;
+
+    case 6:
+      printf("  movq %%r9,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+    break;
+
+    default:
+    	printf("  movq %d(%%rbp) , %%rax\n", ((operation->oper1->value-6)*REG_SIZE)+REG_SIZE);
+
+      printf("	movq %%rax, -%d(%%rbp)\n",((operation->result->offSet)*REG_SIZE));
+    break;
+  }	
+}
