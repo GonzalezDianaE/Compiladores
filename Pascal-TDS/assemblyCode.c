@@ -223,11 +223,8 @@ void generateAnd(OpThreeDir *operation){
 			printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
-		//mueve el valor de la primera variable 
 		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
-		//mueve el valor de la segunda variable
 		printf("	movb $%d, -%d(%%rbp)\n",(operation->oper2->value), ((operation->oper2->offSet)*REG_SIZE));
-		//compara el valor de la segunda variable con la primer variable
 		printf("	cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
 	}
 }
@@ -241,11 +238,8 @@ void generateOr(OpThreeDir *operation){
 			printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
-		//mueve el valor de la primera variable 
 		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
-		//mueve el valor de la segunda variable
 		printf("	movb $%d, -%d(%%rbp)\n",(operation->oper2->value), ((operation->oper2->offSet)*REG_SIZE));
-		//compara el valor de la segunda variable con la primer variable
 		printf("	cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
 	}
 }
@@ -259,9 +253,14 @@ void generateNot(OpThreeDir *operation){
 			printf("	movb $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
-		//PREGUNTAR POR INSTRUCCIONES QUE APARECEN
 		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
-		//printf("  movzbl -%d(%%rbp), (%%rax)\n",((operation->oper1->offSet)*REG_SIZE));
+		printf("  movzbl -%d(%%rbp), (%%eax)\n",((operation->oper1->offSet)*REG_SIZE));
+		printf("	xorl $1, (%%eax)\n");
+		if ((operation->oper1->value)==0){ // es false
+			printf("	mov $1, (%%eax)\n"); //true
+		} else{
+			printf("	mov $0, (%%eax)\n"); //false
+		}
 	}
 }
 
@@ -276,8 +275,8 @@ void generateEqAr(OpThreeDir *operation){
 	} else{
 		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
 		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("  	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("  	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
 	}
 }
 
@@ -292,8 +291,16 @@ void generateEqLog(OpThreeDir *operation){
 		} else{ //ES 0 Y 1 o 1 Y 0
 				printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
-	} else {
-		//IGUAL QUE NOT PREGUNTAR
+	} else {	
+		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
+		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
+		printf("	movb -%d(%%rbp), %%al \n", (operation->oper2->offSet)*REG_SIZE);
+		printf("	andb $1, %%al\n");
+		printf("	movzbl %%al, %%ecx\n");
+		printf("	movb $%d, %%al \n", (operation->oper1->offSet)*REG_SIZE);
+		printf("	andb $1, %%al\n");
+		printf("	movzbl %%al, %%edx \n");
+		printf("	cmpl %%edx, %%ecx \n");
 	}
 }
 
