@@ -8,11 +8,6 @@ echo "--------- Compiladores (3306) --------"
 echo "--------------------------------------"
 echo 
 
-#Script: Compiler's source code
-flex ptds-lexico.l 
-bison -d -v ptds-sintaxis.y 
-gcc lex.yy.c ptds-sintaxis.tab.c -o pascaltds
-
 # echo $1
 # echo $2
 
