@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "types.c"
-#include "intermediateCode.c"
+#include "assemblyCode.c"
 extern int yylineno;
 extern bool debug;
 
@@ -81,7 +81,17 @@ int functionVariables = 0;
 
 
 %%
-program: {deb=(debug==0);(deb)?printf("Debug\n"):printf("\n");openLevel();} prog {printf("\n");printf("%s\n","Compilacion exitosa");}
+program:
+  {  deb=(debug==0);
+    (deb)?printf("Debug\n"):printf("\n");
+    openLevel();
+  }
+  prog
+  { printf("\n");
+    printf("%s\n","Compilacion exitosa");
+    ListThreeDir *intermediateCode = getIntermediateCode();
+    generateAssembly(intermediateCode);
+  }
 ;
 
 prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              { if(deb){
