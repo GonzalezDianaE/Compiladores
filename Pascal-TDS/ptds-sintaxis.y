@@ -90,6 +90,7 @@ program:
   { printf("\n");
     printf("%s\n","Compilacion exitosa");
     ListThreeDir *intermediateCode = getIntermediateCode();
+    generateFile();
     generateAssembly(intermediateCode);
   }
 ;

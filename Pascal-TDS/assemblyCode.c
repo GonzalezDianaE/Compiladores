@@ -3,6 +3,15 @@
 
 const int REG_SIZE = 8;
 char jumpRet[32];
+FILE *archivo;
+char result[32]; //utilizado para definir strings y guardarlos en el archivo 
+
+
+
+/* DECLARACIÓN DE FUNCIONES */
+
+void generateFile();
+char *newString(char *c1, int i1, int i2, char *c2);
 
 void generateAssembly(ListThreeDir *head);
 void generateAdd(OpThreeDir *operation);
@@ -39,6 +48,38 @@ void generateBeginFunc(OpThreeDir *operation);
 void generateEndFunc(OpThreeDir *operation);
 void generateLoadParam(OpThreeDir *operation);
 
+
+
+/* IMPLEMENTACION DE FUNCIONES */
+
+
+void generateFile(){
+	archivo = fopen("assemblyCode.s","a");
+	if (archivo == NULL) {printf("%s\n","Error: file not created." );}
+	else { printf("%s\n", "Successfully created file.");}
+}
+
+char *newString(char *c1, int i1, int i2, char *c2){
+	char aux[32];
+	strcpy(result, c1);  
+	sprintf(aux,"%d",i1); 
+	strcat (result, aux); 
+
+	/*i2 sera igual a 3 en el caso de que NO necesite un segundo integer.
+	En el caso de que i2 sea distinto de 3, significa que se crearán cadenas del tipo C1+I1+C2,*/
+	if(i2!=3){
+		strcat(result, ", -"); 
+		sprintf(aux,"%d",i2); 
+		strcat(result, aux); 
+		strcat(result, c2); 
+		strcat(result, "\n"); 
+		return result;
+	} else {
+		strcat(result, c2); 
+		strcat(result, "\n");
+		return result;
+	}
+}
 
 void generateAssembly(ListThreeDir *head){
 	ListThreeDir *aux = head;
@@ -159,21 +200,41 @@ void generateAssembly(ListThreeDir *head){
 
 void generateAdd(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
+		strcpy(result, newString("	movq $", ((operation->oper1->value) + (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		fputs(result,archivo);
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) + (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
+		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+
+		strcpy(result, newString("	addl -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		fputs(result,archivo);
 		printf("	addl -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+
+		strcpy(result, newString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		fputs(result,archivo);
+		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE); 
 	}
 }
 
 /* Genera las lineas de código objeto correspondientes a una operación aritmética substracción. */
 void generateSub(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
+		strcpy(result, newString("	movq $", ((operation->oper1->value) - (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		fputs(result,archivo);
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) - (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
+		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+
+		strcpy(result, newString("	subq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		fputs(result,archivo);
 		printf("	subq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
+
+		strcpy(result, newString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		fputs(result,archivo);
 		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
@@ -181,35 +242,70 @@ void generateSub(OpThreeDir *operation){
 /* Genera las lineas de código objeto correspondientes a una operación aritmética multiplicación. */
 void generatePlus(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
+		strcpy(result, newString("	movq $", ((operation->oper1->value) * (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		fputs(result,archivo);
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) * (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
+		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+
+		strcpy(result, newString("	imulq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		fputs(result,archivo);
 		printf("	imulq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
+
+		strcpy(result, newString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		fputs(result,archivo);
 		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
 
 /* Genera las lineas de código objeto correspondientes a una operación aritmética divisón. */
 void generateDiv(OpThreeDir *operation){
-	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
+	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
+		strcpy(result, newString("	movq $", ((operation->oper1->value) / (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		fputs(result,archivo);	
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) / (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
+		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+
+		strcpy(result, "	cqto \n");
+		fputs(result,archivo);
 		printf("	cqto \n");
+
+		strcpy(result, newString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		fputs(result,archivo);
 		printf("	idivq -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
-		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
+
+		strcpy(result, newString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		fputs(result,archivo);
+		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
 
 /* Genera las lineas de código objeto correspondientes a una operación aritmética módulo. */
 void generateMod(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
+		strcpy(result, newString("	movq $", ((operation->oper1->value) % (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		fputs(result,archivo);
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) % (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
+		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	cqto \n"); //extiende %rax para guardar el resto de la division (ver bien esto)
-		printf("	idivl -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
-		//Ver bien esto, porque en realidad la instruccion es una division VER QUE SERIA EL RESULT
+
+		strcpy(result, "	cqto \n");
+		fputs(result,archivo);
+		printf("	cqto \n");//extiende %rax para guardar el resto de la division (ver bien esto)
+
+		strcpy(result, newString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		fputs(result,archivo);
+		printf("	idivq -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
+
+		strcpy(result, newString("	movq %rdx, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		fputs(result,archivo);
 		printf("	movq %%rdx, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
 	}
 }
@@ -475,3 +571,15 @@ void generateLoadParam(OpThreeDir *operation){
     break;
   }	
 }
+
+/*int main(){
+	//generateFile();
+	FILE *archivo;
+	archivo = fopen("assemblyCode.s","a");
+	if (archivo == NULL) {printf("%s\n","Error: file not created" );}
+	else { printf("%s\n", "Successfully created file");}
+
+	strcpy(result, newString("compb $", 4, 8, "(%rbp)"));
+	fputs(result,archivo);
+	return 0;
+} */
