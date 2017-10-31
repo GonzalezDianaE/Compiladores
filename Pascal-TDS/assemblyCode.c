@@ -571,15 +571,3 @@ void generateLoadParam(OpThreeDir *operation){
     break;
   }	
 }
-
-/*int main(){
-	//generateFile();
-	FILE *archivo;
-	archivo = fopen("assemblyCode.s","a");
-	if (archivo == NULL) {printf("%s\n","Error: file not created" );}
-	else { printf("%s\n", "Successfully created file");}
-
-	strcpy(result, newString("compb $", 4, 8, "(%rbp)"));
-	fputs(result,archivo);
-	return 0;
-} */
