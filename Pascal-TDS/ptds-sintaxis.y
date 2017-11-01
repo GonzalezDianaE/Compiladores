@@ -89,9 +89,8 @@ program:
   prog
   { printf("\n");
     printf("%s\n","Compilacion exitosa");
-    ListThreeDir *intermediateCode = getIntermediateCode();
     generateFile();
-    generateAssembly(intermediateCode);
+    generateAssembly(getIntermediateCode());
   }
 ;
 
@@ -99,12 +98,22 @@ prog:  PROGRAM BEGINN var_decls SEMICOLON method_decls END              { if(deb
                                                                             printf("%s\n","Chequeo Sintáctico/Semántico correcto");
                                                                           }
                                                                           checks(levels[0],deb);
+                                                                          initListThreeDir(deb);
+                                                                          symbol *aux = levels[0];
+                                                                          while (aux->next!=NULL){
+                                                                            aux=aux->next;
+                                                                            if(aux->content->type != VAR){
+                                                                              generate(aux->content);
+                                                                            }
+                                                                          }
+                                                                          showOperation();
                                                                         }
 
       | PROGRAM BEGINN method_decls END                                 { if(deb){
                                                                             printf("%s\n","Chequeo Sintáctico/Semántico correcto");
                                                                           }
-                                                                          checks(levels[0],deb);                                                                          symbol *aux = levels[0];
+                                                                          checks(levels[0],deb);
+                                                                          symbol *aux = levels[0];
                                                                           initListThreeDir(deb);
                                                                           while (aux->next!=NULL){
                                                                             aux=aux->next;
