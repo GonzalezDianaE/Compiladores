@@ -773,18 +773,34 @@ void generateBeginFunc(OpThreeDir *operation){
 
 void generateEndFunc(OpThreeDir *operation){
 
-	strcpy(result, jumpRet);
-	strcat(result, ":\n");
-	fputs(result,archivo);
+	//strcpy(result, jumpRet);
+	//strcat(result, ":\n");
+	//fputs(result,archivo);
+	//printf("%s:\n",jumpRet);
+
+	//strcpy(result, "	leave\n");
+	//fputs(result,archivo);
+	//printf("	leave\n");
+
+	//strcpy(result, "	retq\n");
+	//fputs(result,archivo);
+	//printf("	retq\n");
 	printf("%s:\n",jumpRet);
-
-	strcpy(result, "	leave\n");
-	fputs(result,archivo);
-	printf("	leave\n");
-
-	strcpy(result, "	retq\n");
-	fputs(result,archivo);
-	printf("	retq\n");
+	if (strcmp("mainfin",jumpRet)==0){
+		printf("	leaq	_print(%%rip), %%rdi\n");
+		printf("	movl	%%eax, %%esi\n");
+		printf("	movb	$0, %%al\n");
+		printf("	callq	_printf\n");
+		printf("	xorl	%%esi, %%esi\n");
+		printf("	leave\n");
+		printf("	retq\n");
+		printf("_print: \n");
+		printf(".asciz	\"Result:  %%d \\n\"");
+	}
+	else{
+		printf("	leave\n");
+		printf("	retq\n");
+	}
 }
 
 void generateLoadParam(OpThreeDir *operation){
