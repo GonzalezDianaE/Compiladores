@@ -11,7 +11,7 @@ char result[32]; //utilizado para definir strings y guardarlos en el archivo
 /* DECLARACIÓN DE FUNCIONES */
 
 void generateFile();
-char *newString(char *c1, int i1, int i2, char *c2);
+void newAssemblyString(char *c1, int i1, int i2, char *c2);
 
 void generateAssembly(ListThreeDir *head);
 void generateAdd(OpThreeDir *operation);
@@ -59,7 +59,7 @@ void generateFile(){
 	else { printf("%s\n", "Successfully created file.");}
 }
 
-char *newString(char *c1, int i1, int i2, char *c2){
+void newAssemblyString(char *c1, int i1, int i2, char *c2){
 	char aux[32];
 	strcpy(result, c1);  
 	sprintf(aux,"%d",i1); 
@@ -73,11 +73,9 @@ char *newString(char *c1, int i1, int i2, char *c2){
 		strcat(result, aux); 
 		strcat(result, c2); 
 		strcat(result, "\n"); 
-		return result;
 	} else {
 		strcat(result, c2); 
 		strcat(result, "\n");
-		return result;
 	}
 }
 
@@ -200,19 +198,19 @@ void generateAssembly(ListThreeDir *head){
 
 void generateAdd(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
-		strcpy(result, newString("	movq $", ((operation->oper1->value) + (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		newAssemblyString("	movq $", ((operation->oper1->value) + (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
 		fputs(result,archivo);
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) + (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
 
-		strcpy(result, newString("	addl -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		newAssemblyString("	addl -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	addq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
 
-		strcpy(result, newString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		newAssemblyString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)");
 		fputs(result,archivo);
 		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE); 
 	}
@@ -221,19 +219,19 @@ void generateAdd(OpThreeDir *operation){
 /* Genera las lineas de código objeto correspondientes a una operación aritmética substracción. */
 void generateSub(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
-		strcpy(result, newString("	movq $", ((operation->oper1->value) - (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		newAssemblyString("	movq $", ((operation->oper1->value) - (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
 		fputs(result,archivo);
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) - (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
 
-		strcpy(result, newString("	subq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		newAssemblyString("	subq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	subq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
 
-		strcpy(result, newString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		newAssemblyString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)");
 		fputs(result,archivo);
 		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
@@ -242,19 +240,19 @@ void generateSub(OpThreeDir *operation){
 /* Genera las lineas de código objeto correspondientes a una operación aritmética multiplicación. */
 void generatePlus(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
-		strcpy(result, newString("	movq $", ((operation->oper1->value) * (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		newAssemblyString("	movq $", ((operation->oper1->value) * (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
 		fputs(result,archivo);
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) * (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
 
-		strcpy(result, newString("	imulq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		newAssemblyString("	imulq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	imulq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
 
-		strcpy(result, newString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		newAssemblyString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)");
 		fputs(result,archivo);
 		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
@@ -263,11 +261,11 @@ void generatePlus(OpThreeDir *operation){
 /* Genera las lineas de código objeto correspondientes a una operación aritmética divisón. */
 void generateDiv(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
-		strcpy(result, newString("	movq $", ((operation->oper1->value) / (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		newAssemblyString("	movq $", ((operation->oper1->value) / (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
 		fputs(result,archivo);	
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) / (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
 
@@ -275,11 +273,11 @@ void generateDiv(OpThreeDir *operation){
 		fputs(result,archivo);
 		printf("	cqto \n");
 
-		strcpy(result, newString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		newAssemblyString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp)");
 		fputs(result,archivo);
 		printf("	idivq -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
 
-		strcpy(result, newString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		newAssemblyString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)");
 		fputs(result,archivo);
 		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
@@ -288,11 +286,11 @@ void generateDiv(OpThreeDir *operation){
 /* Genera las lineas de código objeto correspondientes a una operación aritmética módulo. */
 void generateMod(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
-		strcpy(result, newString("	movq $", ((operation->oper1->value) % (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)"));
+		newAssemblyString("	movq $", ((operation->oper1->value) % (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
 		fputs(result,archivo);
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) % (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		strcpy(result, newString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax"));
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
 
@@ -300,11 +298,11 @@ void generateMod(OpThreeDir *operation){
 		fputs(result,archivo);
 		printf("	cqto \n");//extiende %rax para guardar el resto de la division (ver bien esto)
 
-		strcpy(result, newString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		newAssemblyString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp)");
 		fputs(result,archivo);
 		printf("	idivq -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
 
-		strcpy(result, newString("	movq %rdx, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)"));
+		newAssemblyString("	movq %rdx, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)");
 		fputs(result,archivo);
 		printf("	movq %%rdx, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
 	}
@@ -314,15 +312,26 @@ void generateMod(OpThreeDir *operation){
 void generateAnd(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
 		if(((operation->oper1->value) && (operation->oper2->value))==0){ //ES FALSE
+			newAssemblyString("	movb $", 0, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
+			fputs(result,archivo);
 			printf("	movb $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		} else{
+			newAssemblyString("	movb $", 1, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
+			fputs(result,archivo);
 			printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE), 3 , "(%rbp), %rax");
+		fputs(result,archivo);
 		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("	andq -%d(%%rbp), %%rax\n", ((operation->oper2->offSet)*REG_SIZE));
-		printf("	movq %%rax, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 
+		newAssemblyString("	andq -", ((operation->oper2->offSet)*REG_SIZE), 3 , "(%rbp), %rax");
+		fputs(result,archivo);
+		printf("	andq -%d(%%rbp), %%rax\n", ((operation->oper2->offSet)*REG_SIZE));
+
+		newAssemblyString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE), 3 , "(%rbp)");
+		fputs(result,archivo);
+		printf("	movq %%rax, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 	}
 }
 
@@ -330,13 +339,25 @@ void generateAnd(OpThreeDir *operation){
 void generateOr(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
 		if(((operation->oper1->value) || (operation->oper2->value))==0){ //ES FALSE
+			newAssemblyString("	movb $", 0, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
+			fputs(result,archivo);
 			printf("	movb $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		} else{
+			newAssemblyString("	movb $", 1, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
+			fputs(result,archivo);
 			printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE), 3 , "(%rbp), %rax");
+		fputs(result,archivo);
 		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
+
+		newAssemblyString("	orq -", ((operation->oper2->offSet)*REG_SIZE), 3 , "(%rbp), %rax");
+		fputs(result,archivo);
 		printf("	orq -%d(%%rbp), %%rax\n", ((operation->oper2->offSet)*REG_SIZE));
+
+		newAssemblyString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE), 3 , "(%rbp)");
+		fputs(result,archivo);
 		printf("	movq %%rax, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 	}
 }
@@ -345,14 +366,29 @@ void generateOr(OpThreeDir *operation){
 void generateNot(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT){	
 		if((operation->oper1->value)==0){ //ES FALSE
+			newAssemblyString("	movb $", 1, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
+			fputs(result,archivo);
 			printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		} else{
+			newAssemblyString("	movb $", 0, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
+			fputs(result,archivo);
 			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
-		printf("  	movq -%d(%%rbp), %%rax\n",((operation->oper1->offSet)*REG_SIZE));
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE), 3 , "(%rbp), %rax");
+		fputs(result,archivo);
+		printf("  movq -%d(%%rbp), %%rax\n",((operation->oper1->offSet)*REG_SIZE));
+
+		strcpy(result, "	xorq $-1, %rax\n");
+		fputs(result,archivo);
 		printf("	xorq $-1, %%rax\n");
+
+		strcpy(result, "	andq $1, %rax\n");
+		fputs(result,archivo);
 		printf("	andq $1, %%rax\n");
+
+		newAssemblyString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE), 3 , "(%rbp)");
+		fputs(result,archivo);
 		printf("	movq %%rax, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 
 		//if ((operation->oper1->value)==0){ // es false
@@ -367,15 +403,32 @@ void generateNot(OpThreeDir *operation){
 void generateEqAr(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		if((operation->oper1->value) == (operation->oper2->value)){ //es true
+			newAssemblyString("	movq $", 0, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
+			fputs(result,archivo);
 			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		} else{ 
-				printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
+			newAssemblyString("	movb $", 1, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
+			fputs(result,archivo);
+			printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else{
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE), 3 , "(%rbp), %rax");
+		fputs(result,archivo);
 		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
+
+		newAssemblyString("	cmpq %rax, -", ((operation->oper2->offSet)*REG_SIZE), 3 , "(%rbp)");
+		fputs(result,archivo);
 		printf("	cmpq %%rax, -%d(%%rbp)\n", ((operation->oper2->offSet)*REG_SIZE));
+
+		strcpy(result, "	sete %dl\n");
+		fputs(result,archivo);
 		printf("	sete %%dl\n");
+
+		strcpy(result, "	andb $1, %dl\n");
+		fputs(result,archivo);
 		printf("	andb $1 , %%dl\n");
+
+
 		printf("	movzbl %%dl , %%esi\n");
 		printf("	movq %%rsi, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 	}
