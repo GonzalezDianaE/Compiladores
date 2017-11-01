@@ -394,9 +394,9 @@ literal : integer_literal                                 { $$ = insertTree("int
 integer_literal : INT                                     { $$ = $1->value;}
     ;
 
-bool_literal : TRUE                                       { $$ = TRUE;}
+bool_literal : TRUE                                       { $$ = 1;}
 
-      | FALSE                                             { $$ = FALSE;}
+      | FALSE                                             { $$ = 0;}
     ;
 
 %%

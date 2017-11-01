@@ -162,7 +162,7 @@ void generateAdd(OpThreeDir *operation){
 		printf("	movq $%d, -%d(%%rbp)\n",((operation->oper1->value) + (operation->oper2->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	addl -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
+		printf("	addq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
 		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 	}
 }
@@ -223,9 +223,10 @@ void generateAnd(OpThreeDir *operation){
 			printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
-		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
-		printf("	movb $%d, -%d(%%rbp)\n",(operation->oper2->value), ((operation->oper2->offSet)*REG_SIZE));
-		printf("	cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
+		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	andq -%d(%%rbp), %%rax\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq %%rax, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
+
 	}
 }
 
@@ -238,9 +239,9 @@ void generateOr(OpThreeDir *operation){
 			printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
-		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
-		printf("	movb $%d, -%d(%%rbp)\n",(operation->oper2->value), ((operation->oper2->offSet)*REG_SIZE));
-		printf("	cmpb $%d, -%d(%%rbp)\n", (operation->oper2->value), ((operation->oper1->offSet)*REG_SIZE));
+		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	orq -%d(%%rbp), %%rax\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq %%rax, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 	}
 }
 
@@ -248,19 +249,21 @@ void generateOr(OpThreeDir *operation){
 void generateNot(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT){	
 		if((operation->oper1->value)==0){ //ES FALSE
-			printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
+			printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		} else{
-			printf("	movb $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
+			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {
-		printf("	movb $%d, -%d(%%rbp)\n", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE));
-		printf("  movzbl -%d(%%rbp), (%%eax)\n",((operation->oper1->offSet)*REG_SIZE));
-		printf("	xorl $1, (%%eax)\n");
-		if ((operation->oper1->value)==0){ // es false
-			printf("	mov $1, (%%eax)\n"); //true
-		} else{
-			printf("	mov $0, (%%eax)\n"); //false
-		}
+		printf("  	movq -%d(%%rbp), %%rax\n",((operation->oper1->offSet)*REG_SIZE));
+		printf("	xorq $-1, %%rax\n");
+		printf("	andq $1, %%rax\n");
+		printf("	movq %%rax, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
+
+		//if ((operation->oper1->value)==0){ // es false
+		//	printf("	mov $1, (%%eax)\n"); //true
+		//} else{
+		//	printf("	mov $0, (%%eax)\n"); //false
+		//}
 	}
 }
 
@@ -273,10 +276,12 @@ void generateEqAr(OpThreeDir *operation){
 				printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else{
-		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
-		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpq %%rax, -%d(%%rbp)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	sete %%dl\n");
+		printf("	andb $1 , %%dl\n");
+		printf("	movzbl %%dl , %%esi\n");
+		printf("	movq %%rsi, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 	}
 }
 
@@ -284,12 +289,12 @@ void generateEqAr(OpThreeDir *operation){
 void generateEqLog(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		if(((operation->oper1->value)==0 && (operation->oper2->value))==0){ //ambos son ceros
-			printf("	movb $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
+			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 		if(((operation->oper1->value)==1 && (operation->oper2->value))==1){ //ambos son unos
-			printf("	movb $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
+			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		} else{ //ES 0 Y 1 o 1 Y 0
-				printf("	movb $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
+				printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
 	} else {	
 		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
@@ -309,9 +314,9 @@ void generateNeg(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT){	
 		printf("	movq $%d, -%d(%%rbp)\n",(-(operation->oper1->value)),((operation->result->offSet)*REG_SIZE));
 	} else {
-		printf("	movq -%d(%%rbp),(%%rax)\n",(operation->oper1->offSet)*REG_SIZE);
-		printf("	negl (%%rax)\n");
-		printf("	movq (%%rax), -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
+		printf("	movq -%d(%%rbp), %%rax\n",(operation->oper1->offSet)*REG_SIZE);
+		printf("	negq %%rax\n");
+		printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);	
 	}
 }
 
@@ -325,10 +330,16 @@ void generateMinnor(OpThreeDir *operation){
 				printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 	} else{
-		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
-		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		//printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
+		//printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
+		//printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
+		//printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpq %%rax, -%d(%%rbp)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	setg %%dl\n");
+		printf("	andb $1 , %%dl\n");
+		printf("	movzbl %%dl , %%esi\n");
+		printf("	movq %%rsi, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 	}
 }
 
@@ -342,10 +353,16 @@ void generateMajor(OpThreeDir *operation){
 				printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 	} else{
-		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
-		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		//printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
+		//printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
+		//printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
+		//printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
+		printf("	cmpq %%rax, -%d(%%rbp)\n", ((operation->oper2->offSet)*REG_SIZE));
+		printf("	setl %%dl\n");
+		printf("	andb $1 , %%dl\n");
+		printf("	movzbl %%dl , %%esi\n");
+		printf("	movq %%rsi, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 	}
 }
 

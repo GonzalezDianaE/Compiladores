@@ -107,7 +107,7 @@ void loadParameters(itemFunc *func);
 char *generateLabel(){
     char c[32];
     sprintf(c,"%d",labels);
-    strcpy(label,"Label ");
+    strcpy(label,"Label_");
     strcat (label, c);
     labels++;
     return label;
