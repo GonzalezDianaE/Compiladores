@@ -52,13 +52,14 @@ void generateLoadParam(OpThreeDir *operation);
 
 /* IMPLEMENTACION DE FUNCIONES */
 
-
+/* Generación del archivo con extensión .s que contendrá el código assembler. */
 void generateFile(){
-	archivo = fopen("assemblyCode.s","a");
+	archivo = fopen("assemblyCode.s","w");
 	if (archivo == NULL) {printf("%s\n","Error: file not created." );}
 	else { printf("%s\n", "Successfully created file.");}
 }
 
+/* Genera las instrucciones de forma adecuada para luego agregarlas al archivo */
 void newAssemblyString(char *c1, int i1, int i2, char *c2){
 	char aux[32];
 	strcpy(result, c1);  
@@ -66,7 +67,8 @@ void newAssemblyString(char *c1, int i1, int i2, char *c2){
 	strcat (result, aux); 
 
 	/*i2 sera igual a 3 en el caso de que NO necesite un segundo integer.
-	En el caso de que i2 sea distinto de 3, significa que se crearán cadenas del tipo C1+I1+C2,*/
+	En el caso de que i2 sea distinto de 3, se crearán cadenas del tipo instrucción+integer+registro 
+	por ejemplo: movq $i1, -i2(%rbp) */
 	if(i2!=3){
 		strcat(result, ", -"); 
 		sprintf(aux,"%d",i2); 
@@ -79,6 +81,10 @@ void newAssemblyString(char *c1, int i1, int i2, char *c2){
 	}
 }
 
+/* Método general para la generación de la lista de instrucciones.
+    Mediante un case sobre el tipo del nodo corriente, invoca al método
+    correspondiente para generar su código assembler.
+*/
 void generateAssembly(ListThreeDir *head){
 	ListThreeDir *aux = head;
 	while (aux->next!=NULL){
@@ -196,6 +202,7 @@ void generateAssembly(ListThreeDir *head){
 	}
 }
 
+/* Genera las lineas de código assembler correspondientes a una operación aritmética adición. */
 void generateAdd(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		newAssemblyString("	movq $", ((operation->oper1->value) + (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
@@ -216,7 +223,7 @@ void generateAdd(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación aritmética substracción. */
+/* Genera las lineas de código assembler correspondientes a una operación aritmética sustracción. */
 void generateSub(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		newAssemblyString("	movq $", ((operation->oper1->value) - (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
@@ -237,7 +244,7 @@ void generateSub(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación aritmética multiplicación. */
+/* Genera las lineas de código assembler correspondientes a una operación aritmética multiplicación. */
 void generatePlus(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		newAssemblyString("	movq $", ((operation->oper1->value) * (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
@@ -258,7 +265,7 @@ void generatePlus(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación aritmética divisón. */
+/* Genera las lineas de código assembler correspondientes a una operación aritmética divisón. */
 void generateDiv(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		newAssemblyString("	movq $", ((operation->oper1->value) / (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
@@ -283,7 +290,7 @@ void generateDiv(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación aritmética módulo. */
+/* Genera las lineas de código assembler correspondientes a una operación aritmética módulo. */
 void generateMod(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
 		newAssemblyString("	movq $", ((operation->oper1->value) % (operation->oper2->value)) , ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
@@ -308,7 +315,7 @@ void generateMod(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación lógica and. */
+/* Genera las lineas de código assembler correspondientes a una operación lógica and. */
 void generateAnd(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
 		if(((operation->oper1->value) && (operation->oper2->value))==0){ //ES FALSE
@@ -335,7 +342,7 @@ void generateAnd(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación lógica or. */
+/* Genera las lineas de código assembler correspondientes a una operación lógica or. */
 void generateOr(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){	
 		if(((operation->oper1->value) || (operation->oper2->value))==0){ //ES FALSE
@@ -362,7 +369,7 @@ void generateOr(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación lógica not. */
+/* Genera las lineas de código assembler correspondientes a una operación lógica not. */
 void generateNot(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT){	
 		if((operation->oper1->value)==0){ //ES FALSE
@@ -399,7 +406,7 @@ void generateNot(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación aritmética equal. */
+/* Genera las lineas de código assembler correspondientes a  una comparación por igual (aritmética). */
 void generateEqAr(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		if((operation->oper1->value) == (operation->oper2->value)){ //es true
@@ -438,7 +445,7 @@ void generateEqAr(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación lógica equal. */
+/* Genera las lineas de código assembler correspondientes a una comparación por igual (lógica). */
 void generateEqLog(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		if(((operation->oper1->value)==0 && (operation->oper2->value))==0){ //ambos son ceros
@@ -494,7 +501,7 @@ void generateEqLog(OpThreeDir *operation){
 	}
 }
 
-/* Genera las lineas de código objeto correspondientes a una operación aritmética negación. */
+/* Genera las lineas de código assembler correspondientes a una operación aritmética negación. */
 void generateNeg(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT){	
 		newAssemblyString("	movq $",(-(operation->oper1->value)),((operation->result->offSet)*REG_SIZE), "(%rbp)");
@@ -516,7 +523,7 @@ void generateNeg(OpThreeDir *operation){
 }
 
 
-/* Genera las lineas de código objeto correspondientes a una operación aritmética minnor. */
+/* Genera las lineas de código assembler correspondientes a una operación aritmética minnor. */
 void generateMinnor(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		if((operation->oper1->value) < (operation->oper2->value)){ //es true
@@ -561,7 +568,7 @@ void generateMinnor(OpThreeDir *operation){
 }
 
 
-/* Genera las lineas de código objeto correspondientes a una operación aritmética major. */
+/* Genera las lineas de código assembler correspondientes a una operación aritmética major. */
 void generateMajor(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
 		if((operation->oper1->value) > (operation->oper2->value)){ //es true
@@ -604,6 +611,7 @@ void generateMajor(OpThreeDir *operation){
 	}
 }
 
+/* Genera las lineas de código assembler correspondientes a una asignación. */
 void generateAssign(OpThreeDir *operation){
 	newAssemblyString("	movq -",((operation->result->offSet)*REG_SIZE),3, "(%rbp), %rax");
 	fputs(result,archivo);
@@ -614,6 +622,7 @@ void generateAssign(OpThreeDir *operation){
 	printf("	movq %%rax, -%d(%%rbp)\n", ((operation->oper1->offSet)*REG_SIZE));
 }
 
+/* Genera las lineas de código assembler correspondientes a un if. */
 void generateIfAss(OpThreeDir *operation){
 	newAssemblyString("	cmpl $0, -",((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 	fputs(result,archivo);
@@ -626,6 +635,7 @@ void generateIfAss(OpThreeDir *operation){
 	printf("	je %s\n", operation->oper1->name);
 }
 
+/* Genera las lineas de código assembler correspondientes a un while. */
 void generateWhileAss(OpThreeDir *operation){
 	newAssemblyString("	cmpl $0, -",((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 	fputs(result,archivo);
@@ -638,13 +648,15 @@ void generateWhileAss(OpThreeDir *operation){
 	printf("	je %s\n", operation->oper1->name);
 }
 
+/* Genera las lineas de código assembler correspondientes a un label. */
 void generateLabelAss(OpThreeDir *operation){
 	strcpy(result,(operation->result->name));
-	strcat(result, "\n");
+	strcat(result, ":\n");
 	fputs(result,archivo);
 	printf("%s:\n",operation->result->name);
 }
 
+/* Genera las lineas de código assembler correspondientes a un jump. */
 void generateJump(OpThreeDir *operation){
 	strcpy(result, "	jmp ");
 	strcat(result, (operation->result->name));
@@ -653,12 +665,14 @@ void generateJump(OpThreeDir *operation){
 	printf("	jmp %s\n", operation->result->name);
 }
 
+/* Genera las lineas de código assembler correspondientes a una operación load. */
 void generateLoad(OpThreeDir *operation){
 	newAssemblyString("	movq $",operation->oper1->value, ((operation->result->offSet)*REG_SIZE), "(%rbp)");
 	fputs(result,archivo);
 	printf("	movq $%d, -%d(%%rbp)\n", operation->oper1->value, (operation->result->offSet)*REG_SIZE);
 }
 
+/* Genera las lineas de código assembler correspondientes a un return int. */
 void generateRetInt(OpThreeDir *operation){
 	newAssemblyString("	movq -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp), %rax");
 	fputs(result,archivo);
@@ -671,6 +685,7 @@ void generateRetInt(OpThreeDir *operation){
 	printf("	jmp %s\n",jumpRet);
 }
 
+/* Genera las lineas de código assembler correspondientes a un return bool. */
 void generateRetBool(OpThreeDir *operation){
 	newAssemblyString("	movq -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp), %rax");
 	fputs(result,archivo);
@@ -683,6 +698,7 @@ void generateRetBool(OpThreeDir *operation){
 	printf("	jmp %s\n",jumpRet);
 }
 
+/* Genera las lineas de código assembler correspondientes a un return void. */
 void generateRetVoid(OpThreeDir *operation){
 	strcpy(result, "	jmp ");
 	strcat(result, jumpRet);
@@ -691,6 +707,7 @@ void generateRetVoid(OpThreeDir *operation){
 	printf("	jmp %s\n",jumpRet);
 }
 
+/* Genera las lineas de código assembler correspondientes a la carga de parametros. */
 void generatePushParam(OpThreeDir *operation){
 	int i = operation->result->value;
 	switch (i){
@@ -738,6 +755,7 @@ void generatePushParam(OpThreeDir *operation){
   }
 }
 
+/* Genera las lineas de código assembler correspondientes a una llamada a función. */
 void generateCallFunc(OpThreeDir *operation){
 	strcpy(result, "	call _");
 	strcat(result, (operation->oper1->name));
@@ -750,20 +768,21 @@ void generateCallFunc(OpThreeDir *operation){
 	printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
 }
 
+/* Genera las lineas de código assembler correspondientes al inicio de una función. */
 void generateBeginFunc(OpThreeDir *operation){
-	strcpy(result, "	.globl _ ");
+	strcpy(result, ".globl _ ");
 	strcat(result, (operation->result->name));
 	strcat(result, "\n");
 	fputs(result,archivo);
 	printf(".globl _%s\n", operation->result->name );
 
-	strcpy(result, "	_");
+	strcpy(result, "_");
 	strcat(result, (operation->result->name));
 	strcat(result, "\n");
 	fputs(result,archivo);
  	printf("_%s:\n", operation->result->name);
 
- 	newAssemblyString("	enter $", (operation->stackSize*REG_SIZE),3, "$0");
+ 	newAssemblyString("	enter $", (operation->stackSize*REG_SIZE),3, ", $0");
 	fputs(result,archivo);
  	printf("enter $%d,$0\n",operation->stackSize*REG_SIZE);
 
@@ -771,38 +790,64 @@ void generateBeginFunc(OpThreeDir *operation){
  	strcat(jumpRet, "fin");
 }
 
+/* Genera las lineas de código assembler correspondientes al fin de una función. */
 void generateEndFunc(OpThreeDir *operation){
-
-	//strcpy(result, jumpRet);
-	//strcat(result, ":\n");
-	//fputs(result,archivo);
-	//printf("%s:\n",jumpRet);
-
-	//strcpy(result, "	leave\n");
-	//fputs(result,archivo);
-	//printf("	leave\n");
-
-	//strcpy(result, "	retq\n");
-	//fputs(result,archivo);
-	//printf("	retq\n");
+	strcpy(result, jumpRet);
+	strcat(result, ":\n");
+	fputs(result,archivo);
 	printf("%s:\n",jumpRet);
 	if (strcmp("mainfin",jumpRet)==0){
+
+		strcpy(result, "	leaq	_print(%rip), %rdi\n");
+		fputs(result,archivo);
 		printf("	leaq	_print(%%rip), %%rdi\n");
+
+		strcpy(result, "	movl	%eax, %esi\n");
+		fputs(result,archivo);
 		printf("	movl	%%eax, %%esi\n");
+
+		strcpy(result, "	movb	$0, %al\n");
+		fputs(result,archivo);
 		printf("	movb	$0, %%al\n");
+
+		strcpy(result, "	callq _printf\n");
+		fputs(result,archivo);
 		printf("	callq	_printf\n");
+
+		strcpy(result, "	xorl %esi, %esi\n");
+		fputs(result,archivo);
 		printf("	xorl	%%esi, %%esi\n");
+
+		strcpy(result, "	leave\n");
+		fputs(result,archivo);
 		printf("	leave\n");
+
+		strcpy(result, "	retq\n");
+		strcat(result, "\n");
+		fputs(result,archivo);
 		printf("	retq\n");
+
+		strcpy(result, "_print: \n");
+		fputs(result,archivo);
 		printf("_print: \n");
+
+		strcpy(result, ".asciz	\"Result:  %%d \\n\"");
+		fputs(result,archivo);
 		printf(".asciz	\"Result:  %%d \\n\"");
 	}
 	else{
+		strcpy(result, "	leave\n");
+		fputs(result,archivo);
 		printf("	leave\n");
+
+		strcpy(result, "	retq\n");
+		strcat(result, "\n");
+		fputs(result,archivo);
 		printf("	retq\n");
 	}
 }
 
+/* Genera las lineas de código assembler correspondientes a la lectura de parámetros. */
 void generateLoadParam(OpThreeDir *operation){
 	int i = operation->oper1->value;
 	switch (i){
