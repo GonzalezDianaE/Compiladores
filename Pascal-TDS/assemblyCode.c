@@ -213,7 +213,7 @@ void generateAdd(OpThreeDir *operation){
 		fputs(result,archivo);
 		printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
 
-		newAssemblyString("	addl -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
+		newAssemblyString("	addq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	addq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
 
@@ -398,11 +398,6 @@ void generateNot(OpThreeDir *operation){
 		fputs(result,archivo);
 		printf("	movq %%rax, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 
-		//if ((operation->oper1->value)==0){ // es false
-		//	printf("	mov $1, (%%eax)\n"); //true
-		//} else{
-		//	printf("	mov $0, (%%eax)\n"); //false
-		//}
 	}
 }
 
@@ -448,56 +443,39 @@ void generateEqAr(OpThreeDir *operation){
 /* Genera las lineas de código assembler correspondientes a una comparación por igual (lógica). */
 void generateEqLog(OpThreeDir *operation){
 	if(operation->oper1->type == CONSTANT && operation->oper2->type == CONSTANT){
-		if(((operation->oper1->value)==0 && (operation->oper2->value))==0){ //ambos son ceros
+		if((operation->oper1->value) == (operation->oper2->value)){ //es true
 			newAssemblyString("	movq $", 0, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
 			fputs(result,archivo);
 			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
-		}
-		if(((operation->oper1->value)==1 && (operation->oper2->value))==1){ //ambos son unos
-			newAssemblyString("	movq $", 0, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
-			fputs(result,archivo);
-			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
-		} else{ //ES 0 Y 1 o 1 Y 0
-			newAssemblyString("	movq $", 1, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
+		} else{ 
+			newAssemblyString("	movb $", 1, ((operation->result->offSet)*REG_SIZE) , "(%rbp)");
 			fputs(result,archivo);
 			printf("	movq $%d, -%d(%%rbp)\n",1,((operation->result->offSet)*REG_SIZE));
 		}
-	} else {	
-		newAssemblyString("	movq $", (operation->oper1->value), ((operation->oper1->offSet)*REG_SIZE) , "(%rbp)");
+	} else{
+		newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE), 3 , "(%rbp), %rax");
 		fputs(result,archivo);
-		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
+		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
 
-		newAssemblyString("	movq $", (operation->oper2->value), ((operation->oper2->offSet)*REG_SIZE) , "(%rbp)");
+		newAssemblyString("	cmpq %rax, -", ((operation->oper2->offSet)*REG_SIZE), 3 , "(%rbp)");
 		fputs(result,archivo);
-		printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
+		printf("	cmpq %%rax, -%d(%%rbp)\n", ((operation->oper2->offSet)*REG_SIZE));
 
-		newAssemblyString("	movb -", ((operation->oper2->offSet)*REG_SIZE), 3, "(%rbp), %al");
+		strcpy(result, "	sete %dl\n");
 		fputs(result,archivo);
-		printf("	movb -%d(%%rbp), %%al \n", (operation->oper2->offSet)*REG_SIZE);
+		printf("	sete %%dl\n");
 
-		strcpy(result, "	andb $1, %al\n");
+		strcpy(result, "	andb $1, %dl\n");
 		fputs(result,archivo);
-		printf("	andb $1 , %%al\n");
+		printf("	andb $1 , %%dl\n");
 
-		strcpy(result, "	movzbl %al, %ecx\n");
+		strcpy(result, "	movzbl %dl, %esi\n");
 		fputs(result,archivo);
-		printf("	movzbl %%al , %%ecx\n");
+		printf("	movzbl %%dl , %%esi\n");
 
-		newAssemblyString("	movb $", ((operation->oper1->offSet)*REG_SIZE), 3, "%al");
+		newAssemblyString("	movq %rsi, -", ((operation->result->offSet)*REG_SIZE), 3 , "(%rbp)");
 		fputs(result,archivo);
-		printf("	movb $%d, %%al \n", (operation->oper1->offSet)*REG_SIZE);
-
-		strcpy(result, "	andb $1, %al\n");
-		fputs(result,archivo);
-		printf("	andb $1 , %%al\n");
-
-		strcpy(result, "	movzbl %al, %edx\n");
-		fputs(result,archivo);
-		printf("	movzbl %%al , %%edx\n");
-
-		strcpy(result, "	cmpl %edx, %ecx\n");
-		fputs(result,archivo);
-		printf("	cmpl %%edx, %%ecx \n");
+		printf("	movq %%rsi, -%d(%%rbp)\n", ((operation->result->offSet)*REG_SIZE));
 	}
 }
 
@@ -545,7 +523,7 @@ void generateMinnor(OpThreeDir *operation){
 		fputs(result,archivo);
 		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
 
-		newAssemblyString("	cmpg %rax, -",((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
+		newAssemblyString("	cmpq %rax, -",((operation->oper2->offSet)*REG_SIZE),3, "(%rbp)");
 		fputs(result,archivo);
 		printf("	cmpq %%rax, -%d(%%rbp)\n", ((operation->oper2->offSet)*REG_SIZE));
 
@@ -617,7 +595,7 @@ void generateAssign(OpThreeDir *operation){
 	fputs(result,archivo);
 	printf("	movq -%d(%%rbp), %%rax\n", (operation->result->offSet)*REG_SIZE);
 
-	newAssemblyString("	movq %rax, -",((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
+	newAssemblyString("	movq %rax, -",((operation->oper1->offSet)*REG_SIZE),3, "(%rbp)");
 	fputs(result,archivo);
 	printf("	movq %%rax, -%d(%%rbp)\n", ((operation->oper1->offSet)*REG_SIZE));
 }
@@ -757,11 +735,11 @@ void generatePushParam(OpThreeDir *operation){
 
 /* Genera las lineas de código assembler correspondientes a una llamada a función. */
 void generateCallFunc(OpThreeDir *operation){
-	strcpy(result, "	call _");
+	strcpy(result, "	call ");
 	strcat(result, (operation->oper1->name));
 	strcat(result, "\n");
 	fputs(result,archivo);
-	printf("	call _%s\n",operation->oper1->name);
+	printf("	call %s\n",operation->oper1->name);
 
 	newAssemblyString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 	fputs(result,archivo);
@@ -770,24 +748,33 @@ void generateCallFunc(OpThreeDir *operation){
 
 /* Genera las lineas de código assembler correspondientes al inicio de una función. */
 void generateBeginFunc(OpThreeDir *operation){
-	strcpy(result, ".globl _ ");
-	strcat(result, (operation->result->name));
-	strcat(result, "\n");
-	fputs(result,archivo);
-	printf(".globl _%s\n", operation->result->name );
+	//guardo nombre funcion
+	bool isMain = (strcmp("main",operation->result->name)==0);
+	if (isMain){
+		strcpy(result, ".globl _");
+		strcat(result, (operation->result->name));
+		strcat(result, "\n");
+		fputs(result,archivo);
+		printf(".globl _%s\n", operation->result->name );
 
-	strcpy(result, "_");
-	strcat(result, (operation->result->name));
-	strcat(result, "\n");
+		strcpy(result, "_");
+		strcat(result, (operation->result->name));
+		strcat(result, ":\n");
+		fputs(result,archivo);
+		printf("_%s:\n", operation->result->name);
+	}
+	else {
+		strcpy(result, (operation->result->name));
+		strcat(result, ":\n");
+		fputs(result,archivo);
+		printf("%s:\n", operation->result->name);
+	}
+	newAssemblyString("	enter $", (operation->stackSize*REG_SIZE),3, ", $0");
 	fputs(result,archivo);
- 	printf("_%s:\n", operation->result->name);
-
- 	newAssemblyString("	enter $", (operation->stackSize*REG_SIZE),3, ", $0");
-	fputs(result,archivo);
- 	printf("enter $%d,$0\n",operation->stackSize*REG_SIZE);
-
- 	strcpy(jumpRet,operation->result->name);
- 	strcat(jumpRet, "fin");
+	printf("enter $%d,$0\n",operation->stackSize*REG_SIZE);
+	//le agrego al nombre de la funcion fin para dsp generar label de fin de funcion
+	strcpy(jumpRet,operation->result->name);
+	strcat(jumpRet, "fin");
 }
 
 /* Genera las lineas de código assembler correspondientes al fin de una función. */
@@ -796,7 +783,7 @@ void generateEndFunc(OpThreeDir *operation){
 	strcat(result, ":\n");
 	fputs(result,archivo);
 	printf("%s:\n",jumpRet);
-	if (strcmp("mainfin",jumpRet)==0){
+	/*if (strcmp("mainfin",jumpRet)==0){
 
 		strcpy(result, "	leaq	_print(%rip), %rdi\n");
 		fputs(result,archivo);
@@ -831,7 +818,7 @@ void generateEndFunc(OpThreeDir *operation){
 		fputs(result,archivo);
 		printf("_print: \n");
 
-		strcpy(result, ".asciz	\"Result:  %%d \\n\"");
+		strcpy(result, ".asciz	\"Result:  %d \\n\"");
 		fputs(result,archivo);
 		printf(".asciz	\"Result:  %%d \\n\"");
 	}
@@ -844,7 +831,15 @@ void generateEndFunc(OpThreeDir *operation){
 		strcat(result, "\n");
 		fputs(result,archivo);
 		printf("	retq\n");
-	}
+	}*/
+	strcpy(result, "	leave\n");
+	fputs(result,archivo);
+	printf("	leave\n");
+
+	strcpy(result, "	retq\n");
+	strcat(result, "\n");
+	fputs(result,archivo);
+	printf("	retq\n");
 }
 
 /* Genera las lineas de código assembler correspondientes a la lectura de parámetros. */
