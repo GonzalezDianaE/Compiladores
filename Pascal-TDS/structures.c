@@ -240,7 +240,13 @@ item * findFunction (char n[32], int flag){
   }
   aux = findInList(levels[0],n,flag);
   if(aux != NULL){
+    if(flag == 5){
+      printf("  Found\n");
+    }
     return aux;
+  }
+  if(flag == 5){
+      printf("  Not found\n");
   }
   return NULL;
 }

@@ -92,7 +92,7 @@ program:
     openLevel();
   }
   prog
-  { if(flag!=6){
+  { if(flag != 5 && flag!=6){
       if(flag==1){
         printf("Comiezo generación Código Assembler\n");
       }

@@ -310,8 +310,6 @@ int main(int argc,char *argv[]){
 		yyin = fopen(argv[0],"r");
 	else
 		yyin = stdin;
+    yyparse();
 
-    if(flag!=4){
-        yyparse();
-    }
 }
