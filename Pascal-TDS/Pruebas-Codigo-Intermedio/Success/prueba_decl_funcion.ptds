@@ -1,7 +1,7 @@
 program
   begin
   {decremento de una variable}
-    integer dec (integer y)
+    integer main (integer y)
       begin
         return y - 1;
       end

@@ -117,28 +117,28 @@ int isFull();
 void openLevel();
 void closeLevel();
 int typeLastVar();
-item * findVar(char n[32],int type,bool debug);
-item * findFunction(char n[32],bool debug);
-void insertTable(char n[32], int v, int t, int r, bool debug, bool var, int offSet);
+item * findVar(char n[32],int type, int flag);
+item * findFunction(char n[32], int flag);
+void insertTable(char n[32], int v, int t, int r, bool var, int offSet, int flag);
 
 // Listas
-item * findInList(symbol *head, char n[32],bool debug);
-void insertList(symbol *head, char n[32], int v, int t ,int r, bool debug, bool var, int offSet);
-void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool debug, int functionVariables);
+item * findInList(symbol *head, char n[32], int flag);
+void insertList(symbol *head, char n[32], int v, int t ,int r, bool var, int offSet, int flag);
+void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, int functionVariables, int flag);
 symbol * initParamCall();
-void addParamCall(paramsCall *l, node *p, bool debug);
+void addParamCall(paramsCall *l, node *p, int flag);
 
 // Árbol de evaluación
-node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug);
+node * insertTree (char n[32], int v, int t, int r, int lineNo, int flag);
 node * insertVoidNode(int lineNo);
 void concatLeft (node *father, node *son);
 void concatRight (node *father, node *son);
 void concatMiddle (node *father, node *son);
 
 // Checkeo de tipos
-void checks (symbol *head, bool debug);
+void checks (symbol *head, int flag);
 void checkParams (node *head);
-void checkTree (node *head, int functionRet, bool debug);
+void checkTree (node *head, int functionRet, int flag);
 int evalExpr (node *head);
 int checkOpAritUn(node *head);
 int checkOpLogUn(node *head);
@@ -214,14 +214,14 @@ int typeLastVar(){
    último nivel abierto y si no encuentra ocurrecia de la misma, retrocede
    a los niveles más antiguos. Ante la primera ocurrencia, devuelve el item
    correspondiente. */
-item * findVar(char n[32],int type,bool debug){
+item * findVar(char n[32], int type, int flag){
   int i = top;
   item *aux = (item *) malloc(sizeof(item));
-  if(debug){
+  if(flag==5){
       printf("Searching for variable %s\n",n);
   }
   while (i>=0){
-    aux = findInList(levels[i],n,debug);
+    aux = findInList(levels[i],n,flag);
     if(aux != NULL){
       return aux;
     }
@@ -233,12 +233,12 @@ item * findVar(char n[32],int type,bool debug){
 /* Busca una variable en la tabla de símbolos, unicamente en el nivel base (el
    más antiguo de todos), ya que las funciones no pueden estar anidadas. Ante 
    la primera ocurrencia, devuelve el item correspondiente.*/
-item * findFunction (char n[32], bool debug){
+item * findFunction (char n[32], int flag){
   item *aux = (item *) malloc(sizeof(item));
-  if(debug){
+  if(flag==5){
       printf("Searching for function %s\n",n);
   }
-  aux = findInList(levels[0],n,debug);
+  aux = findInList(levels[0],n,flag);
   if(aux != NULL){
     return aux;
   }
@@ -247,34 +247,34 @@ item * findFunction (char n[32], bool debug){
 
 /* Inserta una variable en la tabla de símbolos, en el nivel correspondiente.
    Para ello, llama a insertList con el nivel en donde se insertará.*/
-void insertTable(char n[32], int v, int t, int r,bool debug, bool var, int offSet){
-  if(debug){
+void insertTable(char n[32], int v, int t, int r, bool var, int offSet, int flag){
+  if(flag==5){
     printf("Inserting variable %s ... \n",n);
   }
-  insertList(levels[top],n,v,t,r,debug,var,offSet);
+  insertList(levels[top],n,v,t,r,var,offSet,flag);
 }
 
 /* LISTAS */
 
 /* Busca un elemento en la tabla de simbolos, en un nivel particular (compara 
    solo por nombre). */
-item * findInList(symbol *head,char n[32],bool debug){
+item * findInList(symbol *head,char n[32], int flag){
   symbol *aux = head;
   if((aux->next)!=NULL){
     aux=aux->next;
     while(aux!=NULL && strcmp((aux->content)->name,n)){
-      if(debug){
+      if(flag==5){
         printf("    Compare to %s\n",aux->content->name);
       }
       aux = aux->next;
     }
     if(aux == NULL){
-      if(debug){
+      if(flag==5){
         printf("  Not found\n");
       }
       return NULL;
     } else {
-      if(debug){
+      if(flag==5){
         printf("  Found\n");
       }
       return aux->content;
@@ -285,11 +285,11 @@ item * findInList(symbol *head,char n[32],bool debug){
 
 /* Inserta un elemento en la tabla de símbolos. Para ello, primero busca 
    una ocurrencia previa de lo que se quiere insertar. */
-void insertList(symbol *head,char n[32], int v, int t,int r, bool debug, bool var, int offSet){
-  if(debug){
+void insertList(symbol *head,char n[32], int v, int t,int r, bool var, int offSet, int flag){
+  if(flag==5){
     printf("  Looking for previous occurrence ... \n");
   }
-  if (findInList(head,n,debug)){
+  if (findInList(head,n,flag)){
     fprintf(stderr, "Error: %s declared before\n", n);
     exit(EXIT_FAILURE);
   }else{
@@ -320,11 +320,11 @@ void insertList(symbol *head,char n[32], int v, int t,int r, bool debug, bool va
 
 /* Inserta una funcion en la tabla de símbolos. Para ello, primero busca 
    una ocurrencia previa de la que se quiere insertar. */
-void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, bool debug, int functionVariables){
-  if (debug){
+void insertFunction(char n[32], int v, int t, int r, symbol *p, node *tree, int functionVariables, int flag){
+  if (flag==5){
     printf("Inserting function %s ...\n",n);
   }
-  if (findFunction(n,debug)){
+  if (findFunction(n,flag)){
     fprintf(stderr, "Error: %s declared before\n", n);
     exit(EXIT_FAILURE);
   }else{
@@ -367,7 +367,7 @@ symbol * initParamCall(){
 
 /* Agrega una nueva expresión que representa un parameto a la lista 
    de parametros utlizados en la llamada a una función. */
-void addParamCall(paramsCall *head,node *p, bool debug){
+void addParamCall(paramsCall *head,node *p, int flag){
   paramsCall *element = (paramsCall *) malloc(sizeof(paramsCall));
   element->param = p;
   element->next = NULL;
@@ -386,33 +386,33 @@ void addParamCall(paramsCall *head,node *p, bool debug){
 
 /* Crea un elemento de tipo árbol con sus hijos en NULL. Si el elemento 
 es de tipo Var busca sus datos en la tabla de símbolos. */
-node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
-  if(debug){
+node * insertTree (char n[32], int v, int t, int r, int lineNo, int flag){
+  if(flag==5){
     printf("Inserting in tree %s ",n);
   }
   item *content;
   if (t == ASSIGN){
-    if(debug){
+    if(flag==5){
       printf("(assign) ...\n");
     }
     //medio al pedo ahora
-    if (!findVar(n,t,debug)){ //chequeo de variable declarada
+    if (!findVar(n,t,flag)){ //chequeo de variable declarada
       fprintf(stderr, "Error: var %s undeclared.  %d \n", n, lineNo);
       exit(EXIT_FAILURE);
     }else{
       content = (item *) malloc(sizeof(item));
-      item *contentAux = findVar(n,t,debug);
+      item *contentAux = findVar(n,t,flag);
       strcpy(content->name,contentAux->name);
       content->value = v;
       content->type = ASSIGN;
     }
   }
   if (t == VAR || t == PARAMETER){
-      if(debug){
+      if(flag==5){
         printf("(variable) ...\n");
       }
       content = (item *) malloc(sizeof(item));
-      item *contentAux = findVar(n,t,debug);
+      item *contentAux = findVar(n,t,flag);
     if (!contentAux){
         fprintf(stderr, "Error: %s undeclared  %d \n", n, lineNo);
         exit(EXIT_FAILURE);
@@ -420,7 +420,7 @@ node * insertTree (char n[32], int v, int t, int r, int lineNo, bool debug){
       content = contentAux;
     }
   }else{
-    if(debug){
+    if(flag==5){
       printf("...\n");
     }
     content = (item *) malloc(sizeof(item));
@@ -476,8 +476,8 @@ void concatMiddle (node *father, node *son){
 
 /* Recorre los niveles el nivel base de la tabla de símbolos en busca de funciones 
    y por cada una invoica a checkTree con el árbol correspondiente. */
-void checks (symbol *head, bool debug){
-  if(debug){
+void checks (symbol *head, int flag){
+  if(flag==5){
     printf("Checking ...\n");
   }
   symbol *aux = head;
@@ -485,10 +485,10 @@ void checks (symbol *head, bool debug){
   while((aux->next)!=NULL){
     aux=aux->next;
     if (aux->content->type==FUNCTION){
-      if(debug){
+      if(flag==5){
         printf("Checking function %s ...\n",aux->content->name);
       }
-      checkTree(aux->content->function->tree, aux->content->ret, debug);
+      checkTree(aux->content->function->tree, aux->content->ret, flag);
     }
   }
 }
@@ -531,37 +531,37 @@ void checkParams (node *head){
 
 /* Realiza un chequeo de tipos sobre la función pasada como parámetro 
    en base al árbol que la representa. */
-void checkTree (node *head, int functionRet, bool debug){
+void checkTree (node *head, int functionRet, int flag){
   int ret;
   bool hasRet = false;
   if ((head->content)->type == FUNCTION){
-    if(debug){
+    if(flag==5){
         printf("  Checking function %s ...\n",head->content->name);
     }
-    checkTree(head->content->function->tree, functionRet, debug);
+    checkTree(head->content->function->tree, functionRet, flag);
   }
   if ((head->content)->type == FUNCTION_CALL_NP){
-    if(debug){
+    if(flag==5){
         printf("  Checking params ... \n");
     }
     checkParams(head);
-    if(debug){
+    if(flag==5){
         printf("  Checking function %s ... \n",head->content->name);
     }
-    checkTree(head->content->function->tree, functionRet, debug);
+    checkTree(head->content->function->tree, functionRet, flag);
   }  
   if ((head->content)->type == FUNCTION_CALL_P){
-    if(debug){
+    if(flag==5){
         printf("  Checking params ... \n");
     }
     checkParams(head);
-    if(debug){
+    if(flag==5){
         printf("  Checking function %s ... \n",head->content->name);
     }
-    checkTree(head->content->function->tree, functionRet, debug);
+    checkTree(head->content->function->tree, functionRet, flag);
   }  
   if ((head->content)->type == IFAUX){
-    if(debug){
+    if(flag==5){
         printf("  Evaluating expression %s ... \n",head->content->name);
     }
     ret = evalExpr (head->left);
@@ -569,10 +569,10 @@ void checkTree (node *head, int functionRet, bool debug){
         fprintf(stderr, "Error: expresion if debe retornar booleano, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
     }
-    checkTree(head->right, functionRet, debug);
+    checkTree(head->right, functionRet, flag);
   }  
   if ((head->content)->type == IF_ELSE){
-    if(debug){
+    if(flag==5){
         printf("  Evaluating expression ... \n");
     }
     ret = evalExpr (head->left);
@@ -580,12 +580,12 @@ void checkTree (node *head, int functionRet, bool debug){
         fprintf(stderr, "Error: expresion if debe retornar booleano, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
     }
-    checkTree(head->middle, functionRet, debug);
-    checkTree(head->right, functionRet, debug);
+    checkTree(head->middle, functionRet, flag);
+    checkTree(head->right, functionRet, flag);
 
   }  
   if ((head->content)->type == ASSIGN){
-    if(debug){
+    if(flag==5){
         printf("  Evaluating expression ... \n");
     }
     ret = evalExpr (head->left);
@@ -596,7 +596,7 @@ void checkTree (node *head, int functionRet, bool debug){
     }
   }  
   if ((head->content)->type == WHILEAUX){
-    if(debug){
+    if(flag==5){
         printf("  Evaluating expression ... \n");
     }
     ret = evalExpr (head->left);
@@ -604,7 +604,7 @@ void checkTree (node *head, int functionRet, bool debug){
         fprintf(stderr, "Error: expresion while debe retornar booleano, Linea %d\n" ,head->lineNo);
         exit(EXIT_FAILURE);
     }
-    checkTree(head->right, functionRet, debug);
+    checkTree(head->right, functionRet, flag);
   }  
   if ((head->content)->type == RETURNAUX){
     if (functionRet!=VOIDAUX){
@@ -613,7 +613,7 @@ void checkTree (node *head, int functionRet, bool debug){
     }
   }  
   if ((head->content)->type == RETURN_EXPR){
-    if(debug){
+    if(flag==5){
         printf("  Evaluating expression ... \n");
     }
     ret = evalExpr (head->left);
@@ -624,11 +624,11 @@ void checkTree (node *head, int functionRet, bool debug){
     }
   }  
   if ((head->content)->type == STATEMENTS){
-    checkTree(head->left, functionRet, debug);
-    checkTree(head->right, functionRet, debug);
+    checkTree(head->left, functionRet, flag);
+    checkTree(head->right, functionRet, flag);
   }
   if ((head->content)->type == BLOCK){
-    checkTree(head->left, functionRet, debug);
+    checkTree(head->left, functionRet, flag);
   }
 } 
 

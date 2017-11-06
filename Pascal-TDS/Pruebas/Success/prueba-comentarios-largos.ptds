@@ -10,7 +10,10 @@ program
     Comentario
     Comentario
 	}
-
+        integer main()
+            begin
+                return 7;
+            end
 
 
 

@@ -8,10 +8,19 @@ echo "---------------------------- Compiladores (3306) -------------------------
 echo "----------------------------------------------------------------------------"
 echo 
 echo "----------------------------------------------------------------------------"
+
+if [ "$1" == "-m" ]; then
+	echo "------------------------------- MacOS Edition ------------------------------"
+else
+	echo "------------------------------- Linux Edition ------------------------------"
+fi
+
+echo "----------------------------------------------------------------------------"  
+echo
+echo "----------------------------------------------------------------------------"
 echo "----------------------------- Execute all tests ----------------------------"
 echo "----------------------------------------------------------------------------"
 echo 
-
 echo "----------------------------------------------------------------------------"
 echo "------------------------ DIRECTORIO PRUEBAS/SUCCESS ------------------------"
 echo "----------------------------------------------------------------------------"
@@ -20,7 +29,16 @@ echo
 for archivoActual in $(ls Pruebas/Success);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
-	./pascaltds 1 < "./Pruebas/Success/"$archivoActual
+
+	if [ "$1" == "-m" ]; then
+		./pascaltds 0 1 < "./Pruebas/Success/"$archivoActual
+	else
+		./pascaltds 0 0 < "./Pruebas/Success/"$archivoActual
+	fi
+
+	gcc assemblyCode.s -o assemblyCode
+	./assemblyCode
+	echo "Return: "$?
 	echo
 done
 
@@ -33,7 +51,12 @@ echo
 for archivoActual in $(ls Pruebas/Fail);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
-	./pascaltds 1 < "./Pruebas/Fail/"$archivoActual
+
+	if [ "$1" == "-m" ]; then
+		./pascaltds 0 1 < "./Pruebas/Fail/"$archivoActual
+	else
+		./pascaltds 0 0 < "./Pruebas/Fail/"$archivoActual
+	fi
 	echo
 done
 
@@ -46,7 +69,16 @@ echo
 for archivoActual in $(ls Pruebas-Semanticas/Success);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
-	./pascaltds 1 < "./Pruebas-Semanticas/Success/"$archivoActual
+
+	if [ "$1" == "-m" ]; then
+		./pascaltds 0 1 < "./Pruebas-Semanticas/Success/"$archivoActual
+	else
+		./pascaltds 0 0 < "./Pruebas-Semanticas/Success/"$archivoActual
+	fi
+	
+	gcc assemblyCode.s -o assemblyCode
+	./assemblyCode
+	echo "Return: "$?
 	echo
 done
 
@@ -59,7 +91,12 @@ echo
 for archivoActual in $(ls Pruebas-Semanticas/Fail);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
-	./pascaltds 1 < "./Pruebas-Semanticas/Fail/"$archivoActual
+
+	if [ "$1" == "-m" ]; then
+		./pascaltds 0 1 < "./Pruebas-Semanticas/Fail/"$archivoActual
+	else
+		./pascaltds 0 0 < "./Pruebas-Semanticas/Fail/"$archivoActual
+	fi
 	echo
 done
 
@@ -73,7 +110,16 @@ echo
 for archivoActual in $(ls Pruebas-Codigo-Intermedio/Success);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
-	./pascaltds 1 < "./Pruebas-Codigo-Intermedio/Success/"$archivoActual
+
+	if [ "$1" == "-m" ]; then
+		./pascaltds 0 1 < "./Pruebas-Codigo-Intermedio/Success/"$archivoActual
+	else
+		./pascaltds 0 0 < "./Pruebas-Codigo-Intermedio/Success/"$archivoActual
+	fi
+
+	gcc assemblyCode.s -o assemblyCode
+	./assemblyCode
+	echo "Return: "$?
 	echo
 done
 

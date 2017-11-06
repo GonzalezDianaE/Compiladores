@@ -1,5 +1,9 @@
 // Comentario corto 1
 program
     begin
+    	integer main()
+    		begin
+    			return 4;
+    		end
     end
 // Comentario corto 2

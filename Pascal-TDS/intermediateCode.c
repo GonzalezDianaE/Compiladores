@@ -69,14 +69,14 @@ char label[32];
 int temps = 0;
 char tmp[32];
 
-/* Utilizada para indicar si la compilacion se ejecuto en modo debug.*/
-bool debug;
+//static 
+int flag;
 
 /* DECLARACIÓN DE FUNCIONES */
 
 char *generateLabel();
 char *generateTemp();
-void initListThreeDir(bool deb);
+void initListThreeDir(int flag);
 ListThreeDir *getIntermediateCode();
 void generate(item *function);
 void generateInterCode (node *tree);
@@ -125,11 +125,11 @@ char *generateTemp(){
 }
 
 /* Inicialización de la lista de instrucciones con elemento ficticio.*/
-void initListThreeDir(bool deb){
+void initListThreeDir(int flag){
     head =(ListThreeDir *) malloc(sizeof(ListThreeDir));
     head->next = NULL;
     last = head;
-    debug = deb;
+    flag = flag;
 }
 
 ListThreeDir *getIntermediateCode(){
@@ -168,7 +168,7 @@ void generate(item *func){
 */
 void generateInterCode (node *tree){
     if (tree->content != NULL){
-        if(debug){
+        if(flag==6){
             printf("Contenido de tipo %d (remitirse a structures.c)\n", tree->content->type );
         }
         switch (tree->content->type){
@@ -263,6 +263,7 @@ void insertOperation (OpThreeDir *operation){
 
 /* Imprime por consola una representación textual de la lista de instrucciones generada. */
 void showOperation (){
+    printf("\n\n");
     ListThreeDir *aux = head;
     if(aux->next!=NULL){
         aux = aux->next;

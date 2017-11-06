@@ -6,7 +6,11 @@ echo "----------------------------- PASCAL-TDS 2017 ----------------------------
 echo "---------------------- Boselli - Etcharren - Gonzalez ----------------------"
 echo "---------------------------- Compiladores (3306) ---------------------------"
 echo "----------------------------------------------------------------------------"
-echo 
+echo
+echo "----------------------------------------------------------------------------"
+echo "------------------------------- MacOS Edition ------------------------------"
+echo "----------------------------------------------------------------------------"  
+echo
 echo "----------------------------------------------------------------------------"
 echo "------------------------------ Compiling File ------------------------------"
 echo "----------------------------------------------------------------------------" 
@@ -48,11 +52,11 @@ if [ "$1" != "" ]; then
 
         # Rename executable
         -o)
-            #echo "-o"
+            echo "-o"
             if [ "$2" != "" ]; then
-                echo "outputName: $2"
                 if [ "$3" != "" ]; then
-                    ./pascaltds 0 0 < "./"$3
+                    ./pascaltds 0 1 < "./"$3
+                    gcc assemblyCode.s -o $2 
                 else
                     echo "Error: Empty file parameter."
                     exit
@@ -72,7 +76,7 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            ./pascaltds 4 0 < "./"$3
+                            ./pascaltds 4 1 < "./"$3
                         else
                             echo "Error: Empty file parameter."
                             exit
@@ -84,7 +88,7 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            ./pascaltds 5 0 < "./"$3
+                            ./pascaltds 5 1 < "./"$3
                         else
                             echo "Error: Empty file parameter."
                             exit
@@ -96,7 +100,7 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            ./pascaltds 6 0 < "./"$3
+                            ./pascaltds 6 1 < "./"$3
                         else
                             echo "Error: Empty file parameter."
                             exit
@@ -108,7 +112,7 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            ./pascaltds 7 0 < "./"$3
+                            ./pascaltds 7 1 < "./"$3
                         else
                             echo "Error: Empty file parameter."
                             exit
@@ -130,7 +134,8 @@ if [ "$1" != "" ]; then
             echo "-debug"
             echo
             if [ "$2" != "" ]; then
-                ./pascaltds 1 0 < "./"$2
+                ./pascaltds 1 1 < "./"$2
+                gcc assemblyCode.s -o assemblyCode
             else
                 echo "Error: Empty file parameter"
                 exit
@@ -142,7 +147,8 @@ if [ "$1" != "" ]; then
             echo "-ic"
             echo
             if [ "$2" != "" ]; then
-                ./pascaltds 2 0 < "./"$2
+                ./pascaltds 2 1 < "./"$2
+                gcc assemblyCode.s -o assemblyCode
             else
                 echo "Error: Empty file parameter"
                  exit
@@ -154,7 +160,8 @@ if [ "$1" != "" ]; then
             echo "-ac"
             echo
             if [ "$2" != "" ]; then
-                ./pascaltds 3 0 < "./"$2
+                ./pascaltds 3 1 < "./"$2
+                gcc assemblyCode.s -o assemblyCode
             else
                 echo "Error: Empty file parameter"
                  exit
@@ -162,7 +169,8 @@ if [ "$1" != "" ]; then
         ;;
 
         *)
-            ./pascaltds 0 0 < "./"$1
+            ./pascaltds 0 1 < "./"$1
+            gcc assemblyCode.s -o assemblyCode
         ;;
     esac
 else
