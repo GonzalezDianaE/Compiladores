@@ -27,6 +27,9 @@ digit [0-9]
 <comment><<EOF>>              { error("Unexpected eof");
                                 yyterminate();}
 
+print                         { yylval.i = yylineno;
+                                return PRINT;}
+
 program                       { yylval.i = yylineno;
                                 return PROGRAM;}
 

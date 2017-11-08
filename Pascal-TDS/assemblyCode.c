@@ -4,7 +4,8 @@
 const int REG_SIZE = 8;
 char jumpRet[32];
 FILE *archivo;
-char result[32]; //utilizado para definir strings y guardarlos en el archivo 
+char result[32]; //utilizado para definir strings y guardarlos en el archivo
+bool prints = false; 
 
 
 
@@ -47,6 +48,8 @@ void generateCallFunc(OpThreeDir *operation);
 void generateBeginFunc(OpThreeDir *operation);
 void generateEndFunc(OpThreeDir *operation);
 void generateLoadParam(OpThreeDir *operation);
+void generatePrints (OpThreeDir *operation);
+
 
 
 
@@ -82,8 +85,8 @@ void newAssemblyString(char *c1, int i1, int i2, char *c2){
 }
 
 /* Método general para la generación de la lista de instrucciones.
-    Mediante un case sobre el tipo del nodo corriente, invoca al método
-    correspondiente para generar su código assembler.
+		Mediante un case sobre el tipo del nodo corriente, invoca al método
+		correspondiente para generar su código assembler.
 */
 void generateAssembly(ListThreeDir *head){
 	ListThreeDir *aux = head;
@@ -198,9 +201,26 @@ void generateAssembly(ListThreeDir *head){
 			case IC_LOAD_P :
 				generateLoadParam(operation);
 			break;
+
+			case IC_PRINT :
+				generatePrints(operation);
+			break;
 		}
 	}
 }
+
+void generatePrints (OpThreeDir *operation){
+	prints = true;
+	newAssemblyString("	movq -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp), %rdi");
+	fputs(result,archivo);
+	printf("	movq -%d(%%rbp),  %%rdi\n",(operation->result->offSet)*REG_SIZE);
+	strcpy(result, "	call _print");
+	strcat(result, "\n");
+	fputs(result,archivo);
+	printf("	call print\n");
+
+}
+
 
 /* Genera las lineas de código assembler correspondientes a una operación aritmética adición. */
 void generateAdd(OpThreeDir *operation){
@@ -514,11 +534,6 @@ void generateMinnor(OpThreeDir *operation){
 			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 	} else{
-		//printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
-		//printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		//printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		//printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
-
 		newAssemblyString("	movq -",((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
@@ -559,10 +574,6 @@ void generateMajor(OpThreeDir *operation){
 			printf("	movq $%d, -%d(%%rbp)\n",0,((operation->result->offSet)*REG_SIZE));
 		}
 	} else{
-		//printf("	movq $%d, -%d(%%rbp)\n",(operation->oper1->value),((operation->oper1->offSet)*REG_SIZE));
-		//printf("	movq $%d, -%d(%%rbp)\n",(operation->oper2->value),((operation->oper2->offSet)*REG_SIZE));
-		//printf("	movq -%d(%%rbp), (%%rax)\n", ((operation->oper1->offSet)*REG_SIZE));
-		//printf("	cmpl -%d(%%rbp), (%%rax)\n", ((operation->oper2->offSet)*REG_SIZE));
 		newAssemblyString("	movq -",((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rax");
 		fputs(result,archivo);
 		printf("	movq -%d(%%rbp), %%rax\n", ((operation->oper1->offSet)*REG_SIZE));
@@ -689,48 +700,55 @@ void generateRetVoid(OpThreeDir *operation){
 void generatePushParam(OpThreeDir *operation){
 	int i = operation->result->value;
 	switch (i){
-    case 1:
-    	newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rdi");
+		case 1:
+			newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rdi");
 			fputs(result,archivo);
-      printf("	movq -%d(%%rbp),  %%rdi\n",(operation->oper1->offSet)*REG_SIZE);
-    break;
-    
-    case 2:
-    	newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rsi");
-			fputs(result,archivo);
-      printf("	movq -%d(%%rbp),  %%rsi\n",(operation->oper1->offSet)*REG_SIZE);
-    break;
-          
-    case 3:
-    	newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rdx");
-			fputs(result,archivo);
-      printf("	movq -%d(%%rbp),  %%rdx\n",(operation->oper1->offSet)*REG_SIZE);
-    break;
-          
-    case 4:
-    	newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rcx");
-			fputs(result,archivo);
-      printf("	movq -%d(%%rbp),  %%rcx\n",(operation->oper1->offSet)*REG_SIZE);
-    break;
+			printf("	movq -%d(%%rbp),  %%rdi\n",(operation->oper1->offSet)*REG_SIZE);
+		break;
 
-    case 5:
-    	newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %r8");
+		case 2:
+			newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rsi");
 			fputs(result,archivo);
-      printf("	movq -%d(%%rbp),  %%r8\n",(operation->oper1->offSet)*REG_SIZE);
-    break;
+			printf("	movq -%d(%%rbp),  %%rsi\n",(operation->oper1->offSet)*REG_SIZE);
+		break;
 
-    case 6:
-    	newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %r9");
+		case 3:
+			newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rdx");
 			fputs(result,archivo);
-      printf("	movq -%d(%%rbp),  %%r9\n",(operation->oper1->offSet)*REG_SIZE);
-    break;
+			printf("	movq -%d(%%rbp),  %%rdx\n",(operation->oper1->offSet)*REG_SIZE);
+		break;
 
-    default:
-    	newAssemblyString("	pushq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp)");
+		case 4:
+			newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %rcx");
 			fputs(result,archivo);
-      printf("	pushq -%d(%%rbp)\n",(operation->oper1->offSet)*REG_SIZE);
-    break;
-  }
+			printf("	movq -%d(%%rbp),  %%rcx\n",(operation->oper1->offSet)*REG_SIZE);
+		break;
+
+		case 5:
+			newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %r8");
+			fputs(result,archivo);
+			printf("	movq -%d(%%rbp),  %%r8\n",(operation->oper1->offSet)*REG_SIZE);
+		break;
+
+		case 6:
+			newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp), %r9");
+			fputs(result,archivo);
+			printf("	movq -%d(%%rbp),  %%r9\n",(operation->oper1->offSet)*REG_SIZE);
+		break;
+
+		default:
+			if (operation->oper1->type==REGISTER){
+				strcpy(result, "	pushq %rbx\n");
+				fputs(result,archivo);
+				printf("	pushq %%rbx\n");
+			}
+			else{
+				newAssemblyString("	pushq -", ((operation->oper1->offSet)*REG_SIZE),3, "(%rbp)");
+				fputs(result,archivo);
+				printf("	pushq -%d(%%rbp)\n",(operation->oper1->offSet)*REG_SIZE);
+			}
+		break;
+	}
 }
 
 /* Genera las lineas de código assembler correspondientes a una llamada a función. */
@@ -740,7 +758,12 @@ void generateCallFunc(OpThreeDir *operation){
 	strcat(result, "\n");
 	fputs(result,archivo);
 	printf("	call %s\n",operation->oper1->name);
-
+	int i =operation->result->value;
+	if (i>6){
+		newAssemblyString("	addq $", (i-6)*REG_SIZE , 3 , ", %rsp");
+		fputs(result,archivo);
+		printf("	addq $%d , %%rsp\n", (i-6)*REG_SIZE);
+	}
 	newAssemblyString("	movq %rax, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 	fputs(result,archivo);
 	printf("	movq %%rax, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
@@ -769,6 +792,10 @@ void generateBeginFunc(OpThreeDir *operation){
 		fputs(result,archivo);
 		printf("%s:\n", operation->result->name);
 	}
+	//si el stackSize es impar, entonces el tamaño del stack no es multiplo de 16
+	if ((operation->stackSize%2) != 0){
+		operation->stackSize++;
+	}
 	newAssemblyString("	enter $", (operation->stackSize*REG_SIZE),3, ", $0");
 	fputs(result,archivo);
 	printf("enter $%d,$0\n",operation->stackSize*REG_SIZE);
@@ -783,11 +810,33 @@ void generateEndFunc(OpThreeDir *operation){
 	strcat(result, ":\n");
 	fputs(result,archivo);
 	printf("%s:\n",jumpRet);
-	/*if (strcmp("mainfin",jumpRet)==0){
 
-		strcpy(result, "	leaq	_print(%rip), %rdi\n");
+	strcpy(result, "	leave\n");
+	fputs(result,archivo);
+	printf("	leave\n");
+
+	strcpy(result, "	retq\n");
+	strcat(result, "\n");
+	fputs(result,archivo);
+	printf("	retq\n");
+	bool condicion = ((prints));
+	if ((strcmp("mainfin",jumpRet)==0) && (prints)){
+		strcpy(result, "_print:\n");
 		fputs(result,archivo);
-		printf("	leaq	_print(%%rip), %%rdi\n");
+		printf("_print:\n");
+
+		strcpy(result, "enter $16, $0\n");
+		fputs(result,archivo);
+		printf("enter $16 , $0\n");
+
+		strcpy(result, "	movq	%rdi, %rax\n");
+		fputs(result,archivo);
+		printf("	movl	%%rdi, %%rax\n");
+
+		strcpy(result, "	leaq	_printAux(%rip), %rdi\n");
+		fputs(result,archivo);
+		printf("	leaq	_printAux(%%rip), %%rdi\n");
+
 
 		strcpy(result, "	movl	%eax, %esi\n");
 		fputs(result,archivo);
@@ -814,82 +863,66 @@ void generateEndFunc(OpThreeDir *operation){
 		fputs(result,archivo);
 		printf("	retq\n");
 
-		strcpy(result, "_print: \n");
+		strcpy(result, "_printAux: \n");
 		fputs(result,archivo);
-		printf("_print: \n");
+		printf("_printAux: \n");
 
 		strcpy(result, ".asciz	\"Result:  %d \\n\"");
 		fputs(result,archivo);
 		printf(".asciz	\"Result:  %%d \\n\"");
+
 	}
-	else{
-		strcpy(result, "	leave\n");
-		fputs(result,archivo);
-		printf("	leave\n");
 
-		strcpy(result, "	retq\n");
-		strcat(result, "\n");
-		fputs(result,archivo);
-		printf("	retq\n");
-	}*/
-	strcpy(result, "	leave\n");
-	fputs(result,archivo);
-	printf("	leave\n");
-
-	strcpy(result, "	retq\n");
-	strcat(result, "\n");
-	fputs(result,archivo);
-	printf("	retq\n");
 }
 
 /* Genera las lineas de código assembler correspondientes a la lectura de parámetros. */
 void generateLoadParam(OpThreeDir *operation){
 	int i = operation->oper1->value;
 	switch (i){
-    case 1:
-    	newAssemblyString("	movq %rdi, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
+		case 1:
+			newAssemblyString("	movq %rdi, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 			fputs(result,archivo);
-      printf("	movq %%rdi, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
-    break;
-    
-    case 2:
-    	newAssemblyString("	movq %rsi, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
+			printf("	movq %%rdi, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		break;
+		
+		case 2:
+			newAssemblyString("	movq %rsi, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 			fputs(result,archivo);
-      printf("	movq %%rsi, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
-    break;
-          
-    case 3:
-    	newAssemblyString("	movq %rdx, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
+			printf("	movq %%rsi, -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		break;
+					
+		case 3:
+			newAssemblyString("	movq %rdx, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 			fputs(result,archivo);
-      printf("	movq %%rdx,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
-    break;
-          
-    case 4:
-    	newAssemblyString("	movq %rcx, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
+			printf("	movq %%rdx,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		break;
+					
+		case 4:
+			newAssemblyString("	movq %rcx, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 			fputs(result,archivo);
-      printf("	movq %%rcx,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
-    break;
+			printf("	movq %%rcx,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		break;
 
-    case 5:
-    	newAssemblyString("	movq %r8, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
+		case 5:
+			newAssemblyString("	movq %r8, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 			fputs(result,archivo);
-      printf("	movq %%r8,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
-    break;
+			printf("	movq %%r8,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		break;
 
-    case 6:
-    	newAssemblyString("	movq %r9, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
+		case 6:
+			newAssemblyString("	movq %r9, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 			fputs(result,archivo);
-      printf("  movq %%r9,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
-    break;
+			printf("  movq %%r9,  -%d(%%rbp)\n",(operation->result->offSet)*REG_SIZE);
+		break;
 
-    default:
-    	newAssemblyString("	movq ", ((operation->oper1->value-6)*REG_SIZE)+REG_SIZE ,3, "(%rbp), rax");
+		default:
+			newAssemblyString("	movq ", ((operation->oper1->value-6)*REG_SIZE)+REG_SIZE ,3, "(%rbp), %rax");
 			fputs(result,archivo);
-    	printf("  movq %d(%%rbp) , %%rax\n", ((operation->oper1->value-6)*REG_SIZE)+REG_SIZE);
+			printf("  movq %d(%%rbp) , %%rax\n", ((operation->oper1->value-6)*REG_SIZE)+REG_SIZE);
 
-    	newAssemblyString("	movq  %rax, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
+			newAssemblyString("	movq  %rax, -", ((operation->result->offSet)*REG_SIZE),3, "(%rbp)");
 			fputs(result,archivo);
-      printf("	movq %%rax, -%d(%%rbp)\n",((operation->result->offSet)*REG_SIZE));
-    break;
-  }	
+			printf("	movq %%rax, -%d(%%rbp)\n",((operation->result->offSet)*REG_SIZE));
+		break;
+	}	
 }
