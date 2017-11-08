@@ -4,12 +4,11 @@ program
       begin
         integer x;
         integer y;
-        bool z;
         x=20;
-        z=true;
+        y=1;
         while (x>10) 
           begin
-            x = y+1; 
+            x = x - y; 
           end
       end
   end

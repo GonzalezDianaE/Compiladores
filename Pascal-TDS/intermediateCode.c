@@ -71,14 +71,14 @@ char label[32];
 int temps = 0;
 char tmp[32];
 
-/* Utilizada para indicar si la compilacion se ejecuto en modo debug.*/
-bool debug;
+//static 
+int flag;
 
 /* DECLARACIÓN DE FUNCIONES */
 
 char *generateLabel();
 char *generateTemp();
-void initListThreeDir(bool deb);
+void initListThreeDir(int flag);
 ListThreeDir *getIntermediateCode();
 void generate(item *function);
 void generateInterCode (node *tree);
@@ -129,11 +129,11 @@ char *generateTemp(){
 }
 
 /* Inicialización de la lista de instrucciones con elemento ficticio.*/
-void initListThreeDir(bool deb){
-		head =(ListThreeDir *) malloc(sizeof(ListThreeDir));
-		head->next = NULL;
-		last = head;
-		debug = deb;
+void initListThreeDir(int flag){
+    head =(ListThreeDir *) malloc(sizeof(ListThreeDir));
+    head->next = NULL;
+    last = head;
+    flag = flag;
 }
 
 ListThreeDir *getIntermediateCode(){
@@ -170,94 +170,94 @@ void generate(item *func){
 		Mediante un case sobre el tipo del nodo corriente, invoca al método
 		correspondiente para generar su código intermedio.
 */
-void generateInterCode (node *tree){
-		if (tree->content != NULL){
-				if(debug){
-						printf("Contenido de tipo %d (remitirse a structures.c)\n", tree->content->type );
-				}
-				switch (tree->content->type){
-						case VAR:
-							 //hace funcion separada
-						break;
+void generateInterCode (node *tree){			
+    if (tree->content != NULL){
+        if(flag==6){
+            printf("Contenido de tipo %d (remitirse a structures.c)\n", tree->content->type );
+        }
+        switch (tree->content->type){
+            case VAR:
+               //hace funcion separada
+            break;
 
-						case CONSTANT :
-								generateConstant(tree);
-						break;
+            case CONSTANT :
+                generateConstant(tree);
+            break;
 
-						case OPER_AR :
-								generateOpArit(tree);
-						break;
+            case OPER_AR :
+                generateOpArit(tree);
+            break;
 
-						case OPER_LOG :
-								generateOpLog(tree);
-						break;
+            case OPER_LOG :
+                generateOpLog(tree);
+            break;
 
-						case OPER_REL :
-								generateOpRel(tree);
-						break;
+            case OPER_REL :
+                generateOpRel(tree);
+            break;
 
-						case FUNCTION_CALL_NP :
-								generateFunctionCall(tree);
-						break;
+            case FUNCTION_CALL_NP :
+                generateFunctionCall(tree);
+            break;
 
-						case FUNCTION_CALL_P :
-								generateFunctionCall(tree);             
-						break;
+            case FUNCTION_CALL_P :
+                generateFunctionCall(tree);             
+            break;
 
-						case PARAMETER :
-								//generateLoad(tree);
-						break;
+            case PARAMETER :
+                //generateLoad(tree);
+            break;
 
-						case IFAUX :
-								generateIf(tree);
-						break;
+            case IFAUX :
+                generateIf(tree);
+            break;
 
-						case IF_ELSE :
-								generateIfElse(tree);
-						break;
+            case IF_ELSE :
+                generateIfElse(tree);
+            break;
 
-						case ASSIGN :
-								generateAssing(tree);
-						break;
+            case ASSIGN :
+                generateAssing(tree);
+            break;
 
-						case WHILEAUX :
-								generateWhile(tree);
-						break;
+            case WHILEAUX :
+                generateWhile(tree);
+            break;
 
-						case RETURNAUX :
-								generateReturnVoid(tree);
-						break;
+            case RETURNAUX :
+                generateReturnVoid(tree);
+            break;
 
-						case RETURN_EXPR :
-								generateReturnExp(tree);
-						break;
+            case RETURN_EXPR :
+                generateReturnExp(tree);
+            break;
 
-						case STATEMENTS :
-								generateInterCode(tree->left);
-								generateInterCode(tree->right);
-						break;
+            case STATEMENTS :
+                generateInterCode(tree->left);
+                generateInterCode(tree->right);
+            break;
 
-						case BLOCK :
-								generateInterCode(tree->left);
-						break;
+            case BLOCK :
+                generateInterCode(tree->left);
+            break;
 
-						case OPER_AR_UN :
-								generateOpAritUn(tree);
-						break;
+            case OPER_AR_UN :
+                generateOpAritUn(tree);
+            break;
 
-						case OPER_LOG_UN :
-								generateOpLogUn(tree);
-						break;
+            case OPER_LOG_UN :
+                generateOpLogUn(tree);
+            break;
 
-						case OPER_EQUAL :
-								generateEqual(tree);
-						break;
+            case OPER_EQUAL :
+                generateEqual(tree);
+            break;
 
-						case PRINTAUX :
-								generatePrint(tree);
-						break;
-				}
-		}
+            case PRINTAUX :
+				generatePrint(tree);
+			break;
+        }
+    }
 }
 
 /* Inserta la operación pasada como parámetro en la lista de instrucciones. */
@@ -285,229 +285,229 @@ item *setVar(node *tree){
 
 /* Imprime por consola una representación textual de la lista de instrucciones generada. */
 void showOperation (){
-		ListThreeDir *aux = head;
-		if(aux->next!=NULL){
-				aux = aux->next;
-				while(aux!=NULL){
-						OpThreeDir *operation = aux->operation;
-						switch (operation->instr) {
-								case IC_ADD : {
-										printf("ADD               ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_SUB : {
-										printf( "SUB               ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_PLUS : {
-										printf("PLUS              ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_DIV : {
-										printf( "DIV               ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_MOD : {
-										printf( "MOD               ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_AND : {
-										printf( "AND               ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_OR : {
-										printf( "OR                ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_NOT : {
-										printf( "NOT               ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_EQUALAR : {
-										printf( "EQAR              ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_EQUALLOG : {
-										printf( "EQLOG             ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_NEG : {
-										printf( "NEG               ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_MINOR : {
-										printf( "MINNOR            ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_MAJOR : {
-										printf( "MAJOR             ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_ASSIGN : {
-										printf( "ASSIGN            ");
-										printf("%s           ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_IF : {
-										printf( "IF                ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_WHILE : {
-										printf( "WHILE             ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_LABEL : {
-										printf( "LABEL             ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_JUMP : {
-										printf( "JUMP              ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_RETINT : {
-										printf( "RETINT            ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_RETBOOL : {
-										printf( "RETBOOL           ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_RETVOID : {
-										printf( "RETVOID           ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_PPARAM : {
-										printf( "PPARAM            ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_CALL : {
-										printf( "CALL              ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_LOAD : {
-										printf( "LOAD              ");
-										if (operation->oper1->type == VAR || operation->oper1->type == PARAMETER){
-												printf("%s              ",operation->oper1->name);
-												printf("%s      ",operation->oper2->name);
-												printf("%s\n",operation->result->name);
-										}
-										else{
-												if(operation->oper1->ret == INTEGERAUX){
-														printf("%d           ",operation->oper1->value);
-														printf("%s      ",operation->oper2->name);
-														printf("%s\n",operation->result->name);
-												}
-												else{
-														printf("%s              ",operation->oper1->value? "true":"false");
-														printf("%s      ",operation->oper2->name);
-														printf("%s\n",operation->result->name);
-												}
-										}
-										break;
-								}
-								case IC_BEGIN_FUNCTION : {
-										printf("\n");
-										printf( "BEGIN FUNCTION    ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_END_FUNCTION : {
-										printf( "END FUNCTION      ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_LOAD_P : {
-										printf( "IC_LOAD_P         ");
-										printf("%s         ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-								case IC_PRINT : {
-										printf( "IC_PRINT         ");
-										printf("%s      ",operation->oper1->name);
-										printf("%s      ",operation->oper2->name);
-										printf("%s\n",operation->result->name);
-										break;
-								}
-						}
-						aux = aux->next;
+    printf("\n\n");
+    ListThreeDir *aux = head;
+    if(aux->next!=NULL){
+        aux = aux->next;
+        while(aux!=NULL){
+            OpThreeDir *operation = aux->operation;
+            switch (operation->instr) {
+                case IC_ADD : {
+                    printf("ADD               ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_SUB : {
+                    printf( "SUB               ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_PLUS : {
+                    printf("PLUS              ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_DIV : {
+                    printf( "DIV               ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_MOD : {
+                    printf( "MOD               ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_AND : {
+                    printf( "AND               ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_OR : {
+                    printf( "OR                ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_NOT : {
+                    printf( "NOT               ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_EQUALAR : {
+                    printf( "EQAR              ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_EQUALLOG : {
+                    printf( "EQLOG             ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_NEG : {
+                    printf( "NEG               ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_MINOR : {
+                    printf( "MINNOR            ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_MAJOR : {
+                    printf( "MAJOR             ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_ASSIGN : {
+                    printf( "ASSIGN            ");
+                    printf("%s           ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_IF : {
+                    printf( "IF                ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_WHILE : {
+                    printf( "WHILE             ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_LABEL : {
+                    printf( "LABEL             ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_JUMP : {
+                    printf( "JUMP              ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_RETINT : {
+                    printf( "RETINT            ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_RETBOOL : {
+                    printf( "RETBOOL           ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_RETVOID : {
+                    printf( "RETVOID           ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_PPARAM : {
+                    printf( "PPARAM            ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_CALL : {
+                    printf( "CALL              ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_LOAD : {
+                    printf( "LOAD              ");
+                    if (operation->oper1->type == VAR || operation->oper1->type == PARAMETER){
+                        printf("%s              ",operation->oper1->name);
+                        printf("%s      ",operation->oper2->name);
+                        printf("%s\n",operation->result->name);
+                    }
+                    else{
+                        if(operation->oper1->ret == INTEGERAUX){
+                            printf("%d           ",operation->oper1->value);
+                            printf("%s      ",operation->oper2->name);
+                            printf("%s\n",operation->result->name);
+                        }
+                        else{
+                            printf("%s              ",operation->oper1->value? "true":"false");
+                            printf("%s      ",operation->oper2->name);
+                            printf("%s\n",operation->result->name);
+                        }
+                    }
+                    break;
+                }
+                case IC_BEGIN_FUNCTION : {
+                    printf("\n");
+                    printf( "BEGIN FUNCTION    ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_END_FUNCTION : {
+                    printf( "END FUNCTION      ");
+                    printf("%s      ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_LOAD_P : {
+                    printf( "IC_LOAD_P         ");
+                    printf("%s         ",operation->oper1->name);
+                    printf("%s      ",operation->oper2->name);
+                    printf("%s\n",operation->result->name);
+                    break;
+                }
+                case IC_PRINT : {
+					printf( "IC_PRINT         ");
+					printf("%s      ",operation->oper1->name);
+					printf("%s      ",operation->oper2->name);
+					printf("%s\n",operation->result->name);
+					break;
 				}
-		}
+            }
+            aux = aux->next;
+        }
+    }
 }
-
 /* Genera las lineas de código intermedio correspondientes a imprimir por pantalla */
 void generatePrint (node *tree){
 	OpThreeDir *print = (OpThreeDir *) malloc(sizeof(OpThreeDir));

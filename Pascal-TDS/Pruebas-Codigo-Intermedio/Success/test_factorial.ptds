@@ -21,4 +21,9 @@ program
           return fact;
         end
     end
+    void main()
+      begin
+        integer fac;
+        fac = factorial(3);
+      end
   end
