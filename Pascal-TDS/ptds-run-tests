@@ -125,6 +125,29 @@ done
 
 echo
 echo "----------------------------------------------------------------------------"
+echo "--------------------- DIRECTORIO PRUEBAS-CODIGO-OBJETO ---------------------"
+echo "----------------------------------------------------------------------------"
+echo
+echo
+
+for archivoActual in $(ls Pruebas-Codigo-Objeto);do
+	echo "----------------------------------------------------------------------------"
+	echo "Running "$archivoActual" ..."
+
+	if [ "$1" == "-m" ]; then
+		./pascaltds 0 1 < "./Pruebas-Codigo-Objeto/"$archivoActual
+	else
+		./pascaltds 0 0 < "./Pruebas-Codigo-Objeto/"$archivoActual
+	fi
+
+	gcc assemblyCode.s -o assemblyCode
+	./assemblyCode
+	echo "Return: "$?
+	echo
+done
+
+echo
+echo "----------------------------------------------------------------------------"
 echo "-------------------------------- Fin Pruebas -------------------------------"
 echo "----------------------------------------------------------------------------"
 echo
