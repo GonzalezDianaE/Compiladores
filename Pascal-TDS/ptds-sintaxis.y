@@ -191,7 +191,7 @@ method_decl :
                                                                         }
 
       | VOID ID PAR_LEFT param PAR_RIGHT block                          { returnCount = 0;
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, $4,$6,functionVariables,flag);
+                                                                          insertFunction($2->value, 0, FUNCTION, VOIDAUX, $4,$6,functionVariables,flag);
                                                                           functionVariables = 0;
                                                                           closeLevel();
                                                                         }
@@ -208,7 +208,7 @@ method_decl :
 
       | VOID ID PAR_LEFT PAR_RIGHT block                                { returnCount = 0;
                                                                           symbol *head = initParamCall();
-                                                                          insertFunction($2->value, 0, FUNCTION, $1, head,$5,functionVariables,flag);
+                                                                          insertFunction($2->value, 0, FUNCTION, VOIDAUX, head,$5,functionVariables,flag);
                                                                           functionVariables = 0;
                                                                         }
      ;
