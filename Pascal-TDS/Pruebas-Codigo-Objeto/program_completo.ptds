@@ -82,17 +82,23 @@ program
         bool a;
         x = 2;
         y = fibonacci(6); //13
+        print y; 
         z = potencia(x,factorial(3));  //potencia(2,6) = 64
+        print z;
         w = (5 + (2*2)) / 3; {3}
+        print w;
         a = mayor(x+10,z-10); {false}
+        print a;
         if (a) then
           begin
             z = fibonacci(potencia(2,4)); //61
+            print z;
             return z;
           end
         else
           begin
             x = potencia(sum(3,3),fibonacci(2)); //36
+            print x;
             return x;
           end
       end

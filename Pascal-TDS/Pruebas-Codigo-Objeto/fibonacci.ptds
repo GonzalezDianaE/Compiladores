@@ -3,18 +3,27 @@ program
     integer fibonacci (integer n)
       begin
         integer x,y,i,sum;
-        if (n<1 || n==1) then
+        if (n<2) then
           begin
-            return 1;
+            if (i==1)then
+              begin
+                return 1;
+              end
+            else
+              begin
+                return 0;
+              end
           end
         else
           begin
             //x e y almacenaran los ultimos dos terminos
-            x = 1;
+            x = 0;
             y = 1;
-            i = 2; //se utiliza para ciclar
+            i = 1; //se utiliza para ciclar
+            n= n+1;
             while(i<n || i==n)
               begin
+                print x;
                 sum = x+y;
                 y = x;
                 x = sum;
@@ -27,7 +36,7 @@ program
     integer  main()
       begin
         integer w;
-        w = fibonacci(6);
+        w = fibonacci(20);
         return w;
       end
   end

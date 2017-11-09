@@ -14,8 +14,10 @@ program
       begin
         integer w,x,y,z;
         x = sum(2,2);
+        print x; //4
         y = 8;
         z = sum (x, sub(y,2));    //sum(4, sub(8,2)) = 10
+        print z; //10
         return z;
       end
   end
