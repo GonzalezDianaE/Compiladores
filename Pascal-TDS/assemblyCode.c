@@ -1013,8 +1013,13 @@ void generateEndFunc(OpThreeDir *operation){
 
 		strcpy(result, "	movq	$0, %rax\n");
 		fputs(result,archivo);
-
-		strcpy(result, "	callq _printf\n");
+		
+		if(os!=0){
+			strcpy(result, "	callq _printf\n");
+		}
+		else{
+			strcpy(result, "	callq printf@PLT\n");
+		}
 		fputs(result,archivo);
 
 		strcpy(result, "	xorq %rsi, %rsi\n");
@@ -1029,9 +1034,13 @@ void generateEndFunc(OpThreeDir *operation){
 		strcpy(result, "_printAux: \n");
 		fputs(result,archivo);
 
-		strcpy(result, ".asciz	\"Print:  %d \\n\"");
+		if(os!=0){
+			strcpy(result, ".asciz	\"Print:  %d \\n\"");
+		}
+		else{
+			strcpy(result, ".string	\"Print:  %d \\n\"");
+		}
 		fputs(result,archivo);
-		
 		if(flag == 3 || flag == 7){
 			printf("_print:\n");
 			printf("enter $16 , $0\n");
@@ -1039,12 +1048,22 @@ void generateEndFunc(OpThreeDir *operation){
 			printf("	leaq	_printAux(%%rip), %%rdi\n");
 			printf("	movq	%%rax, %%rsi\n");
 			printf("	movq	$0, %%rax\n");
-			printf("	callq	_printf\n");
+			if(os!=0){
+				printf("	callq	_printf\n");
+			}
+			else{
+				printf("	callq printf@PLT\n");
+			}
 			printf("	xorq	%%rsi, %%rsi\n");
 			printf("	leave\n");
 			printf("	retq\n\n");
 			printf("_printAux: \n");
-			printf(".asciz	\"Print:  %%d \\n\"");
+			if(os!=0){
+				printf(".asciz	\"Print:  %%d \\n\"");
+			}
+			else{
+				printf(".string	\"Print:  %%d \\n\"");
+			}
 		}
 	}
 }
