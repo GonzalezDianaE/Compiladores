@@ -39,7 +39,7 @@ program
      		integer x,y,z;
      		x = 2;
      		y = 3;
-     		z = potencia(x,factorial(y));
+     		z = potencia(x,factorial(y));  //potencia(2,6) = 32
      		return z;
      	end
 	end

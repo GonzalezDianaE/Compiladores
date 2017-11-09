@@ -1,0 +1,15 @@
+program
+  begin
+    {retornara el ultimo parametro recibido, nos permitira observar la carga de los parametros a los registros adecuados}
+    integer param (integer y, integer x, integer a, integer b, integer c, integer d, integer e, integer f, integer g)
+      begin
+        return g;
+      end
+
+    integer  main()
+      begin
+        integer w;
+        w = param(1,2,3,4,5,6,7,8,9); 
+        return w; //9
+      end
+  end
