@@ -167,13 +167,13 @@
 
 		<font size=3 face="roman" color=000000>
 		<p align="justify"> 
-		- Para comenzar esta etapa se realizaron modificaciones en las librer&iacute;as <em>structures.c</em> e <em>itermediateCode.c</em>. En la primera, se defini&oacute; un nuevo atributo <em>stackSize</em> en el tipo <em>itemFunc</em> el cual contendr&aacute; la informaci&oacute;n sobre la cantidad de variables que contiene la funci&oacute;n y el nuevo atributo <em>offSet</em> en el tipo <em>item</em> el cual contendr&aacute; la informaci&oacute;n necesaria para luego obtener la posici&oacute;n del mismo. En la segunda, defini&oacute; un nuevo label IC_LOAD_P y una nueva funci&oacute;n <em>loadParameters(itemFunc *func)</em> los cuales se utilizan para la "carga" de par&aacute;metros de una funci&oacute;n en los registros adecuados. Estas modificaciones nos permitir&aacute;n trabajar con mayor fluidez en las tareas siguientes. </p>
+		- Se realizaron modificaciones en las librer&iacute;as <em>structures.c</em> y <em>ptds-sintaxis.y</em>, para poder tener la informaci&oacute;n sobre la cantidad de memoria necesaria en una funci&oacute;n, como as&iacute; tambien la localizaci&oacute;n de variables y par&aacute;metros en memoria. Estas correcciones a cargo de Etcharren y Gonz&aacute;lez, mientras Boselli comenzaba con la idea inicial sobre el paso a assembler, chequeando como genera cada instrucci&oacute;n el lenguaje c. </p>
 
 		<p align="justify"> 
-		- Se procede a la divisi&oacute;n de las tareas: Boselli a cargo de generateAssign, generateIf, generateWhile, generateLabel, generateJump, generateLoad. Etcharren: generateRetInt, generateRetBool, generateRetVoid, generatePushParam, generateCallFunc, generateLoad, generateBeginFunc, generateEndFunc. Gonz&aacute;lez: generateSub, generatePlus, generateDiv, generateMod, generateAnd, generateOr, generateNot, generateEqAr, generateEqLog, generateNeg, generateMinnor, generateMajor. </p>
+		- Luego se gener&oacute; la librer&iacute;a que contendr&aacute; la generaci&oacute;n del c&oacute;digo objeto, dividiendo las tareas: Boselli a cargo de generateAssign, generateIf, generateWhile, generateLabel, generateJump, generateLoad. Etcharren: generateRetInt, generateRetBool, generateRetVoid, generatePushParam, generateCallFunc, generateLoad, generateBeginFunc, generateEndFunc. Gonz&aacute;lez: generateSub, generatePlus, generateDiv, generateMod, generateAnd, generateOr, generateNot, generateEqAr, generateEqLog, generateNeg, generateMinnor, generateMajor. </p>
 
 		<p align="justify"> 
-		- Una vez terminadas las tareas, Etcharren realiz&oacute; los chequeos necesarios para verificar el correcto funcionamiento de los m&eacute;todos implementados. Boselli continu&oacute; con la modificaci&oacute;n de la <em>Interfaz de la l&iacute;nea de comandos</em> especificada en la Descripci&oacute;n del proyecto. Tambi&eacute;n se realizaron las modificaciones necesarias en el script para poder diferenciar entre las compilaciones en Linux y Mac, debido a algunos conflictos. Los comandos de compilaci&oacute;n se encuentran detallados en el archivo <em>README.md</em> del proyecto. Gonz&aacute;lez realiz&oacute; las modificaciones necesarias para la creaci&oacute;n del archivo <em>assemblyCode.s</em> y permitir que se almacenen en &eacute;l todas las sentencias correspondientes al c&oacute;digo assembler generado.</p>
+		- Una vez terminadas las tareas, Etcharren realiz&oacute; los chequeos necesarios para verificar el correcto funcionamiento de los m&eacute;todos implementados. Boselli continu&oacute; con la modificaci&oacute;n de la <em>Interfaz de la l&iacute;nea de comandos</em> especificada en la Descripci&oacute;n del proyecto. Tambi&eacute;n se realizaron las modificaciones necesarias en el script para poder diferenciar entre las compilaciones en Linux y Mac, debido a algunos conflictos debido a la diferencia de sistemas operativos. Los comandos de compilaci&oacute;n se encuentran detallados en el archivo <em>README.md</em> del proyecto. Gonz&aacute;lez realiz&oacute; las modificaciones necesarias para la creaci&oacute;n del archivo <em>assemblyCode.s</em> y permitir que se almacenen en &eacute;l todas las sentencias correspondientes al c&oacute;digo assembler generado, como as&iacute; tambi&eacute;n los casos de prueba para el testing. Para finalizar, Etcharren defini&oacute; un nuevo label IC_PRINT para permitir la impresi&oacute;n de valores.</p>
 
 		<font size=4 face="palatino" color=1c0751>
 		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
@@ -183,14 +183,19 @@
 
 		<font size=3 face="roman" color=000000>
 		<p align="justify"> 
-		- Crear una librer&iacute;a <em>"assemblyCode.c"</em> donde se definir&aacute;n las funciones necesarias para generar de forma adecuada las sentencias de c&oacute;digo assembler correspondientes a cada operaci&oacute;n, las cuales tambi&eacute;n ser&aacute;n almacenadas en un archivo <em>assemblyCode.s</em>
+		- La principal decisi&oacute;n de dise&ntilde;o fue refinar el c&oacute;digo intermedio para facilitar el paso al c&oacute;digo objeto. </em>
+
+		<p align="justify"> 
+		- En la librer&iacute;a <em>structures.c</em> se defini&oacute; un nuevo atributo <em>stackSize</em> en el tipo <em>itemFunc</em> el cual contendr&aacute; la informaci&oacute;n sobre la cantidad de variables que contiene la funci&oacute;n y el nuevo atributo <em>offSet</em> en el tipo <em>item</em> el cual contendr&aacute; la informaci&oacute;n necesaria para luego setear la posici&oacute;n del mismo. </p>
+
+		<p align="justify"> 
+		- Crear una librer&iacute;a <em>"assemblyCode.c"</em> donde se definir&aacute;n las funciones necesarias para generar de forma adecuada las sentencias de c&oacute;digo assembler correspondientes a cada operaci&oacute;n, las cuales tambi&eacute;n ser&aacute;n almacenadas en un archivo <em>assemblyCode.s.</em>
 
 		<p align="justify">
-		- Modificaciones en la librer&iacute;a <em>intermediateCode.c</em> para poder invocar una funci&oacute;n dentro de otra. Para que esto funcione de forma adecuada, se leer&aacute;n primero todos los par&aacute;metros de la funci&oacute;n y se almacenar&aacute;n en temporales para evitar la sobreescritura de los registros y posibles p&eacute;rdidas de informaci&oacute;n que puedan ocasionar errores en los c&aacute;lculos.</p>
+		- Modificaciones en la librer&iacute;a <em>intermediateCode.c</em> para poder invocar una funci&oacute;n dentro de otra. Para que esto funcione de forma adecuada, se resolver&aacute; primero la llamada a cada &aacute;rbol, almacenando los resultados en temporales para luego pushearlos correctamente.  As&iacute; se podra evitar la sobreescritura de los registros y posibles p&eacute;rdidas de informaci&oacute;n que puedan ocasionar errores en los c&aacute;lculos. Adem&aacute;s se corrigi&oacute; el bug donde las variables se seteaban en temporales siendo realmente no necesario.</p>
 
 		<p align="justify"> 
-
-		<p align="justify"> 
+		- Se tomo la decisi&oacute;n de crear una nueva sentencia <em>(print expresion;)</em> modificando todas las instancias necesarias. </p>
 
 	</body>
 </html>
