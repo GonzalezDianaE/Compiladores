@@ -1,0 +1,9 @@
+# pascaltds flags
+#   0 : Exec all, show nothing
+#   1 : Exec all, show debug messages
+#   2 : Exec all, show intermediate code
+#   3 : Exec all, show assembly code
+#   4 : Exec until flex, show debug messages
+#   5 : Exec until yacc, show debug messages
+#   6 : Exec until ic gen, show generated code
+#   7 : Exec until ac gen, show generated code

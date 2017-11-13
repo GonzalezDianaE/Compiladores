@@ -17,7 +17,7 @@
 *.png
 *.s
 /Respaldo-Script
-asemblyCode
+assemblyCode
 
 # Packages #
 ############
