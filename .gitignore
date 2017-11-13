@@ -14,6 +14,10 @@
 *.out
 *.yy.c
 *.output
+*.png
+*.s
+/Respaldo-Script
+asemblyCode
 
 # Packages #
 ############
