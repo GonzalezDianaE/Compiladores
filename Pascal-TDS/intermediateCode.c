@@ -1,4 +1,4 @@
-#include "structures.c"
+#include "optimization.c"
 #include <stdlib.h>
 
 /* Constantes para definir tipo de las instrucciones de codgo intermedio. */
