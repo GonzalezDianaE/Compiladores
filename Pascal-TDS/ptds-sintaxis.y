@@ -116,6 +116,7 @@ prog:   PROGRAM BEGINN var_decls SEMICOLON method_decls END              { if(fl
                                                                               printf("Comienzo chequeo Semántico\n");
                                                                             }
                                                                             checks(levels[0],flag);
+                                                                            goOver(levels[0]);
                                                                             if(flag == 1){
                                                                               printf("  Chequeo Semántico correcto\n\n");
                                                                               printf("Comienzo generación Código Intermedio\n");
@@ -145,6 +146,7 @@ prog:   PROGRAM BEGINN var_decls SEMICOLON method_decls END              { if(fl
                                                                               printf("Comienzo chequeo Semántico\n");
                                                                             }
                                                                             checks(levels[0],flag);
+                                                                            goOver(levels[0]);
                                                                             if(flag == 1){
                                                                               printf("  Chequeo Semántico correcto\n\n");
                                                                               printf("Comienzo generación Código Intermedio\n");
@@ -303,7 +305,11 @@ statement : ID OP_ASS expr SEMICOLON                                    { node *
       | block                                                           { $$=$1;}
     ;
 
-statements : statement                                                  { $$=$1;}
+statements : statement                                                  { 
+                                                                          node *call = insertTree("STATEMENTS",0,STATEMENTS,INDETERMINATE,yylineno,flag);
+                                                                          concatLeft(call,$1);
+                                                                          $$ = call;
+                                                                        }
 
       | statements statement                                            { node *call = insertTree("STATEMENTS",0,STATEMENTS,INDETERMINATE,yylineno,flag);
                                                                           concatLeft(call,$1);

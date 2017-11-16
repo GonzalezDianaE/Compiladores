@@ -154,6 +154,8 @@ void generate(item *func){
 		stackSize = func->function->stackSize;
 		beginFunction->instr = IC_BEGIN_FUNCTION;
 		beginFunction->result = funcionName;
+        beginFunction->oper1 = NULL;
+        beginFunction->oper2 = NULL;
 		insertOperation(beginFunction);
 		loadParameters(func->function);
 
@@ -161,6 +163,9 @@ void generate(item *func){
 
 		OpThreeDir *endFunction = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 		endFunction->instr = IC_END_FUNCTION;
+        endFunction->oper1 = NULL;
+        endFunction->oper2 = NULL;
+
 		endFunction->result = funcionName;
 		beginFunction->stackSize = stackSize;
 		insertOperation(endFunction);
@@ -171,10 +176,12 @@ void generate(item *func){
 		correspondiente para generar su código intermedio.
 */
 void generateInterCode (node *tree){			
-    if (tree->content != NULL){
+    if (tree != NULL){
         if(flag==6){
             printf("Contenido de tipo %d (remitirse a structures.c)\n", tree->content->type );
-        }
+        }            
+        //printf("%d\n", tree->content->type );
+
         switch (tree->content->type){
             case VAR:
                //hace funcion separada
@@ -512,6 +519,8 @@ void showOperation (){
 void generatePrint (node *tree){
 	OpThreeDir *print = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	print->instr = IC_PRINT;
+    print->oper1 = NULL;
+    print->oper2 = NULL;
 	print->result = setVar(tree->left);
 	insertOperation(print);
 }
@@ -522,6 +531,7 @@ void generateConstant (node *tree){
 		OpThreeDir *operation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 		item *result = (item *) malloc(sizeof(item));
 		operation->oper1 = tree->content;
+        operation->oper2 = NULL;
 		strcpy(result->name,generateTemp());
 		result->offSet = stackSize;
 		result->value = tree->content->value;
@@ -539,7 +549,7 @@ void generateAssing (node *tree){
 	operation->instr = IC_ASSIGN;
 
 	operation->oper1 = setVar(tree->right);
-
+    operation->oper2 = NULL;
 	operation->result=setVar(tree->left);
 	insertOperation(operation);
 }
@@ -614,6 +624,7 @@ void generateOpAritUn(node *tree){
 	item *result = (item *) malloc(sizeof(item));
 
 	operation->oper1=setVar(tree->left);
+    operation->oper2=NULL;
 	result->value = 0;
 	result->type = VAR;
 	result->ret=INTEGERAUX;
@@ -660,7 +671,7 @@ void generateOpLogUn(node *tree){
 	operation->instr = IC_NOT;
 	item *result = (item *) malloc(sizeof(item));
 	operation->oper1=setVar(tree->left);
-
+    operation->oper2=NULL;
 	result->value = 0;
 	result->type = VAR;
 	result->ret=BOOLAUX;
@@ -751,6 +762,7 @@ void generateFunctionCall(node *tree){
 			loadParam = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 			loadParam->instr = IC_PPARAM;
 			loadParam->oper1 = aux->content;
+            loadParam->oper2 = NULL;
 			result = (item *) malloc(sizeof(item));
 			result->value = i;
 			result->type = REGISTER;
@@ -796,7 +808,7 @@ void generateFunctionCall(node *tree){
 	item *functionName = (item *) malloc(sizeof(item));
 	strcpy(functionName->name, tree->content->name);
 	functionCall->oper1 = functionName;
-
+    functionCall->oper2 = NULL;
 	item *result = (item *) malloc(sizeof(item));
 	strcpy(result->name, generateTemp());
 	result->offSet = stackSize;
@@ -816,7 +828,7 @@ void generateIf(node *tree){
 	OpThreeDir *mainOperation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	mainOperation->instr = IC_IF;
 	mainOperation->oper1 = labelEnd;
-
+    mainOperation->oper2 = NULL;
 	// Condition
 	mainOperation->result = setVar(tree->left);
 
@@ -829,6 +841,8 @@ void generateIf(node *tree){
 	// Label End
 	OpThreeDir *instrLabelEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelEnd->instr = IC_LABEL;
+    instrLabelEnd->oper1 = NULL;
+    instrLabelEnd->oper2 = NULL;
 	instrLabelEnd->result = labelEnd;
 	insertOperation(instrLabelEnd);
 }
@@ -860,12 +874,16 @@ void generateIfElse(node *tree){
 	// Jump
 	OpThreeDir *jumpToEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	jumpToEnd->instr = IC_JUMP;
+    jumpToEnd->oper1 = NULL;
+    jumpToEnd->oper2 = NULL;
 	jumpToEnd->result = labelEnd;
 	insertOperation(jumpToEnd);
 
 	// Label Else
 	OpThreeDir *instrLabelElse = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelElse->instr = IC_LABEL;
+    instrLabelElse->oper1 = NULL;
+    instrLabelElse->oper2 = NULL;
 	instrLabelElse->result = labelElse;
 	insertOperation(instrLabelElse);
 
@@ -875,6 +893,8 @@ void generateIfElse(node *tree){
 	// Label End
 	OpThreeDir *instrLabelEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelEnd->instr = IC_LABEL;
+    instrLabelEnd->oper1 = NULL;
+    instrLabelEnd->oper2 = NULL;
 	instrLabelEnd->result = labelEnd;
 	insertOperation(instrLabelEnd);
 }
@@ -891,10 +911,12 @@ void generateWhile(node *tree){
 	OpThreeDir *mainOperation = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	mainOperation->instr = IC_WHILE;
 	mainOperation->oper1 = labelEnd;
-
+    mainOperation->oper2 = NULL;
 	// Label While
 	OpThreeDir *instrLabelWhile = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelWhile->instr = IC_LABEL;
+    instrLabelWhile->oper1 = NULL;
+    instrLabelWhile->oper2 = NULL;
 	instrLabelWhile->result = labelWhile;
 	insertOperation(instrLabelWhile);
 
@@ -910,12 +932,16 @@ void generateWhile(node *tree){
 	// Jump
 	OpThreeDir *jumpToCond = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	jumpToCond->instr = IC_JUMP;
+    jumpToCond->oper1 = NULL;
+    jumpToCond->oper2 = NULL;
 	jumpToCond->result = labelWhile;
 	insertOperation(jumpToCond);
 
 	// Label End
 	OpThreeDir *instrLabelEnd = (OpThreeDir *) malloc(sizeof(OpThreeDir));
 	instrLabelEnd->instr = IC_LABEL;
+    instrLabelEnd->oper1 = NULL;
+    instrLabelEnd->oper2 = NULL;
 	instrLabelEnd->result = labelEnd;
 	insertOperation(instrLabelEnd);
 }
@@ -923,6 +949,9 @@ void generateWhile(node *tree){
 /* Genera las lineas de código intermedio correspondientes a un return void. */
 void generateReturnVoid(node *tree){
 	OpThreeDir *returnVoid = (OpThreeDir *) malloc(sizeof(OpThreeDir));
+    returnVoid->oper1 = NULL;
+    returnVoid->oper2 = NULL;
+    returnVoid->result = NULL;
 	returnVoid->instr = IC_RETVOID;
 	insertOperation(returnVoid);
 }
@@ -935,6 +964,8 @@ void generateReturnExp(node *tree){
 	} else {
 		returnNotVoid->instr = IC_RETBOOL;
 	}
+    returnNotVoid->oper1 = NULL;
+    returnNotVoid->oper2 = NULL;
 	returnNotVoid->result = setVar(tree->left);
 	insertOperation(returnNotVoid);
 }
@@ -985,6 +1016,7 @@ void loadParameters(itemFunc *func){
 			stackSize++;
 			pf->content->offSet = stackSize;
 			load->oper1 = registro;
+            load->oper2 = NULL;
 			load->result = pf->content;
 			insertOperation(load);
 			pf= pf->next;

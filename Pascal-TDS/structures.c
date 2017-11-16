@@ -642,7 +642,9 @@ void checkTree (node *head, int functionRet, int flag){
   } 
   if ((head->content)->type == STATEMENTS){
     checkTree(head->left, functionRet, flag);
-    checkTree(head->right, functionRet, flag);
+    if (head->right !=NULL){
+      checkTree(head->right, functionRet, flag);
+    }
   }
   if ((head->content)->type == BLOCK){
     checkTree(head->left, functionRet, flag);
