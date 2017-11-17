@@ -7,9 +7,11 @@ void optimizateExpr (node *head);
 int getEvaluationResult(char *operation,int left, int right);
 bool couldOptimizate(char *operation);
 void deallocate(node *head);
+
 bool returnFound;
 bool deadCode;
 
+/* Recorre la tabla de simbolos, buscando funciones para oprtimizar su código. */
 void goOver(symbol *head){
   symbol *aux = head;
   int r;
@@ -21,32 +23,32 @@ void goOver(symbol *head){
   }
 }
 
+/* Recorre el ast con dfs. Segin el tipo de las operaciones que va encontrando realiza distintas optimizaciones. */
 void optimizate(node *head){
   if (head!=NULL){
     printf("%s\n", head->content->name );
     switch (head->content->type){
 
+      /* Llamado a función: Busca optimizar cada uno de sus parámetros. */
       case FUNCTION_CALL_P :
-        {paramsCall *pc = head->content->paramsCall;
+        paramsCall *pc = head->content->paramsCall;
         if(pc != NULL){
           while (pc->next!=NULL){
             pc = pc->next;
-            printf("entro\n");
             optimizateExpr(pc->param);
           }
         }
-      }
       break;
 
+      /* If-Then: Intenta optimizar la condición. Luego, si la misma es falsa constante elimina completamente 
+      el código del if; caso contrario, verdadera constante, sube el codigo correspondiente al then a la cabeza 
+      actual y elimina la instrucción if. */
       case IFAUX :
         optimizateExpr(head->left);
-        //si dsp de optimizar queda una constante y es falsa es todo codigo muerto
         if (head->left->content->type == CONSTANT && (head->left->content->value==0)){
           deadCode = true;
         }else{
           optimizate(head->right);
-          //si la condicion es constante y es siempre true siempre va a realizar el codigo
-          //entonces cambio el tipo por if por statement y dejo elimino la condicion
           if (head->left->content->type == CONSTANT && (head->left->content->value==1)){
             head->content->type = STATEMENTS;
             deallocate (head->left);
@@ -55,11 +57,11 @@ void optimizate(node *head){
         }
       break;
 
+      /* If-Then-Else: Intenta optimizar la condición. Luego, si la misma es falsa constante sube el codigo correspondiente al 
+      else a la cabeza actual y elimina la instrucción if; caso contrario, verdadera constante, sube el codigo correspondiente al 
+      then a la cabeza actual y elimina la instrucción if. Si la condicion no es constante, intenta optimizar los bloques then y else. */
       case IF_ELSE :
         optimizateExpr(head->left);
-        //si dsp de optimizar queda una constante y es falsa siempre se ejecuta el else
-        //entonces cambio el tipo por statement y optimizo el hijo derecho (then) saco los hijos izquierdos (condicion)
-        // y del medio (else)
         if (head->left->content->type == CONSTANT && (head->left->content->value==0)){
           optimizate(head->right);
           head->content->type = STATEMENTS;
@@ -67,8 +69,6 @@ void optimizate(node *head){
           deallocate (head->middle);
           head->middle = NULL;
         }else{
-          //si dsp de optimizar queda una constante y es falsa siempre se ejecuta el else
-        //entonces cambio el tipo por statement y saco la condicion y el hijo del medio
           if (head->left->content->type == CONSTANT && (head->left->content->value==1)){
             optimizate(head->middle);
             head->content->type = STATEMENTS;
@@ -85,13 +85,14 @@ void optimizate(node *head){
         }
       break;
 
+      /* Asignación: Intenta optimizar la expresión a asignar. */
       case ASSIGN :
-      //optimizo la expresion
         optimizateExpr(head->left);
       break;
 
+      /* While: Intenta optimizar la condición. Luego, si la misma es falsa constante elimina completamente
+      el código del ciclo. Caso contrario (sea o no constante la condición), intenta oprtimizar el bloque del ciclo.*/
       case WHILEAUX :
-        // parecido a if
         optimizateExpr(head->left);
         if (head->left->content->type == CONSTANT && (head->left->content->value==0)){
           deadCode = true;
@@ -100,15 +101,19 @@ void optimizate(node *head){
         } 
         break;
 
+      /* Return Void: Enciende la bandera de return encontrado. */
       case RETURNAUX :
         returnFound = true;
       break;
 
+      /* Return Expression: Enciende la bandera de return encontrado, e intenta optimizar su expresión. */
       case RETURN_EXPR :
         returnFound = true;
         optimizateExpr(head->left);  
       break;
 
+      /* Sentencias: Intenta optimizar su hijo izquierdo, si encuentra un return poda su hijo derecho. Si su hijo izquierdo 
+      queda con cédigo muerto, lo poda. Intenta optimizar su hijo derecho y si queda con código muerto también lo poda. */
       case STATEMENTS :
         returnFound = false;
         deadCode = false;
@@ -117,13 +122,11 @@ void optimizate(node *head){
           deallocate (head->right);
           head->right = NULL;
         }
-        //si codigo muerto es verdadero se elimina el hijo de statement
         if (deadCode){
           deallocate (head->left);
           head->left = NULL;
         }
         deadCode = false;
-        //si es codigo muerto es verdadero se elimina el hijo de statement
         optimizate(head->right);
         if (deadCode){
           deallocate (head->right);
@@ -131,10 +134,12 @@ void optimizate(node *head){
         }
       break;
 
+      /* Bloque: Intenta optimizar su contenido. */
       case BLOCK :
         optimizate(head->left);
       break;
 
+      /* Print: Intenta optimizar lo que se quiere mostrar. */
       case PRINTAUX :
         optimizateExpr(head->left);      
       break;
@@ -145,7 +150,8 @@ void optimizate(node *head){
   }
 }
 
-//FALTARIA SETEAR EL TIPO DE RETORNO??
+/* Oprimiza una expresión. Para ello controla que la operacion sea de tipos aritmeticos, logicos o relacionales. 
+Obtenido el resultado en el caso de una optimización, sube el resultado a la cabeza actual y libera sus hijos. */
 void optimizateExpr (node *head){
   int t1 = head->content->type;
   if (t1==FUNCTION_CALL_P){
@@ -178,7 +184,7 @@ void optimizateExpr (node *head){
   }
 }
 
-
+/* Evalua una expresion de tipo aritmetica, logica o relacional y devuelve su resultado. */
 int getEvaluationResult(char *operation,int left, int right){	
 	if (strcmp(operation,"OP_ADD")==0){
 		return left + right;
@@ -219,7 +225,7 @@ int getEvaluationResult(char *operation,int left, int right){
 	return 0;
 }
 
-
+/* Libera de forma recursiva la memoria ocupada por el arbol cuya cabeza es pasada como parámetro. */
 void deallocate(node *head){
 	if (head != NULL) {
 		deallocate(head->left);
