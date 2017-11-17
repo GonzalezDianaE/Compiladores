@@ -63,6 +63,7 @@ void optimizate(node *head){
         if (head->left->content->type == CONSTANT && (head->left->content->value==0)){
           optimizate(head->right);
           head->content->type = STATEMENTS;
+          deallocate (head->left);
           head->left = NULL;
           deallocate (head->middle);
           head->middle = NULL;
