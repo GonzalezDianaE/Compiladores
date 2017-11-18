@@ -5,7 +5,6 @@ void goOver(symbol *head);
 void optimizate(node *head);
 void optimizateExpr (node *head);
 int getEvaluationResult(char *operation,int left, int right);
-bool couldOptimizate(char *operation);
 void deallocate(node *head);
 
 bool returnFound;
@@ -23,7 +22,7 @@ void goOver(symbol *head){
   }
 }
 
-/* Recorre el ast con dfs. Segin el tipo de las operaciones que va encontrando realiza distintas optimizaciones. */
+/* Recorre el ast con dfs. Segun el tipo de las operaciones que va encontrando realiza distintas optimizaciones. */
 void optimizate(node *head){
   if (head!=NULL){
     printf("%s\n", head->content->name );
@@ -31,14 +30,14 @@ void optimizate(node *head){
 
       /* Llamado a función: Busca optimizar cada uno de sus parámetros. */
       case FUNCTION_CALL_P :
-        paramsCall *pc = head->content->paramsCall;
+      { paramsCall *pc = head->content->paramsCall;
         if(pc != NULL){
           while (pc->next!=NULL){
             pc = pc->next;
             optimizateExpr(pc->param);
           }
         }
-      break;
+      break; }
 
       /* If-Then: Intenta optimizar la condición. Luego, si la misma es falsa constante elimina completamente 
       el código del if; caso contrario, verdadera constante, sube el codigo correspondiente al then a la cabeza 
