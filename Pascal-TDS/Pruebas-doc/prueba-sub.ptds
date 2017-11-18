@@ -1,0 +1,9 @@
+program
+  begin
+    integer  main()
+      begin
+        integer x;
+        x = 8-4;
+        return x;
+      end
+  end

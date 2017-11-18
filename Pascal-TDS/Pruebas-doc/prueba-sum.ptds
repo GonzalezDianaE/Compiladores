@@ -1,0 +1,10 @@
+program
+  begin
+    integer  main()
+      begin
+        integer x;
+        x = 4+3;
+        return x;
+      end
+  end
+

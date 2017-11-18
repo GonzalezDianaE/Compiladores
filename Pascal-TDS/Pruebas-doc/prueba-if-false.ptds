@@ -1,0 +1,17 @@
+program
+  begin
+    integer  main()
+      begin
+        integer x;
+        if (true && false) then
+          begin
+            x =1;
+          end
+        else
+          begin
+            x =2;
+          end
+        return x;
+      end
+  end
+

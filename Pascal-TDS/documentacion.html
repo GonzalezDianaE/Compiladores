@@ -207,10 +207,10 @@
 
 		<font size=3 face="roman" color=000000>
 		<p align="justify"> 
-		- Se recorer&aacute; el &aacute;rbol con death first search en busca de sentencias del tipo expresiones conformadas por constantes para poder optimizar recursivamente, suplantando el &aacute;rbol de la expresi&oacute;n por un &uacute;nico nodo correspondiente al resultado de la evaluaci&oacute;n de la misma. </p>
+		- Se recorer&aacute; el &aacute;rbol con death first search en busca de sentencias del tipo expresiones conformadas por constantes para poder optimizar recursivamente, para ello controla que la operaci&oacute;n sea de tipo aritmeticos, logicos o relacionales. Obtenido el resultado en el caso de una optimizaci&oacute;n, sube el resultado a la cabeza actual y libera sus hijos. </p>
 
 		<p align="justify"> 
-		- Se podr&aacute; observar esta optimizaci&oacute;n en casos como las condiciones de if y while, asignaciones, operaciones (add,sub,prod,div..) </p>
+		- Se podr&aacute; observar esta optimizaci&oacute;n en casos como las condiciones de if y while, operaciones aritm&eacute;ticas, l&oacute;gicas y relacionales (add,sub,prod,div..) </p>
 
 		<font size=4 face="palatino" color=1e3bcc>
 		<p> <u> Otras optimizaciones. </p> </u>
@@ -220,7 +220,18 @@
 		- Actualmente en caso de las sentencias statement, en cuanto a estructura, sus hijos pueden ser nulos. Esto nos permite poder realizar podas en casos como un < if(true) then .. else > podando la rama else, < if(false) then .. else> podando la rama if, < while(false) ..> podando la rama while, qued&aacute;ndonos &uacute;nicamente con los bloques necesarios. </p>
 
 		<p align="justify"> 
-		- Al encontrar un return, las sentencias que se encuentren luego de &eacute;l son consideradas c&oacute;digo muerto. Por lo cual se podar&aacute;n todas las ramas siguientes permitiendo que el c&oacute;digo sea m&aacute;s legible. </p>
+		<u> If-Then:</u> Intenta optimizar la condici&oacute;n. Luego, si la misma es falsa constante elimina completamente 
+    el c&oacute;digo del if; caso contrario, verdadera constante, sube el codigo correspondiente al then a la cabeza 
+    actual y elimina la instrucci&oacute;n if. </p>
+
+    <p align="justify"> 
+    <u>If-Then-Else:</u> Intenta optimizar la condici&oacute;n. Luego, si la misma es falsa constante sube el c&oacute;digo correspondiente al else a la cabeza actual y elimina la instrucci&oacute;n if; caso contrario, verdadera constante, sube el c&oacute;digo correspondiente al then a la cabeza actual y elimina la instrucci&oacute;n if. Si la condici&oacute;n no es constante, intenta optimizar los bloques then y else. </p>
+
+    <p align="justify"> 
+    <u>While:</u> Intenta optimizar la condici&oacute;n. Luego, si la misma es falsa constante elimina completamente el c&oacute;digo del ciclo. Caso contrario (sea o no constante la condici&oacute;n), intenta oprtimizar el bloque del ciclo. </p>
+
+		<p align="justify"> 
+		<u>Sentencias:</u> Se intentar&aacute; optimizar su hijo izquierdo, si encuentra un return poda su hijo derecho. Si su hijo izquierdo queda con c&oacute;digo muerto, lo poda. Intenta optimizar su hijo derecho y si queda con c&oacute;digo muerto tambi&eacute;n lo poda. </p>
 
 		<font size=4 face="palatino" color=1c0751>
 		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>

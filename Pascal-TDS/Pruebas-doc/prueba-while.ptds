@@ -1,0 +1,14 @@
+program
+  begin
+    integer  main()
+      begin
+        integer x;
+        x = 2;
+        while (true&&false) 
+          begin
+            x = x+1;
+          end
+        return x;
+      end
+  end
+
