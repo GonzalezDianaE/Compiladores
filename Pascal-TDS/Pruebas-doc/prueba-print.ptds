@@ -4,7 +4,7 @@ program
       begin
         integer x;
         x = 2;
-        print x+4;
+        print 3+4*3-2;
         return x;
       end
   end

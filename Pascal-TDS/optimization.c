@@ -25,7 +25,6 @@ void goOver(symbol *head){
 /* Recorre el ast con dfs. Segun el tipo de las operaciones que va encontrando realiza distintas optimizaciones. */
 void optimizate(node *head){
   if (head!=NULL){
-    printf("%s\n", head->content->name );
     switch (head->content->type){
 
       /* Llamado a función: Busca optimizar cada uno de sus parámetros. */
@@ -123,6 +122,7 @@ void optimizate(node *head){
           head->right = NULL;
         }
         if (deadCode){
+          //printf("%s\n",head->left->content->name );
           deallocate (head->left);
           head->left = NULL;
         }
@@ -132,6 +132,7 @@ void optimizate(node *head){
           deallocate (head->right);
           head->right = NULL;
         }
+        deadCode = false;
       break;
 
       /* Bloque: Intenta optimizar su contenido. */
