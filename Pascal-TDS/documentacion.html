@@ -197,5 +197,102 @@
 		<p align="justify"> 
 		- Se tomo la decisi&oacute;n de crear una nueva sentencia <em>(print expresion;)</em> modificando todas las instancias necesarias. </p>
 
+		<font size=4 face="palatino" color=1c0751>
+		<p>****************************************************************************************************************************************************************************************</p>
+		<font size=6 face="palatino" color=055c91>
+		<p> <em> Etapa de optimizaci&oacute;n. </font> <br> </em> </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Optimizaci&oacute;n de constantes. </p> </u>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- Se recorer&aacute; el &aacute;rbol con death first search en busca de sentencias del tipo expresiones conformadas por constantes para poder optimizar recursivamente, suplantando el &aacute;rbol de la expresi&oacute;n por un &uacute;nico nodo correspondiente al resultado de la evaluaci&oacute;n de la misma. </p>
+
+		<p align="justify"> 
+		- Se podr&aacute; observar esta optimizaci&oacute;n en casos como las condiciones de if y while, asignaciones, operaciones (add,sub,prod,div..) </p>
+
+		<font size=4 face="palatino" color=1e3bcc>
+		<p> <u> Otras optimizaciones. </p> </u>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- Actualmente en caso de las sentencias statement, en cuanto a estructura, sus hijos pueden ser nulos. Esto nos permite poder realizar podas en casos como un < if(true) then .. else > podando la rama else, < if(false) then .. else> podando la rama if, < while(false) ..> podando la rama while, qued&aacute;ndonos &uacute;nicamente con los bloques necesarios. </p>
+
+		<p align="justify"> 
+		- Al encontrar un return, las sentencias que se encuentren luego de &eacute;l son consideradas c&oacute;digo muerto. Por lo cual se podar&aacute;n todas las ramas siguientes permitiendo que el c&oacute;digo sea m&aacute;s legible. </p>
+
+		<font size=4 face="palatino" color=1c0751>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- A continuaci&oacute;n se mostrar&aacute;n algunos ejemplos, la imagen del lado izquierdo ser&aacute; la correspondiente a la versi&oacute;n anterior mientras que la imagen del lado derecho corresponde a la versi&oacute;n optimizada.</p>
+
+		<font size=4 face="palatino" color=1e3bcc >
+		<p> <b> <em> Operaci&oacute;n suma. </em> </b> </p>
+
+  	<img src="img-optimization/prog-sum.jpg" align="center" hspace=465/>
+  	<p> </p>
+		<div class="imagenes">
+      <img src="img-optimization/sum.jpg" hspace=50/>
+      <img src="img-optimization/suma-op.jpg" />
+    </div>
+
+    <font size=4 face="palatino" color=1c0751>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+    <font size=4 face="palatino" color=1e3bcc>
+		<p> <em> <b> Operaci&oacute;n sustracci&oacute;n. </b> </em> </p>
+
+		<img src="img-optimization/prog_sub.jpg" align="center" hspace=465/>
+  	<p> </p>
+  	<div class="imagenes">
+      <img src="img-optimization/sub.jpg" hspace=50/>
+      <img src="img-optimization/sub-op.jpg" />
+    </div>
+
+    <font size=4 face="palatino" color=1c0751>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+    <font size=4 face="palatino" color=1e3bcc>
+		<p> <em> <b> Sentencia if(true) then .. else. </b> </em> </p>
+
+  	<img src="img-optimization/prog-if.jpg" align="center" hspace=450/>
+  	<p> </p>
+		<div class="imagenes">
+      <img src="img-optimization/if.jpg" hspace=50/>
+      <img src="img-optimization/if-op.jpg" />
+    </div>
+
+    <font size=4 face="palatino" color=1c0751>
+
+    <font size=4 face="palatino" color=1c0751>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+    <font size=4 face="palatino" color=1e3bcc>
+		<p> <em> <b> Sentencia if(false) then .. else. </b> </em> </p>
+
+  	<img src="img-optimization/prog-if-false.jpg" align="center" hspace=450/>
+  	<p> </p>
+		<div class="imagenes">
+      <img src="img-optimization/if-false.jpg" hspace=50/>
+      <img src="img-optimization/if-false-op.jpg" />
+    </div>
+
+    <font size=4 face="palatino" color=1c0751>
+
+
+
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+    <font size=4 face="palatino" color=1e3bcc>
+		<p> <em> <b> Sentencia while(false). </b> </em> </p>
+
+  	<img src="img-optimization/prog-while.jpg" align="center" hspace=465/>
+  	<p> </p>
+		<div class="imagenes">
+      <img src="img-optimization/while.jpg" hspace=50/>
+      <img src="img-optimization/while-op.jpg" />
+    </div>
+
+
+
 	</body>
 </html>
