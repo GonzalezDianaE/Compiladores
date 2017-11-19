@@ -3,6 +3,7 @@ program
     begin
     	integer main()
     		begin
+    			print 4;
     			return 4;
     		end
     end

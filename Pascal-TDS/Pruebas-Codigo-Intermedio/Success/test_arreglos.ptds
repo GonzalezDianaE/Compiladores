@@ -25,6 +25,7 @@ program
       begin
         integer result;
         result = arreglos(2,3);
+        print result;
         return result;
       end
   end

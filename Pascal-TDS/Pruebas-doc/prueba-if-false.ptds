@@ -11,6 +11,7 @@ program
           begin
             x =2;
           end
+        print x;
         return x;
       end
   end

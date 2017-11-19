@@ -40,6 +40,7 @@ program
      		x = 2;
      		y = 3;
      		z = potencia(x,factorial(y));  //potencia(2,6) = 64
+        print z;
      		return z;
      	end
 	end

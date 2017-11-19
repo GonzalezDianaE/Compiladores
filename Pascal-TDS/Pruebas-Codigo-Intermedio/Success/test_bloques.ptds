@@ -22,6 +22,7 @@ program
                 x = dec(x);
               end 
           end
+        print x;
         return x; {deberia retornar 10}
       end
   end

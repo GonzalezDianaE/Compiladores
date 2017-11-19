@@ -12,16 +12,20 @@ program
       end
     integer  main()
       begin
-        integer y;
+        integer y,z;
         y=9;
         {TIPO DE EXPRESION: booleano}
         if (y > 0) then 
           begin
-            return dec (y);
+            z = dec(y);
+            print z;
+            return z;
           end
         else
           begin
-            return inc (y);
+            z = inc(y);
+            print z;
+            return z;
           end
       end
   end

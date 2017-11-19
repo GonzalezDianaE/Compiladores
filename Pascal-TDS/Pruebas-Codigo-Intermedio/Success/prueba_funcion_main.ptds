@@ -11,6 +11,7 @@ program
         x = 2;
         y = 3;
         z = sum (x,y);
+        print z;
         return z;
       end
   end

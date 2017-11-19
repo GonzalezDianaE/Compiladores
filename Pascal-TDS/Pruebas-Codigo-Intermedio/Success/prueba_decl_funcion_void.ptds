@@ -11,6 +11,7 @@ program
         x = 2;
         y = 3;
         asig (x,y);
+        print y;
         return y;
       end
   end
