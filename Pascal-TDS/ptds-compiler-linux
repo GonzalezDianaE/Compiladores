@@ -55,8 +55,13 @@ if [ "$1" != "" ]; then
             #echo "-o"
             if [ "$2" != "" ]; then
                 if [ "$3" != "" ]; then
-                    if [ "$4" == "-op" ]; then
-                        ./pascaltds 0 0 1 < "./"$3
+                    if [ "$4" != "" ]; then
+                        if [ "$4" == "-op" ]; then
+                            ./pascaltds 0 0 1 < "./"$3
+                        else
+                            echo "Error: Unknown flag '"$4"'."  
+                            exit
+                        fi
                     else
                         ./pascaltds 0 0 0 < "./"$3
                     fi
@@ -80,8 +85,13 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            if [ "$4" == "-op" ]; then
-                                ./pascaltds 4 0 1 < "./"$3
+                            if [ "$4" != "" ]; then
+                                if [ "$4" == "-op" ]; then
+                                    ./pascaltds 4 0 1 < "./"$3
+                                else
+                                    echo "Error: Unknown flag '"$4"'."  
+                                    exit
+                                fi
                             else
                                 ./pascaltds 4 0 0 < "./"$3
                             fi
@@ -96,8 +106,13 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            if [ "$4" == "-op" ]; then
-                                ./pascaltds 5 0 1 < "./"$3
+                            if [ "$4" != "" ]; then
+                                if [ "$4" == "-op" ]; then
+                                    ./pascaltds 5 0 1 < "./"$3
+                                else
+                                    echo "Error: Unknown flag '"$4"'."  
+                                    exit
+                                fi
                             else
                                 ./pascaltds 5 0 0 < "./"$3
                             fi
@@ -112,8 +127,13 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            if [ "$4" == "-op" ]; then
-                                ./pascaltds 6 0 1 < "./"$3
+                            if [ "$4" != "" ]; then
+                                if [ "$4" == "-op" ]; then
+                                    ./pascaltds 6 0 1 < "./"$3
+                                else
+                                    echo "Error: Unknown flag '"$4"'."  
+                                    exit
+                                fi
                             else
                                 ./pascaltds 6 0 0 < "./"$3
                             fi
@@ -128,8 +148,13 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            if [ "$4" == "-op" ]; then
-                                ./pascaltds 7 0 1 < "./"$3
+                            if [ "$4" != "" ]; then
+                                if [ "$4" == "-op" ]; then
+                                    ./pascaltds 7 0 1 < "./"$3
+                                else
+                                    echo "Error: Unknown flag '"$4"'."  
+                                    exit
+                                fi
                             else
                                 ./pascaltds 7 0 0 < "./"$3
                             fi
@@ -154,8 +179,13 @@ if [ "$1" != "" ]; then
             echo "-debug"
             echo
             if [ "$2" != "" ]; then
-                if [ "$3" == "-op" ]; then
-                    ./pascaltds 1 0 1 < "./"$2
+                if [ "$3" != "" ]; then
+                    if [ "$3" == "-op" ]; then
+                        ./pascaltds 1 0 1 < "./"$2
+                    else
+                        echo "Error: Unknown flag '"$3"'."  
+                        exit 
+                    fi
                 else
                     ./pascaltds 1 0 0 < "./"$2
                 fi
@@ -171,8 +201,13 @@ if [ "$1" != "" ]; then
             echo "-ic"
             echo
             if [ "$2" != "" ]; then
-                if [ "$3" == "-op" ]; then
-                    ./pascaltds 2 0 1 < "./"$2
+                if [ "$3" != "" ]; then
+                    if [ "$3" == "-op" ]; then
+                        ./pascaltds 2 0 1 < "./"$2
+                    else
+                        echo "Error: Unknown flag '"$3"'."  
+                        exit 
+                    fi
                 else
                     ./pascaltds 2 0 0 < "./"$2
                 fi
@@ -188,8 +223,13 @@ if [ "$1" != "" ]; then
             echo "-ac"
             echo
             if [ "$2" != "" ]; then
-                if [ "$3" == "-op" ]; then
-                    ./pascaltds 3 0 1 < "./"$2
+                if [ "$3" != "" ]; then
+                    if [ "$3" == "-op" ]; then
+                        ./pascaltds 3 0 1 < "./"$2
+                    else
+                        echo "Error: Unknown flag '"$3"'."  
+                        exit 
+                    fi
                 else
                     ./pascaltds 3 0 0 < "./"$2
                 fi
@@ -201,8 +241,13 @@ if [ "$1" != "" ]; then
         ;;
 
         *)
-            if [ "$3" == "-op" ]; then
-                ./pascaltds 0 0 1 < "./"$1
+            if [ "$2" != "" ]; then
+                if [ "$2" == "-op" ]; then
+                    ./pascaltds 0 0 1 < "./"$1
+                else
+                    echo "Error: Unknown flag '"$3"'."  
+                    exit
+                fi
             else
                 ./pascaltds 0 0 0 < "./"$1
             fi
