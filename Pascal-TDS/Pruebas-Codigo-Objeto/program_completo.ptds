@@ -88,7 +88,6 @@ program
         w = (5 + (2*2)) / 3; {3}
         print w;
         a = mayor(x+10,z-10); {false}
-        print a;
         if (a) then
           begin
             z = fibonacci(potencia(2,4)); //61
