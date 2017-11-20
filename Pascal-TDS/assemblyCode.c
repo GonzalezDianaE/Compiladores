@@ -489,7 +489,6 @@ void generateDiv(OpThreeDir *operation){
 			newAssemblyString("	movq $", (operation->oper2->value) , 3 , ", %rbx");
 			fputs(result,archivo);
 			strcpy(result, "	idivq %rbx \n");
-			//newAssemblyString("	idivq $", (operation->oper2->value) , 3 , "");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
 				printf("	idivq $%d\n", operation->oper2->value);
@@ -550,11 +549,12 @@ void generateMod(OpThreeDir *operation){
 	}
 	switch (operation->oper2->type){
 		case CONSTANT :
-			newAssemblyString("	idivq $", (operation->oper2->value) , 3 , "");
+			newAssemblyString("	movq $", (operation->oper2->value) , 3 , ", %rbx");
+			fputs(result,archivo);
+			strcpy(result, "	idivq %rbx \n");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	idivq $%d  \n", operation->oper2->value);
-			}
+				printf("	idivq $%d\n", operation->oper2->value);
 		break;
 		case VARGLOBAL :
 			newAssemblyVarGlobal ("	idivq _", operation->oper2->name, "(%rip)");
