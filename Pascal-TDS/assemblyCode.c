@@ -1106,7 +1106,7 @@ void generateAssign(OpThreeDir *operation){
 void generateIfAss(OpThreeDir *operation){
 	switch (operation->result->type){
 		case VAR :
-			newAssemblyString("	cmpq $0 -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)");
+			newAssemblyString("	cmpq $0, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)");
 			fputs(result,archivo);
 
 			if(flag == 3 || flag == 7){
@@ -1145,11 +1145,11 @@ void generateIfAss(OpThreeDir *operation){
 void generateWhileAss(OpThreeDir *operation){
 	switch (operation->result->type){
 		case VAR :
-			newAssemblyString("	cmpq $0 -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)");
+			newAssemblyString("	cmpq $0, -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp)");
 			fputs(result,archivo);
 
 			if(flag == 3 || flag == 7){
-				printf("	cmpl $0, -%d(%%rbp)\n", (operation->result->offSet)*REG_SIZE);
+				printf("	cmpq $0, -%d(%%rbp)\n", (operation->result->offSet)*REG_SIZE);
 			}
 		break;
 		case CONSTANT :
