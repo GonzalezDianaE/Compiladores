@@ -1,5 +1,20 @@
 #!/bin/bash
 
+mac=0
+opt=0
+
+if [ "$1" == "-m" -o "$2" == "-m" ]; then
+	mac=1
+fi
+
+if [ "$1" == "-o" -o "$2" == "-o" ]; then
+	opt=1
+fi
+
+echo "flags"
+echo "mac $mac"
+echo "opt $opt"
+
 echo
 echo "----------------------------------------------------------------------------"
 echo "----------------------------- PASCAL-TDS 2017 ------------------------------"
@@ -9,7 +24,7 @@ echo "--------------------------------------------------------------------------
 echo 
 echo "----------------------------------------------------------------------------"
 
-if [ "$1" == "-m" ]; then
+if [ "$mac" == 1 ]; then
 	echo "------------------------------- MacOS Edition ------------------------------"
 else
 	echo "------------------------------- Linux Edition ------------------------------"
@@ -30,15 +45,22 @@ for archivoActual in $(ls Pruebas/Success);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
 
-	if [ "$1" == "-m" ]; then
-		./pascaltds 0 1 < "./Pruebas/Success/"$archivoActual
+	if [ "$mac" == "1" ]; then
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 1 1 < "./Pruebas/Success/"$archivoActual
+		else
+			./pascaltds 0 1 0 < "./Pruebas/Success/"$archivoActual
+		fi
 	else
-		./pascaltds 0 0 < "./Pruebas/Success/"$archivoActual
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 0 1 < "./Pruebas/Success/"$archivoActual
+		else
+			./pascaltds 0 0 0 < "./Pruebas/Success/"$archivoActual
+		fi
 	fi
 
 	gcc assemblyCode.s -o assemblyCode
 	./assemblyCode
-	echo "Return: "$?
 	echo
 done
 
@@ -52,11 +74,20 @@ for archivoActual in $(ls Pruebas/Fail);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
 
-	if [ "$1" == "-m" ]; then
-		./pascaltds 0 1 < "./Pruebas/Fail/"$archivoActual
+	if [ "$mac" == "1" ]; then
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 1 1 < "./Pruebas/Fail/"$archivoActual
+		else
+			./pascaltds 0 1 0 < "./Pruebas/Fail/"$archivoActual
+		fi
 	else
-		./pascaltds 0 0 < "./Pruebas/Fail/"$archivoActual
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 0 1 < "./Pruebas/Fail/"$archivoActual
+		else
+			./pascaltds 0 0 0 < "./Pruebas/Fail/"$archivoActual
+		fi
 	fi
+
 	echo
 done
 
@@ -70,15 +101,22 @@ for archivoActual in $(ls Pruebas-Semanticas/Success);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
 
-	if [ "$1" == "-m" ]; then
-		./pascaltds 0 1 < "./Pruebas-Semanticas/Success/"$archivoActual
+	if [ "$mac" == "1" ]; then
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 1 1 < "./Pruebas-Semanticas/Success/"$archivoActual
+		else
+			./pascaltds 0 1 0 < "./Pruebas-Semanticas/Success/"$archivoActual
+		fi
 	else
-		./pascaltds 0 0 < "./Pruebas-Semanticas/Success/"$archivoActual
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 0 1 < "./Pruebas-Semanticas/Success/"$archivoActual
+		else
+			./pascaltds 0 0 0 < "./Pruebas-Semanticas/Success/"$archivoActual
+		fi
 	fi
 	
 	gcc assemblyCode.s -o assemblyCode
 	./assemblyCode
-	echo "Return: "$?
 	echo
 done
 
@@ -92,11 +130,20 @@ for archivoActual in $(ls Pruebas-Semanticas/Fail);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
 
-	if [ "$1" == "-m" ]; then
-		./pascaltds 0 1 < "./Pruebas-Semanticas/Fail/"$archivoActual
+	if [ "$mac" == "1" ]; then
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 1 1 < "./Pruebas-Semanticas/Fail/"$archivoActual
+		else
+			./pascaltds 0 1 0 < "./Pruebas-Semanticas/Fail/"$archivoActual
+		fi
 	else
-		./pascaltds 0 0 < "./Pruebas-Semanticas/Fail/"$archivoActual
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 0 1 < "./Pruebas-Semanticas/Fail/"$archivoActual
+		else
+			./pascaltds 0 0 0 < "./Pruebas-Semanticas/Fail/"$archivoActual
+		fi
 	fi
+
 	echo
 done
 
@@ -111,15 +158,22 @@ for archivoActual in $(ls Pruebas-Codigo-Intermedio/Success);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
 
-	if [ "$1" == "-m" ]; then
-		./pascaltds 0 1 < "./Pruebas-Codigo-Intermedio/Success/"$archivoActual
+	if [ "$mac" == "1" ]; then
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 1 1 < "./Pruebas-Codigo-Intermedio/Success/"$archivoActual
+		else
+			./pascaltds 0 1 0 < "./Pruebas-Codigo-Intermedio/Success/"$archivoActual
+		fi
 	else
-		./pascaltds 0 0 < "./Pruebas-Codigo-Intermedio/Success/"$archivoActual
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 0 1 < "./Pruebas-Codigo-Intermedio/Success/"$archivoActual
+		else
+			./pascaltds 0 0 0 < "./Pruebas-Codigo-Intermedio/Success/"$archivoActual
+		fi
 	fi
 
 	gcc assemblyCode.s -o assemblyCode
 	./assemblyCode
-	echo "Return: "$?
 	echo
 done
 
@@ -134,15 +188,52 @@ for archivoActual in $(ls Pruebas-Codigo-Objeto);do
 	echo "----------------------------------------------------------------------------"
 	echo "Running "$archivoActual" ..."
 
-	if [ "$1" == "-m" ]; then
-		./pascaltds 0 1 < "./Pruebas-Codigo-Objeto/"$archivoActual
+	if [ "$mac" == "1" ]; then
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 1 1 < "./Pruebas-Codigo-Objeto/"$archivoActual
+		else
+			./pascaltds 0 1 0 < "./Pruebas-Codigo-Objeto/"$archivoActual
+		fi
 	else
-		./pascaltds 0 0 < "./Pruebas-Codigo-Objeto/"$archivoActual
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 0 1 < "./Pruebas-Codigo-Objeto/"$archivoActual
+		else
+			./pascaltds 0 0 0 < "./Pruebas-Codigo-Objeto/"$archivoActual
+		fi
 	fi
 
 	gcc assemblyCode.s -o assemblyCode
 	./assemblyCode
-	echo "Return: "$?
+	echo
+done
+
+echo
+echo "----------------------------------------------------------------------------"
+echo "--------------------- DIRECTORIO PRUEBAS-DOCUMENTACION ---------------------"
+echo "----------------------------------------------------------------------------"
+echo
+echo
+
+for archivoActual in $(ls Pruebas-doc);do
+	echo "----------------------------------------------------------------------------"
+	echo "Running "$archivoActual" ..."
+
+	if [ "$mac" == "1" ]; then
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 1 1 < "./Pruebas-doc/"$archivoActual
+		else
+			./pascaltds 0 1 0 < "./Pruebas-doc/"$archivoActual
+		fi
+	else
+		if [ "$opt" == "1" ]; then
+			./pascaltds 0 0 1 < "./Pruebas-doc/"$archivoActual
+		else
+			./pascaltds 0 0 0 < "./Pruebas-doc/"$archivoActual
+		fi
+	fi
+
+	gcc assemblyCode.s -o assemblyCode
+	./assemblyCode
 	echo
 done
 
