@@ -207,7 +207,7 @@
 
 		<font size=3 face="roman" color=000000>
 		<p align="justify"> 
-		- Se recorer&aacute; el &aacute;rbol con death first search en busca de sentencias del tipo expresiones conformadas por constantes para poder optimizar recursivamente, para ello controla que la operaci&oacute;n sea de tipo aritmeticos, logicos o relacionales. Obtenido el resultado en el caso de una optimizaci&oacute;n, sube el resultado a la cabeza actual y libera sus hijos. </p>
+		- Se recorer&aacute; el &aacute;rbol con depth first search en busca de sentencias del tipo expresiones conformadas por constantes para poder optimizar recursivamente, para ello controla que la operaci&oacute;n sea de tipo aritmeticos, logicos o relacionales. Obtenido el resultado en el caso de una optimizaci&oacute;n, sube el resultado a la cabeza actual y libera sus hijos. </p>
 
 		<p align="justify"> 
 		- Se podr&aacute; observar esta optimizaci&oacute;n en casos como las condiciones de if y while, operaciones aritm&eacute;ticas, l&oacute;gicas y relacionales (add,sub,prod,div..) </p>
@@ -217,7 +217,7 @@
 
 		<font size=3 face="roman" color=000000>
 		<p align="justify"> 
-		- Sentencias <em>return</em>: al encontrar una sentencia return en un bloque, considera c&oacute;digo muerto las sentencias que lo proceden, por lo tanto las poda. </p>
+		- Sentencias <em>return</em>: al encontrar una sentencia return en un bloque, considera c&oacute;digo muerto las sentencias que lo proceden, por lo tanto las poda. No se ignor&aacute; el resto del c&oacute;digo si el return se encuentra dentro de un bloque if o while</p>
 
 		<font size=3 face="roman" color=000000>
 		<p align="justify"> 
@@ -229,7 +229,7 @@
 
 		<font size=3 face="roman" color=000000>
 		<p align="justify"> 
-		- Actualmente en caso de las sentencias statement, en cuanto a estructura, sus hijos pueden ser nulos. Esto nos permite poder realizar podas en casos como un < if(true) then .. else > podando la rama else, < if(false) then .. else> podando la rama if, < while(false) ..> podando la rama while, qued&aacute;ndonos &uacute;nicamente con los bloques necesarios. </p>
+		- Actualmente en caso de las sentencias statement, en cuanto a estructura, sus hijos pueden ser nulos. Esto nos permite poder realizar podas en casos como un < if(true) then .. else > podando la rama else, < if(false) then .. else> podando la rama then, < while(false) ..> podando la rama while, qued&aacute;ndonos &uacute;nicamente con los bloques necesarios. </p>
 
 		<p align="justify"> 
 		<u> If-Then:</u> Intenta optimizar la condici&oacute;n. Luego, si la misma es falsa constante elimina completamente 
