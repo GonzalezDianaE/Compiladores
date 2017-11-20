@@ -55,7 +55,11 @@ if [ "$1" != "" ]; then
             #echo "-o"
             if [ "$2" != "" ]; then
                 if [ "$3" != "" ]; then
-                    ./pascaltds 0 0 < "./"$3
+                    if [ "$4" == "-op" ]; then
+                        ./pascaltds 0 0 1 < "./"$3
+                    else
+                        ./pascaltds 0 0 0 < "./"$3
+                    fi
                     gcc assemblyCode.s -o $2
                 else
                     echo "Error: Empty file parameter."
@@ -76,7 +80,11 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            ./pascaltds 4 0 < "./"$3
+                            if [ "$4" == "-op" ]; then
+                                ./pascaltds 4 0 1 < "./"$3
+                            else
+                                ./pascaltds 4 0 0 < "./"$3
+                            fi
                         else
                             echo "Error: Empty file parameter."
                             exit
@@ -88,7 +96,11 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            ./pascaltds 5 0 < "./"$3
+                            if [ "$4" == "-op" ]; then
+                                ./pascaltds 5 0 1 < "./"$3
+                            else
+                                ./pascaltds 5 0 0 < "./"$3
+                            fi
                         else
                             echo "Error: Empty file parameter."
                             exit
@@ -100,7 +112,11 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            ./pascaltds 6 0 < "./"$3
+                            if [ "$4" == "-op" ]; then
+                                ./pascaltds 6 0 1 < "./"$3
+                            else
+                                ./pascaltds 6 0 0 < "./"$3
+                            fi
                         else
                             echo "Error: Empty file parameter."
                             exit
@@ -112,7 +128,11 @@ if [ "$1" != "" ]; then
                         echo
                         # Get file name
                         if [ "$3" != "" ]; then
-                            ./pascaltds 7 0 < "./"$3
+                            if [ "$4" == "-op" ]; then
+                                ./pascaltds 7 0 1 < "./"$3
+                            else
+                                ./pascaltds 7 0 0 < "./"$3
+                            fi
                         else
                             echo "Error: Empty file parameter."
                             exit
@@ -134,7 +154,11 @@ if [ "$1" != "" ]; then
             echo "-debug"
             echo
             if [ "$2" != "" ]; then
-                ./pascaltds 1 0 < "./"$2
+                if [ "$3" == "-op" ]; then
+                    ./pascaltds 1 0 1 < "./"$2
+                else
+                    ./pascaltds 1 0 0 < "./"$2
+                fi
                 gcc assemblyCode.s -o assemblyCode
             else
                 echo "Error: Empty file parameter"
@@ -147,7 +171,11 @@ if [ "$1" != "" ]; then
             echo "-ic"
             echo
             if [ "$2" != "" ]; then
-                ./pascaltds 2 0 < "./"$2
+                if [ "$3" == "-op" ]; then
+                    ./pascaltds 2 0 1 < "./"$2
+                else
+                    ./pascaltds 2 0 0 < "./"$2
+                fi
                 gcc assemblyCode.s -o assemblyCode
             else
                 echo "Error: Empty file parameter"
@@ -160,7 +188,11 @@ if [ "$1" != "" ]; then
             echo "-ac"
             echo
             if [ "$2" != "" ]; then
-                ./pascaltds 3 0 < "./"$2
+                if [ "$3" == "-op" ]; then
+                    ./pascaltds 3 0 1 < "./"$2
+                else
+                    ./pascaltds 3 0 0 < "./"$2
+                fi
                 gcc assemblyCode.s -o assemblyCode
             else
                 echo "Error: Empty file parameter"
@@ -169,7 +201,11 @@ if [ "$1" != "" ]; then
         ;;
 
         *)
-            ./pascaltds 0 0 < "./"$1
+            if [ "$3" == "-op" ]; then
+                ./pascaltds 0 0 1 < "./"$1
+            else
+                ./pascaltds 0 0 0 < "./"$1
+            fi
             gcc assemblyCode.s -o assemblyCode
         ;;
     esac

@@ -13,6 +13,7 @@ int getFlag();
 int getOS();
 int flag;
 int os;
+int opt;
 
 %}
 %x comment
@@ -271,6 +272,10 @@ int getOS(){
     return os;
 }
 
+int getOpt(){
+    return opt;
+}
+
 int main(int argc,char *argv[]){
     switch ((argv[1])[0]){
         case '0' :
@@ -305,6 +310,15 @@ int main(int argc,char *argv[]){
             break;
         case '1':
             os = 1;
+            break;
+    }
+
+    switch ((argv[3])[0]){
+        case '0':
+            opt = 0;
+            break;
+        case '1':
+            opt = 1;
             break;
     }
 

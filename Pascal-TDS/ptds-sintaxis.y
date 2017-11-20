@@ -15,9 +15,11 @@ void yyerror(const char *s);
 int yyparse();
 int getFlag();
 int getOS();
+int getOpt();
 int returnCount = 0;
 int flag;
 int os;
+int opt;
 int functionVariables = 0;
 %}
 
@@ -88,6 +90,7 @@ int functionVariables = 0;
 program:
   { flag = getFlag();
     os = getOS();
+    opt = getOpt();
     if(flag==1){
       printf("Comiezo chequeo Léxico/Sintáctico\n");
     }
@@ -116,7 +119,9 @@ prog:   PROGRAM BEGINN var_decls SEMICOLON method_decls END              { if(fl
                                                                               printf("Comienzo chequeo Semántico\n");
                                                                             }
                                                                             checks(levels[0],flag);
-                                                                            goOver(levels[0]);
+                                                                            if(opt == 1){
+                                                                              goOver(levels[0]);
+                                                                            }
                                                                             if(flag == 1){
                                                                               printf("  Chequeo Semántico correcto\n\n");
                                                                               printf("Comienzo generación Código Intermedio\n");
@@ -144,7 +149,9 @@ prog:   PROGRAM BEGINN var_decls SEMICOLON method_decls END              { if(fl
                                                                               printf("Comienzo chequeo Semántico\n");
                                                                             }
                                                                             checks(levels[0],flag);
-                                                                            goOver(levels[0]);
+                                                                            if(opt == 1){
+                                                                              goOver(levels[0]);
+                                                                            }
                                                                             if(flag == 1){
                                                                               printf("  Chequeo Semántico correcto\n\n");
                                                                               printf("Comienzo generación Código Intermedio\n");
