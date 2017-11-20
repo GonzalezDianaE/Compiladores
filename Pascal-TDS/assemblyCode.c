@@ -555,6 +555,7 @@ void generateMod(OpThreeDir *operation){
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
 				printf("	idivq $%d\n", operation->oper2->value);
+			}
 		break;
 		case VARGLOBAL :
 			newAssemblyVarGlobal ("	idivq _", operation->oper2->name, "(%rip)");
