@@ -250,14 +250,6 @@ void generateVarGlobal (OpThreeDir *operation){
 void generatePrints (OpThreeDir *operation){
 	prints = true;
 	switch (operation->result->type){
-		case VAR :
-			newAssemblyString("	movq -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp), %rdi");
-			fputs(result,archivo);
-
-			if(flag == 3 || flag == 7){
-				printf("	movq -%d(%%rbp),%%rdi\n",(operation->result->offSet)*REG_SIZE);
-			}
-		break;
 		case CONSTANT :
 			newAssemblyString("	movq $", (operation->result->value) , 3 , ", %rdi");
 			fputs(result,archivo);
@@ -270,6 +262,14 @@ void generatePrints (OpThreeDir *operation){
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
 				printf("	movq _%s(%%rip), %%rdi  \n", operation->result->name);
+			}
+		break;
+		default :
+			newAssemblyString("	movq -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp), %rdi");
+			fputs(result,archivo);
+
+			if(flag == 3 || flag == 7){
+				printf("	movq -%d(%%rbp),%%rdi\n",(operation->result->offSet)*REG_SIZE);
 			}
 		break;
 	}
@@ -680,10 +680,10 @@ void generateOr(OpThreeDir *operation){
 			}
 		break;
 		default :
-			newAssemblyString("	andq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
+			newAssemblyString("	orq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	andq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
+				printf("	orq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
 			}
 		break;
 	}
