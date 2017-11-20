@@ -486,24 +486,27 @@ void generateDiv(OpThreeDir *operation){
 	}
 	switch (operation->oper2->type){
 		case CONSTANT :
-			newAssemblyString("	idivq $", (operation->oper2->value) , 3 , ", %rax");
+			newAssemblyString("	movq $", (operation->oper2->value) , 3 , ", %rbx");
+			fputs(result,archivo);
+			strcpy(result, "	idivq %rbx \n");
+			//newAssemblyString("	idivq $", (operation->oper2->value) , 3 , "");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	idivq $%d, %%rax  \n", operation->oper2->value);
+				printf("	idivq $%d\n", operation->oper2->value);
 			}
 		break;
 		case VARGLOBAL :
-			newAssemblyVarGlobal ("	idivq _", operation->oper2->name, "(%rip), %rax");
+			newAssemblyVarGlobal ("	idivq _", operation->oper2->name, "(%rip)");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	idivq _%s(%%rip), %%rax  \n", operation->oper2->name);
+				printf("	idivq _%s(%%rip)\n", operation->oper2->name);
 			}
 		break;
 		default :
-			newAssemblyString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
+			newAssemblyString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp)");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	idivq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
+				printf("	idivq -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
 			}
 		break;
 	}
@@ -547,24 +550,24 @@ void generateMod(OpThreeDir *operation){
 	}
 	switch (operation->oper2->type){
 		case CONSTANT :
-			newAssemblyString("	idivq $", (operation->oper2->value) , 3 , ", %rax");
+			newAssemblyString("	idivq $", (operation->oper2->value) , 3 , "");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	idivq $%d, %%rax  \n", operation->oper2->value);
+				printf("	idivq $%d  \n", operation->oper2->value);
 			}
 		break;
 		case VARGLOBAL :
-			newAssemblyVarGlobal ("	idivq _", operation->oper2->name, "(%rip), %rax");
+			newAssemblyVarGlobal ("	idivq _", operation->oper2->name, "(%rip)");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	idivq _%s(%%rip), %%rax  \n", operation->oper2->name);
+				printf("	idivq _%s(%%rip)\n", operation->oper2->name);
 			}
 		break;
 		default :
-			newAssemblyString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
+			newAssemblyString("	idivq -", ((operation->oper2->offSet)*REG_SIZE) , 3 , "(%rbp)");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	idivq -%d(%%rbp),%%rax\n",(operation->oper2->offSet)*REG_SIZE);
+				printf("	idivq -%d(%%rbp)\n",(operation->oper2->offSet)*REG_SIZE);
 			}
 		break;
 	}
@@ -1258,27 +1261,27 @@ void generateRetInt(OpThreeDir *operation){
 
 /* Genera las lineas de código assembler correspondientes a un return bool. */
 void generateRetBool(OpThreeDir *operation){
-	switch (operation->oper1->type){
+	switch (operation->result->type){
 		case CONSTANT :
-			newAssemblyString("	movq $", (operation->oper1->value) , 3 , ", %rax");
+			newAssemblyString("	movq $", (operation->result->value) , 3 , ", %rax");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	movq $%d, %%rax  \n", operation->oper1->value);
+				printf("	movq $%d, %%rax  \n", operation->result->value);
 			}
 		break;
 		case VARGLOBAL :
-			newAssemblyVarGlobal ("	movq _", operation->oper1->name, "(%rip), %rax");
+			newAssemblyVarGlobal ("	movq _", operation->result->name, "(%rip), %rax");
 			fputs(result,archivo);
 			if(flag == 3 || flag == 7){
-				printf("	movq _%s(%%rip), %%rax  \n", operation->oper1->name);
+				printf("	movq _%s(%%rip), %%rax  \n", operation->result->name);
 			}
 		break;
 		default :
-			newAssemblyString("	movq -", ((operation->oper1->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
+			newAssemblyString("	movq -", ((operation->result->offSet)*REG_SIZE) , 3 , "(%rbp), %rax");
 			fputs(result,archivo);
 
 			if(flag == 3 || flag == 7){
-				printf("	movq -%d(%%rbp),%%rax\n",(operation->oper1->offSet)*REG_SIZE);
+				printf("	movq -%d(%%rbp),%%rax\n",(operation->result->offSet)*REG_SIZE);
 			}
 		break;
 	}
