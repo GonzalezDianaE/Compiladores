@@ -125,9 +125,7 @@ prog:   PROGRAM BEGINN var_decls SEMICOLON method_decls END              { if(fl
                                                                             symbol *aux = levels[0];
                                                                             while (aux->next!=NULL){
                                                                               aux=aux->next;
-                                                                              if(aux->content->type != VAR){
-                                                                                generate(aux->content);
-                                                                              }
+                                                                              generate(aux->content);
                                                                             }
                                                                             if(flag==1){
                                                                               printf("  Código Intermedio generado correctamente\n\n");

@@ -138,6 +138,7 @@ void optimizate(node *head){
       /* Bloque: Intenta optimizar su contenido. */
       case BLOCK :
         optimizate(head->left);
+        returnFound=false;
       break;
 
       /* Print: Intenta optimizar lo que se quiere mostrar. */
