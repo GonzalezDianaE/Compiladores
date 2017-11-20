@@ -217,6 +217,18 @@
 
 		<font size=3 face="roman" color=000000>
 		<p align="justify"> 
+		- Sentencias <em>return</em>: al encontrar una sentencia return en un bloque, considera c&oacute;digo muerto las sentencias que lo proceden, por lo tanto las poda. </p>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		- No se utilizar&aacute;n temporales para la lectura de constantes como se hac&iacute;a anteriormente. </p>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
+		-<em>Variables globales:</em> se permiti&oacute; el uso de variables globales a partir del uso de una nueva constante VARGLOBAL para distinguir el tipo de valor del item en la tabla de s&iacute;mbolos.</p>
+
+		<font size=3 face="roman" color=000000>
+		<p align="justify"> 
 		- Actualmente en caso de las sentencias statement, en cuanto a estructura, sus hijos pueden ser nulos. Esto nos permite poder realizar podas en casos como un < if(true) then .. else > podando la rama else, < if(false) then .. else> podando la rama if, < while(false) ..> podando la rama while, qued&aacute;ndonos &uacute;nicamente con los bloques necesarios. </p>
 
 		<p align="justify"> 
@@ -312,7 +324,16 @@
       <img src="img-optimization/return-op.jpg" />
     </div>
 
+    <font size=4 face="palatino" color=1c0751>
+		<p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- </p>
+    <font size=4 face="palatino" color=1e3bcc>
+		<p> <em> <b> Uso de temporales. </b> </em> </p>
 
-
+  	<img src="img-optimization/prog-asig.jpg" align="center" hspace=465/>
+  	<p> </p>
+		<div class="imagenes">
+      <img src="img-optimization/asign.jpg" hspace=50/>
+      <img src="img-optimization/asig-op.jpg" />
+    </div>
 	</body>
 </html>

@@ -1,0 +1,11 @@
+program
+	begin
+	integer main()
+		begin
+			integer a, b, c;
+			a = 5;
+			b = 2;
+			c = 22;
+			return c;
+		end
+	end
