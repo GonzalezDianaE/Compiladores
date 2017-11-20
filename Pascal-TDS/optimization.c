@@ -122,7 +122,6 @@ void optimizate(node *head){
           head->right = NULL;
         }
         if (deadCode){
-          //printf("%s\n",head->left->content->name );
           deallocate (head->left);
           head->left = NULL;
         }

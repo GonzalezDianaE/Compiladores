@@ -245,7 +245,7 @@ if [ "$1" != "" ]; then
                 if [ "$2" == "-op" ]; then
                     ./pascaltds 0 0 1 < "./"$1
                 else
-                    echo "Error: Unknown flag '"$3"'."  
+                    echo "Error: Unknown flag '"$2"'."
                     exit
                 fi
             else
