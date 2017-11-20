@@ -1492,7 +1492,7 @@ void generatePushParam(OpThreeDir *operation){
 					}
 				break;
 				case VARGLOBAL :
-					newAssemblyVarGlobal ("	movq _", operation->oper1->name, "");
+					newAssemblyVarGlobal ("	pushq _", operation->oper1->name, "(%rip)");
 					fputs(result,archivo);
 					if(flag == 3 || flag == 7){
 						printf("	psuh _%s(%%rip)\n", operation->oper1->name);
