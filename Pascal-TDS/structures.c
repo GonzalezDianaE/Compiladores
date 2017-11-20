@@ -39,7 +39,7 @@
 #define OPER_LOG_UN 23
 #define OPER_EQUAL 24
 #define PRINTAUX 25
-#define REGISTER 0
+#define REGISTER 27
 #define VARGLOBAL 26
 
 
