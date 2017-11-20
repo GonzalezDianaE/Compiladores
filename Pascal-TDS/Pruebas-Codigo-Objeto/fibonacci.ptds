@@ -37,6 +37,7 @@ program
       begin
         integer w;
         w = fibonacci(20);
+        print w;
         return w;
       end
   end

@@ -3,6 +3,7 @@ program
   {decremento de una variable}
     integer main (integer y)
       begin
+      	print y - 1;
         return y - 1;
       end
   end

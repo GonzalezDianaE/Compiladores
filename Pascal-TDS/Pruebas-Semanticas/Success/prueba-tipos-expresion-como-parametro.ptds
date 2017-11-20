@@ -22,10 +22,12 @@ program
         y = mayor(x+10,z); {true}
         if (y) then
           begin
+            print x;
             return x;
           end
         else
           begin
+            print z;
             return z;
           end
       end

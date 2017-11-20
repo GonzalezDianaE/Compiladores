@@ -8,6 +8,7 @@ program
           begin
             x = x+1;
           end
+        print x;
         return x;
       end
   end

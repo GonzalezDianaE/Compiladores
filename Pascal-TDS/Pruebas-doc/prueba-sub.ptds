@@ -4,6 +4,7 @@ program
       begin
         integer x;
         x = 8-4;
+        print x;
         return x;
       end
   end

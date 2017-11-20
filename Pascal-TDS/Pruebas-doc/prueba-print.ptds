@@ -5,6 +5,7 @@ program
         integer x;
         x = 2;
         print 3+4*3-2;
+        print x;
         return x;
       end
   end

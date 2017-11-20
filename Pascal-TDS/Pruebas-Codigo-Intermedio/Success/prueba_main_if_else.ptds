@@ -10,10 +10,12 @@
         y = (w>z); {false}
         if (y) then
           begin
+            print w;
             return w;
           end
         else
           begin
+            print z;
             return z;
           end
       end

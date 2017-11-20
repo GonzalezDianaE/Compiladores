@@ -9,6 +9,7 @@
         z = x * 10; {50}
         if (w<z) then {tiene que retornar w}
           begin
+            print w;
             return w;
           end
       end
